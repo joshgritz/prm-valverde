@@ -1597,6 +1597,12 @@ async function buscarPersona() {
     const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
     const perfil = document.getElementById('perfil-votante');
     if (perfil) perfil.classList.add('opacity-50');
+
+    // Si Supabase no está listo, intentar inicializar
+    if (!supabaseClient && window.supabase) {
+        inicializarSupabase();
+    }
+
     try {
         let datos = null;
         if (supabaseClient) {
@@ -1730,8 +1736,12 @@ document.addEventListener('DOMContentLoaded', () => {
     inicializarSupabase();
     inicializarInterfaz();
     mostrarModulo('buscador');
-    actualizarStatusPadron();
     setTimeout(() => tabZona('inscripcion'), 150);
+    // Retry Supabase init after CDN loads
+    setTimeout(() => {
+        if (!supabaseClient) inicializarSupabase();
+        actualizarStatusPadron();
+    }, 2000);
 });
 </script>
 </body>
