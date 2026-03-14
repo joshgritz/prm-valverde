@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test PRM</title>
+<style>
+  body { font-family: sans-serif; padding: 20px; background: #f0f4f8; }
+  .btn { 
+    display: block; width: 100%; padding: 18px; margin: 10px 0;
+    background: #003087; color: white; font-size: 18px; font-weight: bold;
+    border: none; border-radius: 12px; cursor: pointer;
+  }
+  .btn:active { background: #001a4d; }
+  #resultado {
+    margin-top: 20px; padding: 20px; background: white;
+    border-radius: 12px; font-size: 16px; min-height: 60px;
+    border-left: 5px solid #003087;
+  }
+</style>
+</head>
+<body>
+
+<h2 style="color:#003087">🧪 Test de Botones PRM</h2>
+<p style="color:#666; margin-bottom:20px">Toca cada botón y dime cuál responde:</p>
+
+<button class="btn" onclick="probar('Buscador')">🔍 BUSCADOR</button>
+<button class="btn" onclick="probar('Planchas')" style="background:#C8102E">🗳️ PLANCHAS</button>
+<button class="btn" onclick="probar('Registradas')" style="background:#28a745">📋 REGISTRADAS</button>
+<button class="btn" onclick="probar('Reportes')" style="background:#f59e0b">📊 REPORTES</button>
+
+<div id="resultado">Toca un botón arriba...</div>
+
+<script>
+function probar(nombre) {
+  var d = new Date();
+  document.getElementById('resultado').innerHTML = 
+    '✅ <strong>' + nombre + '</strong> funcionó!<br>' +
+    'Hora: ' + d.getHours() + ':' + d.getMinutes() + ':' + d.getSeconds();
+  document.getElementById('resultado').style.borderColor = '#28a745';
+}
+</script>
+</body>
+</html>
