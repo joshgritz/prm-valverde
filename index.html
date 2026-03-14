@@ -86,6 +86,10 @@
             class="nav-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide transition-all bg-yellow-500/80 hover:bg-yellow-400 text-white">
             <i class="fa-solid fa-people-group"></i> Dirigentes
         </a>
+        <a href="login.html"
+            class="nav-btn flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wide transition-all bg-white/10 hover:bg-white/20 text-white">
+            <i class="fa-solid fa-right-from-bracket"></i> Salir
+        </a>
     </div>
 </nav>
 
@@ -1237,11 +1241,12 @@ async function validarCargo(cargoId) {
         estado.planchaActiva.miembros[cargoId] = {
             cedula:       cedulaLimpiada,
             cedula_limpia: cedulaLimpiada,
-            nombre:       `${persona.nombre} ${persona.apellido}`,
+            nombre:       persona.nombre_completo || `${persona.nombre} ${persona.apellido}`,
             sexo:         persona.sexo,
             edad:         edad,
-            militancia:   persona.anios_militancia || '3+',
-            foto:         persona.foto_url || null,
+            militancia:   null,
+            foto:         persona.foto || persona.foto_url || null,
+            foto_b64:     persona.foto || null,
             validado:     true,
         };
 
@@ -1298,9 +1303,21 @@ function actualizarUICargo(cargoId, miembro) {
         const img  = resultado.querySelector('img');
         const p1   = resultado.querySelectorAll('p')[0];
         const p2   = resultado.querySelectorAll('p')[1];
-        if (img) img.src = miembro.foto || `https://ui-avatars.com/api/?name=${encodeURIComponent(miembro.nombre)}&background=003da5&color=fff&size=64`;
-        if (p1)  p1.textContent = miembro.nombre;
-        if (p2)  p2.textContent = `${miembro.sexo === 'F' ? '♀ Mujer' : '♂ Hombre'} · ${miembro.edad} años · ${miembro.militancia} años PRM`;
+        if (img) {
+            if (miembro.foto_b64) {
+                img.src = `data:image/jpeg;base64,${miembro.foto_b64}`;
+            } else if (miembro.foto) {
+                img.src = miembro.foto;
+            } else {
+                img.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(miembro.nombre)}&background=003da5&color=fff&size=64`;
+            }
+        }
+        if (p1) p1.textContent = miembro.nombre;
+        if (p2) {
+            const sexoStr = miembro.sexo === 'F' ? '♀ Mujer' : miembro.sexo === 'M' ? '♂ Hombre' : '👤';
+            const edadStr = miembro.edad ? `${miembro.edad} años` : '';
+            p2.textContent = [sexoStr, edadStr].filter(Boolean).join(' · ');
+        }
     }
 
     if (item) {

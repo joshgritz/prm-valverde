@@ -393,7 +393,12 @@ body::before {
 
 <div class="footer">
   Sistema Electoral PRM · Provincia Valverde · 2025<br>
-  Basado en Estatutos PRM Enero 2022
+  Basado en Estatutos PRM Enero 2022<br><br>
+  <a href="index.html" style="color:rgba(255,255,255,0.5); text-decoration:none; margin:0 8px">Sistema Principal</a>
+  · 
+  <a href="dirigentes.html" style="color:rgba(255,255,255,0.5); text-decoration:none; margin:0 8px">Portal Dirigentes</a>
+  ·
+  <a href="home.html" style="color:rgba(255,255,255,0.5); text-decoration:none; margin:0 8px">Inicio</a>
 </div>
 
 <div id="toast" class="alerta-toast"></div>
@@ -869,6 +874,34 @@ function toast(msg, tipo) {
   el.className = 'alerta-toast alerta-' + tipo;
   el.style.display = 'block';
   toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+// Al cargar: verificar si hay sesión activa
+window.addEventListener('DOMContentLoaded', function() {
+  const sesion = localStorage.getItem('prm_sesion');
+  if (sesion) {
+    try {
+      const s = JSON.parse(sesion);
+      if (s.expires > Date.now()) {
+        // Sesión activa - mostrar opción de continuar
+        const cont = document.createElement('div');
+        cont.style.cssText = 'position:fixed;top:16px;right:16px;z-index:100;background:white;border-radius:12px;padding:12px 16px;box-shadow:0 4px 20px rgba(0,0,0,0.3);font-size:13px;max-width:200px';
+        cont.innerHTML = '<div style="font-weight:800;color:#003087;margin-bottom:6px">Sesión activa</div>' +
+          '<div style="color:#64748b;font-size:11px;margin-bottom:8px">' + (s.nombre||'').split(',')[0] + '</div>' +
+          '<a href="' + (getDestinoRol(s.rol)||'dirigentes.html') + '" style="display:block;background:#003087;color:white;padding:6px 12px;border-radius:8px;text-decoration:none;font-size:11px;font-weight:700;text-align:center">Continuar →</a>' +
+          '<button onclick="this.parentElement.remove();localStorage.removeItem(\'prm_sesion\')" style="display:block;width:100%;background:none;border:none;color:#94a3b8;font-size:10px;margin-top:6px;cursor:pointer">Cerrar sesión</button>';
+        document.body.appendChild(cont);
+      }
+    } catch(e) {}
+  }
+});
+
+function getDestinoRol(rol) {
+  if (!rol) return 'dirigentes.html';
+  if (rol === 'SUPER_ADMIN') return 'panel_admin.html';
+  if (['PRESIDENTE_ZONAL','SECRETARIO_GENERAL','VICEPRESIDENTE'].includes(rol)) return 'panel_zona.html';
+  if (rol === 'SEC_TRANSFORMACION_DIGITAL') return 'panel_digital.html';
+  return 'dirigentes.html';
 }
 
 // Exponer globalmente

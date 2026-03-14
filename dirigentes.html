@@ -184,6 +184,14 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 ════════════════════════════════════════ -->
 <div id="p-login" class="pantalla activa">
   <div class="header">
+    <div style="display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; margin-bottom:10px">
+      <a href="login.html" style="color:rgba(255,255,255,0.7); font-size:13px; font-weight:700; text-decoration:none; display:flex; align-items:center; gap:6px">
+        ← Portal
+      </a>
+      <a href="index.html" style="color:rgba(255,255,255,0.7); font-size:13px; font-weight:700; text-decoration:none">
+        Sistema →
+      </a>
+    </div>
     <div class="logo">P</div>
     <h1>Portal de Dirigentes</h1>
     <p>Partido Revolucionario Moderno · Valverde</p>
@@ -870,7 +878,7 @@ function irPaso3() {
   document.getElementById('rpin0').focus();
 }
 
-function completarRegistro() {
+async function completarRegistro() {
   const pin1 = ['rpin0','rpin1','rpin2','rpin3'].map(id => document.getElementById(id).value).join('');
   const pin2 = ['rpin4','rpin5','rpin6','rpin7'].map(id => document.getElementById(id).value).join('');
 
@@ -1301,7 +1309,7 @@ function renderPerfil() {
   `;
 }
 
-function cambiarPin() {
+async function cambiarPin() {
   const pinActual = ['cpin0','cpin1','cpin2','cpin3'].map(id => document.getElementById(id).value).join('');
   const pinNuevo  = ['npin0','npin1','npin2','npin3'].map(id => document.getElementById(id).value).join('');
 
