@@ -10,7 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,900;1,900&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;500;600;700;900&display=swap');
         body     { font-family: 'Inter', sans-serif; }
@@ -1203,9 +1203,13 @@ async function validarCargo(cargoId) {
             }
         }
 
-        // Simulación si no hay DB
+        // Si no encontró en Supabase, mostrar error claro
         if (!persona) {
-            persona = generarPersonaSimulada(cedula, cargoId);
+            mostrarErrorCargo(cargoId, supabaseClient 
+                ? 'Cédula no encontrada en el padrón electoral de Valverde'
+                : 'Conectando con la base de datos... Intenta de nuevo en 3 segundos');
+            input.classList.remove('opacity-50');
+            return;
         }
 
         // Validar militancia mínima (Art. 151: 3 años en niveles locales)
@@ -1613,9 +1617,15 @@ async function buscarPersona() {
     const perfil = document.getElementById('perfil-votante');
     if (perfil) perfil.classList.add('opacity-50');
 
-    // Si Supabase no está listo, intentar inicializar
+    // Si Supabase no está listo, intentar inicializar y esperar
     if (!supabaseClient && window.supabase) {
         inicializarSupabase();
+        await new Promise(r => setTimeout(r, 500));
+    }
+    if (!supabaseClient) {
+        mostrarAlerta('Conectando con la base de datos... Intenta de nuevo.', 'advertencia');
+        if (perfil) perfil.classList.remove('opacity-50');
+        return;
     }
 
     try {
@@ -1748,15 +1758,22 @@ async function actualizarStatusPadron() {
 
 // ── ARRANQUE ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-    inicializarSupabase();
     inicializarInterfaz();
     mostrarModulo('buscador');
     setTimeout(() => tabZona('inscripcion'), 150);
-    // Retry Supabase init after CDN loads
-    setTimeout(() => {
-        if (!supabaseClient) inicializarSupabase();
-        actualizarStatusPadron();
-    }, 2000);
+    
+    // Intentar conectar Supabase cada 500ms hasta lograrlo
+    let intentos = 0;
+    const conectarSB = setInterval(() => {
+        intentos++;
+        if (window.supabase && !supabaseClient) {
+            inicializarSupabase();
+        }
+        if (supabaseClient || intentos > 20) {
+            clearInterval(conectarSB);
+            actualizarStatusPadron();
+        }
+    }, 500);
 });
 </script>
 </body>
