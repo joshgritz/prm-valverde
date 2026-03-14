@@ -737,6 +737,13 @@ function initSB() {
   return sbClient;
 }
 
+function detectarAnioPadron(recinto) {
+  // El nombre del recinto contiene el año: "2020 Rec: 00014 - LICEO..."
+  const match = recinto.match(/^(20\d{2})/);
+  if (match) return parseInt(match[1]);
+  return 2020; // default
+}
+
 async function subirASupabase() {
   if (allMilitantes.length === 0) {
     alert('Primero carga un PDF del padrón'); return;
@@ -767,7 +774,8 @@ async function subirASupabase() {
       colegio_num:          m.colegio || null,
       recinto_nombre:       m.recinto || null,
       foto_base64:          m.foto_b64 || null,
-      municipio:            'MAO'
+      municipio:            'MAO',
+      anio_padron:          detectarAnioPadron(m.recinto || '')
     }));
 
     const { error } = await sb
