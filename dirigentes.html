@@ -1137,6 +1137,106 @@ async function agregarMiembro() {
   alerta('Miembro añadido al comité ✅', 'ok');
 }
 
+// ══════════════════════════════════════════════════════
+// EDITAR MIEMBRO DEL COMITÉ
+// ══════════════════════════════════════════════════════
+function editarMiembro(cedula) {
+  const m = (sesion.comite || []).find(x => x.cedula === cedula);
+  if (!m) return;
+
+  // Crear modal de edición
+  const modal = document.createElement('div');
+  modal.id = 'modal-editar';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.innerHTML = `
+    <div style="background:white;border-radius:20px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+      <div style="background:linear-gradient(135deg,#003087,#1a4fa8);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:15px;font-weight:800">✏️ Editar Miembro</div>
+          <div style="font-size:11px;opacity:0.7;margin-top:2px">${m.nombre}</div>
+        </div>
+        <button onclick="document.getElementById('modal-editar').remove()"
+          style="background:rgba(255,255,255,0.2);border:none;color:white;font-size:20px;cursor:pointer;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center">✕</button>
+      </div>
+      <div style="padding:20px;display:grid;gap:12px">
+        <div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Teléfono</div>
+          <input id="me-telefono" type="tel" value="${m.telefono || ''}" placeholder="809-000-0000"
+            style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:inherit;outline:none">
+        </div>
+        <div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Dirección</div>
+          <input id="me-direccion" type="text" value="${m.direccion || ''}" placeholder="Calle, número, sector..."
+            style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:inherit;outline:none">
+        </div>
+        <div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Nota estratégica</div>
+          <textarea id="me-nota" placeholder="Ej: Transportista, moviliza familia, disponible..." rows="2"
+            style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;resize:none">${m.nota || ''}</textarea>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
+          <div>
+            <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Fidelidad</div>
+            <select id="me-fidelidad" style="width:100%;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:white">
+              <option value="">Sin clasificar</option>
+              <option value="DURO" ${m.fidelidad==='DURO'?'selected':''}>💪 Voto Duro</option>
+              <option value="BLANDO" ${m.fidelidad==='BLANDO'?'selected':''}>🤔 Voto Blando</option>
+              <option value="INDECISO" ${m.fidelidad==='INDECISO'?'selected':''}>❓ Indeciso</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Transporte</div>
+            <select id="me-transporte" style="width:100%;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:white">
+              <option value="">No especificado</option>
+              <option value="SI" ${m.transporte==='SI'?'selected':''}>🚗 Tiene vehículo</option>
+              <option value="NO" ${m.transporte==='NO'?'selected':''}>🚶 No tiene</option>
+              <option value="MOTO" ${m.transporte==='MOTO'?'selected':''}>🏍️ Motocicleta</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="guardarEdicionMiembro('${cedula}')"
+          style="padding:14px;background:#003087;color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;touch-action:manipulation;margin-top:4px">
+          💾 Guardar cambios
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+async function guardarEdicionMiembro(cedula) {
+  const telefono   = document.getElementById('me-telefono')?.value?.trim();
+  const direccion  = document.getElementById('me-direccion')?.value?.trim();
+  const nota       = document.getElementById('me-nota')?.value?.trim();
+  const fidelidad  = document.getElementById('me-fidelidad')?.value;
+  const transporte = document.getElementById('me-transporte')?.value;
+
+  // Update in Supabase
+  if (sb) {
+    const { error } = await sb.from('comite_miembros')
+      .update({ 
+        telefono, 
+        direccion, 
+        nota_estrategica: nota,
+        fidelidad,
+        transporte
+      })
+      .eq('dirigente_cedula', sesion.cedula)
+      .eq('cedula_miembro', cedula);
+    if (error) { alerta('Error al guardar: ' + error.message, 'error'); return; }
+  }
+
+  // Update local session
+  const idx = (sesion.comite || []).findIndex(m => m.cedula === cedula);
+  if (idx > -1) {
+    sesion.comite[idx] = { ...sesion.comite[idx], telefono, direccion, nota, fidelidad, transporte };
+  }
+
+  document.getElementById('modal-editar')?.remove();
+  alerta('✅ Datos del miembro actualizados', 'ok');
+  renderComite();
+}
+
 async function eliminarMiembro(cedula) {
   if (!confirm('¿Eliminar este miembro del comité?')) return;
   if (sb) {
@@ -1370,28 +1470,41 @@ async function actualizarPerfil() {
 
 function renderPerfil() {
   if (!sesion) return;
+  const desde = sesion.fecha_registro
+    ? new Date(sesion.fecha_registro).toLocaleDateString('es-DO', {day:'2-digit',month:'long',year:'numeric'})
+    : '—';
   document.getElementById('perfil-datos').innerHTML = `
-    <div style="display:grid; gap:10px">
-      <div style="padding:10px; background:#f8fafc; border-radius:10px">
-        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Nombre</div>
-        <div style="font-size:14px; font-weight:800; margin-top:3px">${sesion.nombre}</div>
+    <div style="display:grid; gap:12px">
+      <div style="padding:12px; background:#f8fafc; border-radius:10px">
+        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Nombre completo</div>
+        <div style="font-size:15px; font-weight:800; margin-top:4px">${sesion.nombre}</div>
       </div>
-      <div style="padding:10px; background:#f8fafc; border-radius:10px">
+      <div style="padding:12px; background:#f8fafc; border-radius:10px">
         <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Cédula</div>
-        <div style="font-size:14px; font-family:monospace; font-weight:700; margin-top:3px">${sesion.cedula}</div>
+        <div style="font-size:14px; font-family:monospace; font-weight:700; margin-top:4px">${sesion.cedula}</div>
       </div>
-      <div style="padding:10px; background:#f8fafc; border-radius:10px">
+      <div style="padding:12px; background:#f8fafc; border-radius:10px">
         <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Zona · Municipio</div>
-        <div style="font-size:14px; font-weight:800; margin-top:3px">${sesion.zona} — ${sesion.municipio}</div>
+        <div style="font-size:14px; font-weight:800; margin-top:4px">${sesion.zona} — ${sesion.municipio}</div>
       </div>
-      <div style="padding:10px; background:#f8fafc; border-radius:10px">
-        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Teléfono</div>
-        <div style="font-size:14px; font-weight:800; margin-top:3px">${sesion.telefono || '—'}</div>
+      <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
+        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:8px">✏️ Teléfono</div>
+        <input id="edit-telefono" type="tel" value="${sesion.telefono || ''}" placeholder="809-000-0000"
+          style="width:100%;padding:10px 14px;border:2px solid #dbeafe;border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:white">
       </div>
-      <div style="padding:10px; background:#f8fafc; border-radius:10px">
-        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Miembro desde</div>
-        <div style="font-size:13px; font-weight:700; margin-top:3px">${new Date(sesion.fecha_registro).toLocaleDateString('es-DO', {day:'2-digit',month:'long',year:'numeric'})}</div>
+      <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
+        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:8px">✏️ Sector / Barrio</div>
+        <input id="edit-sector" type="text" value="${sesion.sector || ''}" placeholder="Ej: Los Multis, El Centro..."
+          style="width:100%;padding:10px 14px;border:2px solid #dbeafe;border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:white">
       </div>
+      <div style="padding:12px; background:#f8fafc; border-radius:10px">
+        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Dirigente desde</div>
+        <div style="font-size:13px; font-weight:700; margin-top:4px">${desde}</div>
+      </div>
+      <button onclick="actualizarPerfil()"
+        style="padding:14px;background:#003087;color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;touch-action:manipulation;width:100%">
+        💾 Guardar cambios
+      </button>
     </div>
   `;
 }
@@ -1510,6 +1623,8 @@ window.addEventListener('DOMContentLoaded', async function() {
   window.irA                  = irA;
   window.renderEstrategia     = renderEstrategia;
   window.actualizarPerfil     = actualizarPerfil;
+  window.editarMiembro        = editarMiembro;
+  window.guardarEdicionMiembro = guardarEdicionMiembro;
   window.irARegistro          = irARegistro;
   window.buscarDirigente      = buscarDirigente;
   window.entrarConPin         = entrarConPin;
