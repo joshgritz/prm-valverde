@@ -957,34 +957,69 @@ async function buscarMiembro() {
   const cedLimpia = cedula.replace(/\D/g,'');
   if (cedLimpia.length < 11) { alerta('Ingresa la cédula completa', 'error'); return; }
 
-  const yaEsta = (sesion.comite || []).some(m => m.cedula.replace(/\D/g,'') === cedLimpia);
-  if (yaEsta) { alerta('Esta persona ya está en tu comité', 'error'); return; }
+  const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
 
+  // No puede añadirse a sí mismo
   if (cedLimpia === sesion.cedula.replace(/\D/g,'')) {
     alerta('No puedes añadirte a ti mismo', 'error'); return;
   }
 
-  alerta('Verificando en el padrón...', 'info');
+  // Ya está en este comité
+  const yaEsta = (sesion.comite || []).some(m => m.cedula.replace(/\D/g,'') === cedLimpia);
+  if (yaEsta) { alerta('Esta persona ya está en tu comité', 'error'); return; }
+
+  alerta('Verificando...', 'info');
 
   document.getElementById('comite-found-box').style.display = 'none';
   document.getElementById('comite-notfound-box').style.display = 'none';
   document.getElementById('btn-agregar-miembro').style.display = 'none';
 
+  // PASO 1: Verificar disponibilidad en Supabase (¿está en otro comité?)
+  let disponible = true;
+  let mensajeDisp = '';
+  let esDirigente = false;
+
+  if (sb) {
+    const { data: dispData } = await sb.rpc('verificar_disponibilidad_comite', {
+      p_cedula:            cedFmt,
+      p_dirigente_cedula:  sesion.cedula
+    });
+
+    if (dispData) {
+      disponible   = dispData.disponible;
+      mensajeDisp  = dispData.mensaje;
+      esDirigente  = dispData.razon === 'ES_DIRIGENTE';
+
+      if (!disponible) {
+        // Bloqueado — está en otro comité
+        document.getElementById('comite-notfound-box').style.display = 'block';
+        document.getElementById('comite-notfound-box').innerHTML = `
+          <div style="background:#fef2f2; border:2px solid #fecaca; border-radius:12px; padding:12px 14px">
+            <div style="font-weight:800; color:#991b1b; font-size:13px">🚫 No disponible</div>
+            <div style="font-size:12px; color:#dc2626; margin-top:4px">${mensajeDisp}</div>
+          </div>`;
+        return;
+      }
+    }
+  }
+
+  // PASO 2: Buscar en el padrón
   const result = await buscarEnPadron(cedula);
-  const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
 
   if (result && result.enPadron) {
-    // Encontrado en el padrón oficial PRM
     miembroTemporal = { cedula: result.cedula, nombre: result.nombre };
+    let infoExtra = '✅ En padrón PRM';
+    if (esDirigente) infoExtra += ' · ' + mensajeDisp;
+
     document.getElementById('comite-found-nombre').textContent = result.nombre;
-    document.getElementById('comite-found-cedula').textContent = result.cedula + ' ✅ En padrón PRM';
+    document.getElementById('comite-found-cedula').textContent = result.cedula + ' — ' + infoExtra;
     document.getElementById('comite-found-box').style.display = 'block';
     document.getElementById('btn-agregar-miembro').style.display = 'flex';
   } else {
-    // No encontrado en padrón — mostrar advertencia pero permitir añadir
+    // No en padrón pero disponible — permitir con advertencia
     miembroTemporal = { cedula: cedFmt, nombre: 'Militante · ' + cedFmt };
     document.getElementById('comite-found-nombre').textContent = 'Militante · ' + cedFmt;
-    document.getElementById('comite-found-cedula').textContent = '⚠️ No encontrado en el padrón cargado';
+    document.getElementById('comite-found-cedula').textContent = '⚠️ No encontrado en el padrón — verifica la cédula';
     document.getElementById('comite-found-box').style.display = 'block';
     document.getElementById('btn-agregar-miembro').style.display = 'flex';
   }

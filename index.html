@@ -6,24 +6,16 @@
     <title>Sistema Electoral PRM — Valverde</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Supabase SDK — carga async para no bloquear la UI -->
-    <script async src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" onload="intentarConectarSupabase()"></script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,900;1,900&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;500;600;700;900&display=swap');
         body     { font-family: 'Inter', sans-serif; }
         .font-display { font-family: 'Barlow Condensed', sans-serif; }
         .font-mono    { font-family: 'IBM Plex Mono', monospace; }
-        
-        /* Módulos de navegación - garantizar toggle correcto */
         .modulo-vista { display: block; }
         .modulo-vista.hidden { display: none !important; }
-        
-        /* Forzar que botones sean clickeables en móvil */
-        button, [onclick] { 
-            cursor: pointer; 
-            -webkit-tap-highlight-color: rgba(0,0,0,0.1);
-            touch-action: manipulation;
-        }
+        button, [onclick] { cursor: pointer; -webkit-tap-highlight-color: rgba(0,0,0,0.1); touch-action: manipulation; }
         .tab-content  { display: none; }
         .tab-content.active { display: block; }
         /* Scroll suave */
@@ -108,25 +100,19 @@
         </div>
     </div>
 
-    <!-- Cargador de Padrón -->
+    <!-- Estado Supabase -->
     <div class="max-w-4xl mx-auto mb-5 flex items-center gap-3 bg-white rounded-2xl px-5 py-3 shadow-sm border border-slate-200">
         <div class="flex-1">
             <div class="flex items-center gap-2">
-                <span class="text-sm font-black text-slate-700">📋 Padrón Electoral</span>
-                <span id="padron-badge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-100 text-orange-600">
-                    <span class="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block"></span> SIN PADRÓN
+                <span class="text-sm font-black text-slate-700">☁️ Base de Datos</span>
+                <span id="padron-badge" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-green-100 text-green-700">
+                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block"></span> SUPABASE ACTIVO
                 </span>
             </div>
             <p id="padron-status" class="text-[11px] text-slate-400 mt-0.5">
-                Carga los archivos JSON para activar búsqueda con fotos
-                <span id="padron-count" class="font-bold text-slate-600 ml-1">0</span> militantes
+                Padrón electoral en la nube · <span id="padron-count" class="font-bold text-slate-600"></span>
             </p>
         </div>
-        <input type="file" id="padron-file-input" accept=".json" multiple style="display:none" onchange="cargarPadronJSON(event)">
-        <button onclick="abrirCargadorPadron()"
-            class="flex items-center gap-2 bg-[#003da5] text-white text-xs font-black px-4 py-2.5 rounded-xl hover:bg-blue-800 transition-all whitespace-nowrap">
-            <i class="fa-solid fa-upload"></i> Cargar Padrón JSON
-        </button>
     </div>
 
     <!-- Buscador principal -->
@@ -847,18 +833,15 @@ const cargosZonales = [
 
 
 function inicializarSupabase() {
-    // Supabase se conecta async - no bloqueamos la UI
-    console.log('🔄 Esperando Supabase...');
-}
-
-function intentarConectarSupabase() {
     try {
         if (window.supabase) {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             console.log('✅ Supabase conectado');
+        } else {
+            console.warn('⚠️ Supabase no cargado aún. Revisá el CDN en index.html.');
         }
     } catch(e) {
-        console.warn('⚠️ Supabase no disponible — modo offline');
+        console.error('❌ Error al conectar Supabase:', e);
     }
 }
 
@@ -905,7 +888,6 @@ const appElectoral = {
 // Necesario para botones generados dinámicamente
 // con onclick="..." en HTML y GitHub Pages
 // ─────────────────────────────────────────────
-window.intentarConectarSupabase = intentarConectarSupabase;
 window.mostrarModulo          = mostrarModulo;
 window.tabZona                = tabZona;
 window.formatearCedula        = formatearCedula;
@@ -1856,7 +1838,144 @@ window.onload = () => {
 };
 
 
-// ─── ARRANQUE ÚNICO ───────────────────────────
+// ── BÚSQUEDA SUPABASE ─────────────────────────────────
+async function buscarPersona() {
+    const inputEl = document.getElementById('input-cedula');
+    const cedula  = inputEl?.value?.trim() || '';
+    const cedLimpia = cedula.replace(/\D/g,'');
+    if (cedLimpia.length < 11) { mostrarAlerta('Ingresa una cédula válida de 11 dígitos.', 'error'); return; }
+    const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
+    const perfil = document.getElementById('perfil-votante');
+    if (perfil) perfil.classList.add('opacity-50');
+    try {
+        let datos = null;
+        if (supabase) {
+            const { data } = await supabase.from('padron_maestro').select('*').eq('cedula', cedFmt).maybeSingle();
+            if (data) {
+                const nc = data.nombre_completo || '';
+                const coma = nc.indexOf(',');
+                datos = {
+                    cedula: data.cedula,
+                    nombre: coma > -1 ? nc.slice(coma+1).trim() : nc.split(' ').slice(2).join(' '),
+                    apellido: coma > -1 ? nc.slice(0,coma).trim() : nc.split(' ').slice(0,2).join(' '),
+                    nombre_completo: nc,
+                    telefono: data.telefono || '',
+                    direccion: data.direccion || '',
+                    foto_b64: data.foto_base64 || null,
+                    foto_url: null,
+                    voto: data.voto_primaria || '',
+                    exterior: data.empadronado_exterior || false,
+                    concurrencia: [data.concurrencia_2016?'2016':null, data.concurrencia_2010?'2010':null].filter(Boolean),
+                    colegio_electoral: data.colegio_num || '',
+                    recinto: (data.recinto_nombre||'').replace(/^\d{4}\s+Rec:\s+\d+\s+-\s+/,''),
+                    zonas: { nombre: '—' },
+                    sectores: { nombre: data.direccion || '—' },
+                    fidelidad: data.concurrencia_2016 ? 'DURO' : 'BLANDO',
+                    estatus_militante: 'ACTIVO',
+                };
+            }
+        }
+        if (datos) { renderPerfilVotante(datos); }
+        else {
+            if (perfil) perfil.classList.add('hidden');
+            mostrarAlerta('Cédula no encontrada en el padrón.', 'advertencia');
+        }
+    } catch(e) { mostrarAlerta('Error al buscar. Intenta de nuevo.', 'error'); }
+    finally { if (perfil) perfil.classList.remove('opacity-50'); }
+}
+
+// ── GUARDAR PLANCHA EN SUPABASE ───────────────────────
+async function guardarPlancha() {
+    if (estado.guardandoPlancha) return;
+    const miembros = Object.values(estado.planchaActiva.miembros).filter(m => m.validado);
+    if (miembros.length === 0) { mostrarAlerta('Debes registrar al menos un miembro.', 'error'); return; }
+    estado.guardandoPlancha = true;
+    const btn = document.getElementById('btn-guardar-plancha');
+    if (btn) { btn.disabled = true; btn.textContent = 'Guardando...'; }
+    const total = miembros.length;
+    const mujeres = miembros.filter(m => m.sexo === 'F').length;
+    const jovenes = miembros.filter(m => m.edad && m.edad <= 35).length;
+    const pctM = total > 0 ? (mujeres/total*100) : 0;
+    const pctJ = total > 0 ? (jovenes/total*100) : 0;
+    const data = {
+        nombre_plancha: estado.planchaActiva.nombre_plancha || 'Plancha ' + estado.usuario.zona_nombre,
+        zona_nombre: estado.usuario.zona_nombre,
+        municipio: estado.usuario.municipio_nombre || 'MAO',
+        estatus: 'BORRADOR',
+        total_miembros: total, total_mujeres: mujeres, total_hombres: total-mujeres, total_jovenes: jovenes,
+        pct_mujeres: pctM.toFixed(2), pct_hombres: (100-pctM).toFixed(2), pct_jovenes: pctJ.toFixed(2),
+        cuota_genero_ok: pctM >= 40 && pctM <= 60, cuota_juventud_ok: pctJ >= 10,
+        miembros: estado.planchaActiva.miembros, actualizado_en: new Date().toISOString()
+    };
+    try {
+        if (supabase) {
+            let res;
+            if (estado.planchaActiva.id) {
+                res = await supabase.from('planchas').update(data).eq('id', estado.planchaActiva.id).select().single();
+            } else {
+                res = await supabase.from('planchas').insert(data).select().single();
+            }
+            if (res.error) throw res.error;
+            estado.planchaActiva.id = res.data.id;
+            mostrarAlerta('✅ Plancha guardada', 'exito');
+        } else {
+            const id = estado.planchaActiva.id || 'PL-'+Date.now();
+            const saved = JSON.parse(localStorage.getItem('prm_planchas')||'[]');
+            const idx = saved.findIndex(p => p.id === id);
+            const entry = {...data, id};
+            if (idx > -1) saved[idx] = entry; else saved.push(entry);
+            localStorage.setItem('prm_planchas', JSON.stringify(saved));
+            estado.planchaActiva.id = id;
+            mostrarAlerta('Plancha guardada localmente', 'info');
+        }
+        await cargarListaPlanchas();
+    } catch(e) {
+        mostrarAlerta('Error al guardar: ' + e.message, 'error');
+    } finally {
+        estado.guardandoPlancha = false;
+        if (btn) { btn.disabled = false; btn.textContent = 'Guardar Plancha'; }
+    }
+}
+
+// ── CARGAR PLANCHAS DESDE SUPABASE ───────────────────
+async function cargarListaPlanchas() {
+    try {
+        if (supabase) {
+            const { data } = await supabase.from('planchas').select('*').order('actualizado_en', {ascending:false});
+            if (data) { estado.planchas = data; return; }
+        }
+        estado.planchas = JSON.parse(localStorage.getItem('prm_planchas')||'[]');
+    } catch(e) {
+        estado.planchas = JSON.parse(localStorage.getItem('prm_planchas')||'[]');
+    }
+}
+
+// ── ELIMINAR PLANCHA ──────────────────────────────────
+async function eliminarPlancha(id) {
+    if (!confirm('¿Eliminar esta plancha?')) return;
+    if (supabase) { await supabase.from('planchas').delete().eq('id', id); }
+    else {
+        const p = JSON.parse(localStorage.getItem('prm_planchas')||'[]').filter(x => x.id !== id);
+        localStorage.setItem('prm_planchas', JSON.stringify(p));
+    }
+    mostrarAlerta('Plancha eliminada', 'info');
+    await cargarListaPlanchas();
+    renderTablaPlanchas();
+}
+
+// ── STATUS SUPABASE ───────────────────────────────────
+async function actualizarStatusPadron() {
+    const badge = document.getElementById('padron-badge');
+    const count = document.getElementById('padron-count');
+    if (!supabase) return;
+    const { count: total } = await supabase.from('padron_maestro').select('*', {count:'exact',head:true});
+    if (count && total) count.textContent = total.toLocaleString() + ' militantes';
+    if (document.getElementById('total-inscritos') && total) {
+        document.getElementById('total-inscritos').textContent = total.toLocaleString();
+    }
+}
+
+// ── ARRANQUE ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     inicializarSupabase();
     inicializarInterfaz();
