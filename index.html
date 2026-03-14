@@ -722,13 +722,13 @@
 // ─────────────────────────────────────────────
 // CONFIGURACIÓN SUPABASE
 // Reemplaza estos valores con los tuyos de:
-// supabase.com → Tu proyecto → Settings → API
+// supabaseClient.com → Tu proyecto → Settings → API
 // ─────────────────────────────────────────────
-const SUPABASE_URL  = 'https://ilivjaiexfqpioqrozlf.supabase.co';
+const SUPABASE_URL  = 'https://ilivjaiexfqpioqrozlf.supabaseClient.co';
 const SUPABASE_KEY  = 'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW';
 
 // Cliente Supabase (se carga desde CDN en index.html)
-let supabase = null;
+let supabaseClient = null;
 
 // ─────────────────────────────────────────────
 // ESTADO GLOBAL DE LA APLICACIÓN
@@ -838,7 +838,7 @@ const cargosZonales = [
 function inicializarSupabase() {
     try {
         if (window.supabase) {
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             console.log('✅ Supabase conectado');
         } else {
             console.warn('⚠️ Supabase no cargado aún. Revisá el CDN en index.html.');
@@ -1179,7 +1179,7 @@ async function validarCargo(cargoId) {
     try {
         let persona = null;
 
-        if (supabase) {
+        if (supabaseClient) {
             const { data } = await supabase
                 .from('padron_maestro')
                 .select('cedula, nombre, apellido, sexo, fecha_nacimiento, anios_militancia, estatus_militante, foto_url')
@@ -1599,8 +1599,8 @@ async function buscarPersona() {
     if (perfil) perfil.classList.add('opacity-50');
     try {
         let datos = null;
-        if (supabase) {
-            const { data } = await supabase.from('padron_maestro').select('*').eq('cedula', cedFmt).maybeSingle();
+        if (supabaseClient) {
+            const { data } = await supabaseClient.from('padron_maestro').select('*').eq('cedula', cedFmt).maybeSingle();
             if (data) {
                 const nc = data.nombre_completo || '';
                 const coma = nc.indexOf(',');
@@ -1658,12 +1658,12 @@ async function guardarPlancha() {
         miembros: estado.planchaActiva.miembros, actualizado_en: new Date().toISOString()
     };
     try {
-        if (supabase) {
+        if (supabaseClient) {
             let res;
             if (estado.planchaActiva.id) {
-                res = await supabase.from('planchas').update(data).eq('id', estado.planchaActiva.id).select().single();
+                res = await supabaseClient.from('planchas').update(data).eq('id', estado.planchaActiva.id).select().single();
             } else {
-                res = await supabase.from('planchas').insert(data).select().single();
+                res = await supabaseClient.from('planchas').insert(data).select().single();
             }
             if (res.error) throw res.error;
             estado.planchaActiva.id = res.data.id;
@@ -1690,8 +1690,8 @@ async function guardarPlancha() {
 // ── CARGAR PLANCHAS DESDE SUPABASE ───────────────────
 async function cargarListaPlanchas() {
     try {
-        if (supabase) {
-            const { data } = await supabase.from('planchas').select('*').order('actualizado_en', {ascending:false});
+        if (supabaseClient) {
+            const { data } = await supabaseClient.from('planchas').select('*').order('actualizado_en', {ascending:false});
             if (data) { estado.planchas = data; return; }
         }
         estado.planchas = JSON.parse(localStorage.getItem('prm_planchas')||'[]');
@@ -1703,7 +1703,7 @@ async function cargarListaPlanchas() {
 // ── ELIMINAR PLANCHA ──────────────────────────────────
 async function eliminarPlancha(id) {
     if (!confirm('¿Eliminar esta plancha?')) return;
-    if (supabase) { await supabase.from('planchas').delete().eq('id', id); }
+    if (supabaseClient) { await supabaseClient.from('planchas').delete().eq('id', id); }
     else {
         const p = JSON.parse(localStorage.getItem('prm_planchas')||'[]').filter(x => x.id !== id);
         localStorage.setItem('prm_planchas', JSON.stringify(p));
@@ -1717,8 +1717,8 @@ async function eliminarPlancha(id) {
 async function actualizarStatusPadron() {
     const badge = document.getElementById('padron-badge');
     const count = document.getElementById('padron-count');
-    if (!supabase) return;
-    const { count: total } = await supabase.from('padron_maestro').select('*', {count:'exact',head:true});
+    if (!supabaseClient) return;
+    const { count: total } = await supabaseClient.from('padron_maestro').select('*', {count:'exact',head:true});
     if (count && total) count.textContent = total.toLocaleString() + ' militantes';
     if (document.getElementById('total-inscritos') && total) {
         document.getElementById('total-inscritos').textContent = total.toLocaleString();
