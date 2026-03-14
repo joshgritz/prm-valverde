@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#001F5B">
+<title>Portal PRM — Valverde</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+var _sb = null;
+if (window.supabase) {
+  _sb = window.supabase.createClient(
+    'https://ilivjaiexfqpioqrozlf.supabase.co',
+    'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW'
+  );
+}
+</script>
+<style>
+:root {
+  --azul:    #001F5B;
+  --azul2:   #003087;
+  --rojo:    #C8102E;
+  --oro:     #F5A623;
+  --verde:   #16a34a;
+  --gris:    #f0f4f8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--azul);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  position: relative; overflow-x: hidden;
+}
+
+/* Background pattern */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(200,16,46,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(245,166,35,0.1) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(0,48,135,0.8) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.wrap {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px 20px; position: relative; z-index: 1;
+}
+
+/* Logo */
+.logo-box {
+  text-align: center; margin-bottom: 32px;
+}
+.logo-circle {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: white; margin: 0 auto 14px;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 4px rgba(255,255,255,0.1);
+  font-size: 32px; font-weight: 900; color: var(--rojo);
+  letter-spacing: -1px;
+}
+.logo-box h1 {
+  color: white; font-size: 22px; font-weight: 900;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+.logo-box p { color: rgba(255,255,255,0.6); font-size: 12px; margin-top: 4px; }
+
+/* Card */
+.card {
+  background: white; border-radius: 20px; width: 100%; max-width: 400px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  overflow: hidden;
+}
+.card-header {
+  background: linear-gradient(135deg, var(--azul2), var(--azul));
+  padding: 20px 24px; color: white;
+}
+.card-header h2 { font-size: 16px; font-weight: 800; }
+.card-header p  { font-size: 12px; opacity: 0.7; margin-top: 3px; }
+.card-body { padding: 24px; }
+
+/* Steps */
+.step { display: none; }
+.step.active { display: block; }
+
+/* Inputs */
+.campo { margin-bottom: 16px; }
+.campo label {
+  display: block; font-size: 10px; font-weight: 800;
+  color: #64748b; text-transform: uppercase;
+  letter-spacing: 0.8px; margin-bottom: 6px;
+}
+.campo input {
+  width: 100%; padding: 13px 16px; border: 2px solid #e2e8f0;
+  border-radius: 12px; font-size: 16px; outline: none;
+  transition: border 0.2s; font-family: inherit; background: white;
+}
+.campo input:focus { border-color: var(--azul2); }
+.campo input.cedula-input { font-family: monospace; letter-spacing: 1px; }
+
+/* PIN inputs */
+.pin-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+.pin-row input {
+  width: 56px; height: 64px; text-align: center;
+  font-size: 24px; font-weight: 900; border-radius: 12px;
+  border: 2px solid #e2e8f0; outline: none; font-family: inherit;
+  transition: border 0.2s;
+}
+.pin-row input:focus { border-color: var(--azul2); }
+
+/* Perfil encontrado */
+.perfil-box {
+  background: #f0fdf4; border: 2px solid #bbf7d0;
+  border-radius: 14px; padding: 14px;
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px;
+}
+.perfil-foto {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--azul2); color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900; flex-shrink: 0;
+  overflow: hidden;
+}
+.perfil-foto img { width: 100%; height: 100%; object-fit: cover; }
+.perfil-nombre { font-weight: 800; font-size: 14px; color: #166534; }
+.perfil-cedula { font-size: 11px; color: #16a34a; font-family: monospace; }
+.perfil-badge  {
+  display: inline-block; margin-top: 4px;
+  font-size: 9px; font-weight: 800; padding: 2px 8px;
+  border-radius: 20px; text-transform: uppercase;
+}
+
+/* Opciones de acción */
+.opciones { display: grid; gap: 10px; margin-bottom: 16px; }
+.opcion-btn {
+  width: 100%; padding: 14px 16px; border: 2px solid #e2e8f0;
+  border-radius: 14px; background: white; cursor: pointer;
+  text-align: left; display: flex; align-items: center; gap: 12px;
+  transition: all 0.15s; touch-action: manipulation; font-family: inherit;
+}
+.opcion-btn:active { transform: scale(0.98); }
+.opcion-btn:hover  { border-color: var(--azul2); background: #f0f7ff; }
+.opcion-btn .icon  { font-size: 24px; flex-shrink: 0; width: 36px; text-align: center; }
+.opcion-btn .text  { flex: 1; }
+.opcion-btn .title { font-size: 14px; font-weight: 800; color: #1e293b; }
+.opcion-btn .sub   { font-size: 11px; color: #64748b; margin-top: 2px; }
+.opcion-btn .arrow { color: #cbd5e1; font-size: 18px; }
+.opcion-btn.destacada { border-color: var(--azul2); background: #eff6ff; }
+.opcion-btn.destacada .title { color: var(--azul2); }
+
+/* Botones */
+.btn {
+  width: 100%; padding: 15px; border: none; border-radius: 14px;
+  font-size: 15px; font-weight: 800; cursor: pointer;
+  touch-action: manipulation; font-family: inherit;
+  transition: all 0.15s; margin-bottom: 10px;
+}
+.btn:active { transform: scale(0.97); }
+.btn-azul   { background: var(--azul2); color: white; }
+.btn-gris   { background: #f1f5f9; color: #64748b; }
+.btn-verde  { background: var(--verde); color: white; }
+.btn-rojo   { background: var(--rojo); color: white; }
+.btn-sm {
+  padding: 8px 16px; font-size: 12px; border-radius: 8px;
+  border: none; cursor: pointer; font-weight: 700;
+  touch-action: manipulation; font-family: inherit;
+}
+
+/* Error box */
+.error-box {
+  background: #fef2f2; border: 2px solid #fecaca;
+  border-radius: 12px; padding: 12px 14px;
+  font-size: 13px; color: #dc2626; font-weight: 600;
+  margin-bottom: 14px; display: none;
+}
+
+/* Loading */
+.loading {
+  text-align: center; padding: 20px;
+  color: #64748b; font-size: 14px;
+}
+.spinner {
+  display: inline-block; width: 20px; height: 20px;
+  border: 3px solid #e2e8f0; border-top-color: var(--azul2);
+  border-radius: 50%; animation: spin 0.8s linear infinite;
+  vertical-align: middle; margin-right: 8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Info box */
+.info-box {
+  background: #fffbeb; border: 2px solid #fcd34d;
+  border-radius: 12px; padding: 12px 14px;
+  font-size: 12px; color: #92400e; margin-bottom: 14px;
+}
+
+/* Footer */
+.footer {
+  text-align: center; padding: 16px;
+  font-size: 11px; color: rgba(255,255,255,0.35);
+  position: relative; z-index: 1;
+}
+
+/* Alerta */
+.alerta-toast {
+  position: fixed; bottom: 20px; left: 16px; right: 16px;
+  max-width: 400px; margin: 0 auto;
+  padding: 14px 18px; border-radius: 14px;
+  font-size: 14px; font-weight: 700; z-index: 9999;
+  text-align: center; animation: slideUp 0.3s ease;
+  display: none;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+.alerta-ok    { background: #16a34a; color: white; }
+.alerta-error { background: #dc2626; color: white; }
+.alerta-info  { background: var(--azul2); color: white; }
+
+/* Badge colors */
+.badge-admin    { background: #fef3c7; color: #92400e; }
+.badge-pres     { background: #dbeafe; color: #1e40af; }
+.badge-sec      { background: #f3e8ff; color: #6b21a8; }
+.badge-dirigente{ background: #dcfce7; color: #166534; }
+.badge-nuevo    { background: #f1f5f9; color: #475569; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Logo -->
+  <div class="logo-box">
+    <div class="logo-circle">PRM</div>
+    <h1>Sistema Electoral</h1>
+    <p>Provincia Valverde · República Dominicana</p>
+  </div>
+
+  <!-- Card -->
+  <div class="card">
+
+    <!-- STEP 1: Buscar por cédula -->
+    <div id="step-cedula" class="step active">
+      <div class="card-header">
+        <h2>🔍 Identificación</h2>
+        <p>Ingresa tu cédula para continuar</p>
+      </div>
+      <div class="card-body">
+        <div class="error-box" id="err-cedula"></div>
+        <div class="campo">
+          <label>Cédula de identidad</label>
+          <input type="tel" id="inp-cedula" class="cedula-input"
+            placeholder="000-0000000-0" maxlength="13"
+            oninput="fmtCedula(this)"
+            onkeyup="if(event.key==='Enter') buscarCedula()">
+        </div>
+        <button class="btn btn-azul" onclick="buscarCedula()">Continuar →</button>
+        <div style="text-align:center; margin-top:8px">
+          <span style="font-size:12px; color:#94a3b8">El procesamiento es seguro y local</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: Perfil encontrado → opciones -->
+    <div id="step-opciones" class="step">
+      <div class="card-header">
+        <h2>👋 Bienvenido</h2>
+        <p>¿Qué deseas hacer hoy?</p>
+      </div>
+      <div class="card-body">
+        <!-- Perfil -->
+        <div class="perfil-box" id="perfil-box">
+          <div class="perfil-foto" id="perfil-foto">?</div>
+          <div>
+            <div class="perfil-nombre" id="perfil-nombre">—</div>
+            <div class="perfil-cedula" id="perfil-cedula">—</div>
+            <span class="perfil-badge badge-nuevo" id="perfil-badge">Militante PRM</span>
+          </div>
+        </div>
+
+        <!-- Opciones dinámicas según contexto -->
+        <div class="opciones" id="opciones-container"></div>
+
+        <button class="btn btn-gris" onclick="irStep('step-cedula')">← Cambiar cédula</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Ingresar PIN -->
+    <div id="step-pin" class="step">
+      <div class="card-header">
+        <h2>🔐 PIN de acceso</h2>
+        <p id="pin-subtitulo">Ingresa tu PIN de 4 dígitos</p>
+      </div>
+      <div class="card-body">
+        <div class="error-box" id="err-pin"></div>
+        <div class="pin-row">
+          <input type="tel" maxlength="1" id="p0" oninput="moverPin(this,1)">
+          <input type="tel" maxlength="1" id="p1" oninput="moverPin(this,2)">
+          <input type="tel" maxlength="1" id="p2" oninput="moverPin(this,3)">
+          <input type="tel" maxlength="1" id="p3" oninput="moverPin(this,null)" onkeyup="if(event.key==='Enter') verificarPin()">
+        </div>
+        <button class="btn btn-azul" onclick="verificarPin()">Entrar al sistema</button>
+        <button class="btn btn-gris" onclick="irStep('step-opciones')">← Volver</button>
+      </div>
+    </div>
+
+    <!-- STEP 4: Primer login → cambiar PIN -->
+    <div id="step-cambiar-pin" class="step">
+      <div class="card-header" style="background: linear-gradient(135deg, #92400e, #b45309)">
+        <h2>🔑 Crear tu PIN</h2>
+        <p>Es tu primera vez — crea un PIN de 4 dígitos</p>
+      </div>
+      <div class="card-body">
+        <div class="info-box">
+          El administrador te asignó un PIN inicial. Debes crear uno personal antes de continuar.
+        </div>
+        <div class="error-box" id="err-nuevo-pin"></div>
+        <div class="campo">
+          <label>Nuevo PIN (4 dígitos)</label>
+          <div class="pin-row">
+            <input type="tel" maxlength="1" id="np0" oninput="moverPinN(this,1)">
+            <input type="tel" maxlength="1" id="np1" oninput="moverPinN(this,2)">
+            <input type="tel" maxlength="1" id="np2" oninput="moverPinN(this,3)">
+            <input type="tel" maxlength="1" id="np3" oninput="moverPinN(this,null)">
+          </div>
+        </div>
+        <div class="campo">
+          <label>Confirmar PIN</label>
+          <div class="pin-row">
+            <input type="tel" maxlength="1" id="np4" oninput="moverPinN(this,5)">
+            <input type="tel" maxlength="1" id="np5" oninput="moverPinN(this,6)">
+            <input type="tel" maxlength="1" id="np6" oninput="moverPinN(this,7)">
+            <input type="tel" maxlength="1" id="np7" oninput="moverPinN(this,null)">
+          </div>
+        </div>
+        <button class="btn btn-verde" onclick="guardarNuevoPin()">✅ Guardar PIN y entrar</button>
+      </div>
+    </div>
+
+    <!-- STEP 5: Registrar como dirigente -->
+    <div id="step-registro" class="step">
+      <div class="card-header">
+        <h2>📝 Registro de Dirigente</h2>
+        <p>Completa tu información</p>
+      </div>
+      <div class="card-body">
+        <div class="error-box" id="err-reg"></div>
+        <div class="campo">
+          <label>Municipio</label>
+          <select id="reg-municipio" onchange="cargarZonasReg()" style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none;background:white;font-family:inherit">
+            <option value="">Selecciona municipio...</option>
+            <option value="MAO">Mao (Cabecera)</option>
+            <option value="ESPERANZA">Esperanza</option>
+            <option value="LAGUNA_SALADA">Laguna Salada</option>
+            <option value="AMINA">Amina (D.M.)</option>
+            <option value="GUATAPANAL">Guatapanal (D.M.)</option>
+            <option value="JAIBON">Jaibón (D.M.)</option>
+            <option value="POTRERO">Potrero (D.M.)</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Zona Política</label>
+          <select id="reg-zona" style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none;background:white;font-family:inherit">
+            <option value="">Primero selecciona municipio</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Sector / Barrio</label>
+          <input type="text" id="reg-sector" placeholder="Ej: Los Multis, El Centro...">
+        </div>
+        <div class="campo">
+          <label>Teléfono</label>
+          <input type="tel" id="reg-telefono" placeholder="809-000-0000">
+        </div>
+        <div class="campo">
+          <label>Crear PIN (4 dígitos)</label>
+          <div class="pin-row">
+            <input type="tel" maxlength="1" id="rp0" oninput="moverPinR(this,1)">
+            <input type="tel" maxlength="1" id="rp1" oninput="moverPinR(this,2)">
+            <input type="tel" maxlength="1" id="rp2" oninput="moverPinR(this,3)">
+            <input type="tel" maxlength="1" id="rp3" oninput="moverPinR(this,null)">
+          </div>
+        </div>
+        <button class="btn btn-verde" onclick="completarRegistro()">✅ Registrarme</button>
+        <button class="btn btn-gris" onclick="irStep('step-opciones')">← Volver</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="footer">
+  Sistema Electoral PRM · Provincia Valverde · 2025<br>
+  Basado en Estatutos PRM Enero 2022
+</div>
+
+<div id="toast" class="alerta-toast"></div>
+
+<script>
+// ══════════════════════════════════════════════
+// SUPABASE
+// ══════════════════════════════════════════════
+let sb = _sb;
+if (!sb && window.supabase) {
+  sb = window.supabase.createClient(
+    'https://ilivjaiexfqpioqrozlf.supabase.co',
+    'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW'
+  );
+}
+
+// ══════════════════════════════════════════════
+// ESTADO
+// ══════════════════════════════════════════════
+let estado = {
+  cedula:     null,
+  cedFmt:     null,
+  nombre:     null,
+  foto:       null,
+  enPadron:   false,
+  esDirigente: false,
+  rolSistema: null,   // rol en usuarios_sistema
+  zona:       null,
+  municipio:  null,
+  accionPendiente: null,  // qué quiere hacer
+  pinInicial: null,   // si tiene PIN asignado
+};
+
+const ZONAS = {
+  MAO:           ['Zona A','Zona B','Zona C','Zona D','Zona E','Zona F'],
+  ESPERANZA:     ['Zona 1','Zona 2','Zona 3'],
+  LAGUNA_SALADA: ['Zona Única'],
+  AMINA:         ['Zona Única'],
+  GUATAPANAL:    ['Zona Única'],
+  JAIBON:        ['Zona Única'],
+  POTRERO:       ['Zona Única'],
+};
+
+const ROL_LABELS = {
+  SUPER_ADMIN:              '⚡ Super Admin',
+  PRESIDENTE_ZONAL:         '👑 Presidente Zonal',
+  SECRETARIO_GENERAL:       '🏛️ Secretario General',
+  VICEPRESIDENTE:           '🎖️ Vicepresidente',
+  SUBSECRETARIO_GENERAL:    '📋 Subsecretario General',
+  SEC_TRANSFORMACION_DIGITAL:'💻 Sec. Transformación Digital',
+  SEC_ORGANIZACION:         '🗂️ Sec. Organización',
+  SEC_ELECTORAL:            '🗳️ Sec. Electoral',
+  SEC_FINANZAS:             '💰 Sec. Finanzas',
+  SEC_COMUNICACION:         '📢 Sec. Comunicación',
+  SEC_EDUCACION:            '📚 Sec. Educación',
+  SEC_ASUNTOS_MUNICIPALES:  '🏛️ Sec. Asuntos Municipales',
+  SEC_ACTAS:                '📝 Sec. Actas',
+  PDTE_FRENTE_MUJERES:      '👩 Pdte. Frente Mujeres',
+  PDTE_FRENTE_JUVENTUD:     '🌟 Pdte. Frente Juventud',
+  DIRIGENTE_BASE:           '🤝 Dirigente de Base',
+};
+
+// ══════════════════════════════════════════════
+// STEP 1: BUSCAR CÉDULA
+// ══════════════════════════════════════════════
+async function buscarCedula() {
+  const raw = document.getElementById('inp-cedula').value;
+  const limpia = raw.replace(/\D/g, '');
+  if (limpia.length < 11) {
+    mostrarError('err-cedula', 'Ingresa tu cédula completa (11 dígitos)');
+    return;
+  }
+
+  const cedFmt = limpia.slice(0,3)+'-'+limpia.slice(3,10)+'-'+limpia.slice(10);
+  estado.cedula = limpia;
+  estado.cedFmt = cedFmt;
+
+  ocultarError('err-cedula');
+  document.getElementById('inp-cedula').disabled = true;
+
+  // Buscar en padrón
+  let nombre = null, foto = null, esDirigente = false, rolSistema = null;
+
+  if (sb) {
+    // 1. Buscar en padrón
+    const { data: pad } = await sb.from('padron_maestro')
+      .select('nombre_completo, foto_base64')
+      .eq('cedula', cedFmt).maybeSingle();
+
+    if (pad) {
+      nombre = pad.nombre_completo;
+      foto   = pad.foto_base64;
+      estado.enPadron = true;
+    }
+
+    // 2. Buscar si ya es dirigente
+    const { data: dir } = await sb.from('dirigentes')
+      .select('nombre, zona, municipio')
+      .eq('cedula', cedFmt).eq('activo', true).maybeSingle();
+
+    if (dir) {
+      esDirigente    = true;
+      nombre         = nombre || dir.nombre;
+      estado.zona    = dir.zona;
+      estado.municipio = dir.municipio;
+    }
+
+    // 3. Buscar rol en el sistema
+    const { data: usr } = await sb.from('usuarios_sistema')
+      .select('rol, zona, municipio, pin_cambiado')
+      .eq('cedula', cedFmt).eq('activo', true).maybeSingle();
+
+    if (usr) {
+      rolSistema        = usr.rol;
+      estado.zona       = usr.zona;
+      estado.municipio  = usr.municipio;
+      estado.pinInicial = !usr.pin_cambiado;
+    }
+  }
+
+  estado.nombre     = nombre || 'Militante · ' + cedFmt;
+  estado.foto       = foto;
+  estado.esDirigente = esDirigente;
+  estado.rolSistema  = rolSistema;
+
+  document.getElementById('inp-cedula').disabled = false;
+  mostrarPerfil();
+  mostrarOpciones();
+  irStep('step-opciones');
+}
+
+// ══════════════════════════════════════════════
+// MOSTRAR PERFIL Y OPCIONES
+// ══════════════════════════════════════════════
+function mostrarPerfil() {
+  const nc = estado.nombre || '';
+  const coma = nc.indexOf(',');
+  const iniciales = coma > -1
+    ? (nc.slice(coma+1).trim()[0] || '') + (nc.slice(0,coma).trim()[0] || '')
+    : nc.slice(0,2).toUpperCase();
+
+  const fotoEl = document.getElementById('perfil-foto');
+  if (estado.foto) {
+    fotoEl.innerHTML = `<img src="data:image/jpeg;base64,${estado.foto}" alt="foto">`;
+  } else {
+    fotoEl.textContent = iniciales;
+  }
+
+  document.getElementById('perfil-nombre').textContent = nc;
+  document.getElementById('perfil-cedula').textContent = estado.cedFmt;
+
+  const badge = document.getElementById('perfil-badge');
+  if (estado.rolSistema) {
+    badge.textContent = ROL_LABELS[estado.rolSistema] || estado.rolSistema;
+    badge.className = 'perfil-badge ' + getBadgeClass(estado.rolSistema);
+  } else if (estado.esDirigente) {
+    badge.textContent = '🤝 Dirigente Registrado';
+    badge.className = 'perfil-badge badge-dirigente';
+  } else if (estado.enPadron) {
+    badge.textContent = '✅ En el Padrón PRM';
+    badge.className = 'perfil-badge badge-nuevo';
+  } else {
+    badge.textContent = '⚠️ No encontrado en el padrón';
+    badge.className = 'perfil-badge badge-nuevo';
+  }
+}
+
+function getBadgeClass(rol) {
+  if (!rol) return 'badge-nuevo';
+  if (rol === 'SUPER_ADMIN') return 'badge-admin';
+  if (['PRESIDENTE_ZONAL','SECRETARIO_GENERAL'].includes(rol)) return 'badge-pres';
+  if (rol.startsWith('SEC_') || rol.startsWith('PDTE_') || rol.includes('VICE')) return 'badge-sec';
+  return 'badge-dirigente';
+}
+
+function mostrarOpciones() {
+  const cont = document.getElementById('opciones-container');
+  const opciones = [];
+
+  // Si tiene rol en el sistema → entrar al panel
+  if (estado.rolSistema) {
+    const dest = getDestino(estado.rolSistema);
+    opciones.push({
+      icon: getRolIcon(estado.rolSistema),
+      titulo: 'Entrar a mi panel',
+      sub: ROL_LABELS[estado.rolSistema] + ' · ' + (estado.zona || ''),
+      accion: 'entrar_panel',
+      destino: dest,
+      destacada: true
+    });
+  }
+
+  // Si ya es dirigente → entrar al portal de dirigentes
+  if (estado.esDirigente) {
+    opciones.push({
+      icon: '👥',
+      titulo: 'Mi Comité de Base',
+      sub: 'Gestionar mi comité · ' + (estado.zona || ''),
+      accion: 'dirigente',
+      destino: 'dirigentes.html'
+    });
+  }
+
+  // Si no es dirigente y está en el padrón → registrarse
+  if (!estado.esDirigente && estado.enPadron) {
+    opciones.push({
+      icon: '📝',
+      titulo: 'Registrarme como Dirigente',
+      sub: 'Formar mi comité de base · Art. 89',
+      accion: 'registrar'
+    });
+  }
+
+  // Si no está en el padrón
+  if (!estado.enPadron && !estado.esDirigente) {
+    opciones.push({
+      icon: '⚠️',
+      titulo: 'No estás en el padrón de Valverde',
+      sub: 'Verifica tu cédula o contacta al administrador',
+      accion: 'no_padron'
+    });
+  }
+
+  cont.innerHTML = opciones.map(op => `
+    <button class="opcion-btn ${op.destacada ? 'destacada' : ''}"
+      onclick="seleccionarOpcion('${op.accion}', '${op.destino || ''}')">
+      <span class="icon">${op.icon}</span>
+      <span class="text">
+        <span class="title">${op.titulo}</span>
+        <br><span class="sub">${op.sub}</span>
+      </span>
+      <span class="arrow">${op.accion === 'no_padron' ? '' : '›'}</span>
+    </button>
+  `).join('');
+}
+
+function getDestino(rol) {
+  if (rol === 'SUPER_ADMIN') return 'panel_admin.html';
+  if (['PRESIDENTE_ZONAL','SECRETARIO_GENERAL','VICEPRESIDENTE','SUBSECRETARIO_GENERAL'].includes(rol))
+    return 'panel_zona.html';
+  if (rol === 'SEC_TRANSFORMACION_DIGITAL') return 'panel_digital.html';
+  return 'dirigentes.html';
+}
+
+function getRolIcon(rol) {
+  const icons = {
+    SUPER_ADMIN: '⚡', PRESIDENTE_ZONAL: '👑',
+    SECRETARIO_GENERAL: '🏛️', VICEPRESIDENTE: '🎖️',
+    SEC_TRANSFORMACION_DIGITAL: '💻', SEC_ELECTORAL: '🗳️',
+    DIRIGENTE_BASE: '🤝'
+  };
+  return icons[rol] || '🏛️';
+}
+
+// ══════════════════════════════════════════════
+// SELECCIONAR OPCIÓN
+// ══════════════════════════════════════════════
+function seleccionarOpcion(accion, destino) {
+  if (accion === 'no_padron') return;
+
+  estado.accionPendiente = accion;
+  estado.destinoPendiente = destino;
+
+  if (accion === 'registrar') {
+    irStep('step-registro');
+    return;
+  }
+
+  // Requiere PIN
+  document.getElementById('pin-subtitulo').textContent =
+    accion === 'entrar_panel'
+      ? `Ingresa tu PIN · ${ROL_LABELS[estado.rolSistema] || ''}`
+      : 'Ingresa tu PIN de dirigente';
+
+  ['p0','p1','p2','p3'].forEach(id => document.getElementById(id).value = '');
+  ocultarError('err-pin');
+  irStep('step-pin');
+  setTimeout(() => document.getElementById('p0').focus(), 300);
+}
+
+// ══════════════════════════════════════════════
+// VERIFICAR PIN
+// ══════════════════════════════════════════════
+async function verificarPin() {
+  const pin = ['p0','p1','p2','p3'].map(id => document.getElementById(id).value).join('');
+  if (pin.length < 4) { mostrarError('err-pin', 'Ingresa los 4 dígitos'); return; }
+
+  ocultarError('err-pin');
+
+  if (sb) {
+    const { data } = await sb.rpc('login_sistema', {
+      p_cedula:   estado.cedFmt,
+      p_pin_hash: hashPin(pin)
+    });
+
+    if (!data || !data.ok) {
+      mostrarError('err-pin', data?.error || 'PIN incorrecto');
+      ['p0','p1','p2','p3'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('p0').focus();
+      return;
+    }
+
+    // Guardar sesión
+    guardarSesion(data);
+
+    // Si es primer login → cambiar PIN
+    if (!data.pin_cambiado) {
+      irStep('step-cambiar-pin');
+      return;
+    }
+
+    // Redirigir según rol
+    redirigir(data);
+    return;
+  }
+
+  // Sin Supabase — redirigir directo (demo)
+  redirigir({ rol: estado.rolSistema || 'DIRIGENTE_BASE', destino: estado.destinoPendiente });
+}
+
+// ══════════════════════════════════════════════
+// GUARDAR NUEVO PIN (primer login)
+// ══════════════════════════════════════════════
+async function guardarNuevoPin() {
+  const pin1 = ['np0','np1','np2','np3'].map(id => document.getElementById(id).value).join('');
+  const pin2 = ['np4','np5','np6','np7'].map(id => document.getElementById(id).value).join('');
+
+  if (pin1.length < 4) { mostrarError('err-nuevo-pin', 'Ingresa tu nuevo PIN'); return; }
+  if (pin1 !== pin2)   { mostrarError('err-nuevo-pin', 'Los PINs no coinciden'); return; }
+  if (!/^\d{4}$/.test(pin1)) { mostrarError('err-nuevo-pin', 'Solo números'); return; }
+
+  if (sb) {
+    // Actualizar PIN en dirigentes
+    await sb.from('dirigentes').update({ pin_hash: hashPin(pin1) }).eq('cedula', estado.cedFmt);
+    // Marcar como cambiado en usuarios_sistema
+    await sb.from('usuarios_sistema').update({ pin_cambiado: true }).eq('cedula', estado.cedFmt);
+  }
+
+  toast('✅ PIN guardado correctamente', 'ok');
+  setTimeout(() => redirigir({ rol: estado.rolSistema, destino: estado.destinoPendiente }), 1000);
+}
+
+function redirigir(data) {
+  const dest = data.destino || getDestino(data.rol);
+  toast('Entrando al sistema...', 'info');
+  setTimeout(() => { window.location.href = dest || 'dirigentes.html'; }, 800);
+}
+
+// ══════════════════════════════════════════════
+// REGISTRO NUEVO DIRIGENTE
+// ══════════════════════════════════════════════
+function cargarZonasReg() {
+  const mun = document.getElementById('reg-municipio').value;
+  const sel = document.getElementById('reg-zona');
+  sel.innerHTML = '<option value="">Selecciona zona...</option>';
+  if (ZONAS[mun]) {
+    ZONAS[mun].forEach(z => {
+      const op = document.createElement('option');
+      op.value = z; op.textContent = z;
+      sel.appendChild(op);
+    });
+  }
+}
+
+async function completarRegistro() {
+  const mun     = document.getElementById('reg-municipio').value;
+  const zona    = document.getElementById('reg-zona').value;
+  const sector  = document.getElementById('reg-sector').value.trim();
+  const telefono = document.getElementById('reg-telefono').value.trim();
+  const pin     = ['rp0','rp1','rp2','rp3'].map(id => document.getElementById(id).value).join('');
+
+  if (!mun)        { mostrarError('err-reg', 'Selecciona tu municipio'); return; }
+  if (!zona)       { mostrarError('err-reg', 'Selecciona tu zona'); return; }
+  if (pin.length < 4) { mostrarError('err-reg', 'Crea tu PIN de 4 dígitos'); return; }
+
+  const nuevo = {
+    cedula:    estado.cedFmt,
+    nombre:    estado.nombre,
+    municipio: mun,
+    zona:      zona,
+    sector:    sector,
+    telefono:  telefono,
+    pin_hash:  hashPin(pin),
+    activo:    true
+  };
+
+  if (sb) {
+    const { error } = await sb.from('dirigentes').insert(nuevo);
+    if (error) {
+      if (error.code === '23505') {
+        mostrarError('err-reg', 'Esta cédula ya está registrada');
+      } else {
+        mostrarError('err-reg', 'Error: ' + error.message);
+      }
+      return;
+    }
+  }
+
+  toast('✅ Registro completado', 'ok');
+  estado.esDirigente = true;
+  estado.zona = zona;
+  estado.municipio = mun;
+
+  setTimeout(() => { window.location.href = 'dirigentes.html'; }, 1000);
+}
+
+// ══════════════════════════════════════════════
+// SESIÓN LOCAL
+// ══════════════════════════════════════════════
+function guardarSesion(data) {
+  localStorage.setItem('prm_sesion', JSON.stringify({
+    cedula:    data.cedula,
+    nombre:    data.nombre,
+    zona:      data.zona,
+    municipio: data.municipio,
+    rol:       data.rol,
+    token:     data.token,
+    opciones:  data.opciones,
+    expires:   Date.now() + 86400000
+  }));
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function irStep(id) {
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function fmtCedula(input) {
+  let v = input.value.replace(/\D/g, '');
+  if (v.length > 11) v = v.slice(0, 11);
+  if (v.length > 10) v = v.slice(0,3)+'-'+v.slice(3,10)+'-'+v.slice(10);
+  else if (v.length > 3) v = v.slice(0,3)+'-'+v.slice(3);
+  input.value = v;
+}
+
+function moverPin(el, next) {
+  if (el.value && next !== null) document.getElementById('p'+next)?.focus();
+}
+function moverPinN(el, next) {
+  if (el.value && next !== null) {
+    const ids = ['np0','np1','np2','np3','np4','np5','np6','np7'];
+    document.getElementById(ids[next])?.focus();
+  }
+}
+function moverPinR(el, next) {
+  if (el.value && next !== null) document.getElementById('rp'+next)?.focus();
+}
+
+function hashPin(pin) {
+  let h = 0;
+  for (let i = 0; i < pin.length; i++) h = Math.imul(31, h) + pin.charCodeAt(i) | 0;
+  return h.toString(36);
+}
+
+function mostrarError(id, msg) {
+  const el = document.getElementById(id);
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+function ocultarError(id) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = 'none';
+}
+
+let toastTimer;
+function toast(msg, tipo) {
+  const el = document.getElementById('toast');
+  if (toastTimer) clearTimeout(toastTimer);
+  el.textContent = msg;
+  el.className = 'alerta-toast alerta-' + tipo;
+  el.style.display = 'block';
+  toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+
+// Exponer globalmente
+window.buscarCedula     = buscarCedula;
+window.seleccionarOpcion = seleccionarOpcion;
+window.verificarPin     = verificarPin;
+window.guardarNuevoPin  = guardarNuevoPin;
+window.completarRegistro = completarRegistro;
+window.cargarZonasReg   = cargarZonasReg;
+window.irStep           = irStep;
+window.fmtCedula        = fmtCedula;
+window.moverPin         = moverPin;
+window.moverPinN        = moverPinN;
+window.moverPinR        = moverPinR;
+</script>
+</body>
+</html>
