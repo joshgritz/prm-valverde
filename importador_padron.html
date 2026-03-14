@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Importador de Padrón PRM - Valverde</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --prm-red: #C8102E;
@@ -113,11 +114,11 @@
   .card-header .num { color: var(--prm-gold); font-weight: 700; }
   .card-body { display: flex; gap: 0; }
   .card-photo {
-    width: 90px; min-height: 110px; background: #ddd;
+    width: 90px; height: 90px; background: #ddd;
     display: flex; align-items: center; justify-content: center;
     font-size: 36px; flex-shrink: 0; position: relative;
   }
-  .card-photo img { width: 90px; height: 110px; object-fit: cover; display: block; }
+  .card-photo img { width: 90px; height: 90px; object-fit: cover; display: block; }
   .card-photo .no-photo { color: #aaa; font-size: 32px; }
   .card-info { padding: 10px 12px; flex: 1; }
   .card-info .nombre { font-weight: 600; font-size: 13px; color: #1a1a1a; line-height: 1.3; margin-bottom: 6px; }
@@ -158,7 +159,7 @@
     display: flex; gap: 16px; margin-bottom: 16px;
   }
   .ficha-photo {
-    width: 120px; height: 150px; border-radius: 8px; overflow: hidden;
+    width: 120px; height: 120px; border-radius: 8px; overflow: hidden;
     border: 3px solid var(--prm-blue); flex-shrink: 0;
     background: #ddd; display: flex; align-items: center; justify-content: center;
   }
@@ -269,6 +270,7 @@
     </select>
     <button class="btn btn-blue" onclick="exportJSON()">💾 Exportar JSON</button>
     <button class="btn btn-green" onclick="exportSQL()">🗄️ Exportar SQL</button>
+    <button class="btn" style="background:#8b5cf6;color:white" onclick="subirASupabase()">☁️ Subir a Supabase</button>
   </div>
 
   <!-- Grid -->
@@ -478,12 +480,13 @@ function parsePagePersons(items, viewport, pageCanvas, scale, colegioNum, recint
     const exterior = rowWords.some(w => w.text === 'EXT');
     const concurrencia = rowWords.filter(w => ['2016', '2010'].includes(w.text)).map(w => w.text);
     
-    // Photo: crop from rendered page canvas
-    // PDF coords: left col x≈12, right col x≈305, top = rowY-3, size 72x79
-    const photoX = isLeft ? 12 : 305;
-    const photoY = rowY - 3;  // rowY is already top-down in PDF space
+    // Photo: exact PDF coordinates from analysis
+    // Left col: x=11.5, right col: x=305.4, size exactly 72x72 (square)
+    // Photo top is ~3px above the cédula row (cédula top - 3)
+    const photoX = isLeft ? 11.5 : 305.4;
+    const photoY = rowY - 3;
     const photoW = 72;
-    const photoH = 79;
+    const photoH = 72;  // square
     
     const fotoCropped = cropPhotoFromCanvas(pageCanvas, photoX, photoY, photoW, photoH, scale);
     
@@ -501,20 +504,20 @@ function parsePagePersons(items, viewport, pageCanvas, scale, colegioNum, recint
 
 function cropPhotoFromCanvas(srcCanvas, pdfX, pdfY, pdfW, pdfH, scale) {
   try {
-    // PDF.js renders with Y going DOWN from top, scaled by `scale`
+    // PDF.js renders Y top-down, scaled by `scale`
+    // Exact pixel coords on the rendered canvas
     const sx = Math.round(pdfX * scale);
     const sy = Math.round(pdfY * scale);
     const sw = Math.round(pdfW * scale);
-    const sh = Math.round(pdfH * scale);
+    const sh = Math.round(pdfH * scale);  // 72*2 = 144px — keep square
 
-    // Output canvas at fixed size
+    // Output square canvas matching the photo aspect ratio
     const out = document.createElement('canvas');
-    out.width = 90;
-    out.height = 110;
+    out.width  = 90;
+    out.height = 90;  // square — photo is 72x72 in PDF
     const ctx = out.getContext('2d');
-    ctx.drawImage(srcCanvas, sx, sy, sw, sh, 0, 0, 90, 110);
-    // Return just the base64 data (no prefix)
-    const dataUrl = out.toDataURL('image/jpeg', 0.88);
+    ctx.drawImage(srcCanvas, sx, sy, sw, sh, 0, 0, 90, 90);
+    const dataUrl = out.toDataURL('image/jpeg', 0.90);
     return dataUrl.split(',')[1];
   } catch(e) {
     return '';
@@ -718,6 +721,72 @@ function downloadFile(content, filename, type) {
   const a = document.createElement('a');
   a.href = url; a.download = filename; a.click();
   URL.revokeObjectURL(url);
+}
+
+// ──────────────────────────────────────────────
+// SUBIR A SUPABASE
+// ──────────────────────────────────────────────
+const SB_URL = 'https://ilivjaiexfqpioqrozlf.supabase.co';
+const SB_KEY = 'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW';
+let sbClient = null;
+
+function initSB() {
+  if (!sbClient && window.supabase) {
+    sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+  }
+  return sbClient;
+}
+
+async function subirASupabase() {
+  if (allMilitantes.length === 0) {
+    alert('Primero carga un PDF del padrón'); return;
+  }
+
+  const sb = initSB();
+  if (!sb) { alert('Error conectando a Supabase'); return; }
+
+  const btn = document.querySelector('button[onclick="subirASupabase()"]');
+  btn.textContent = '⏳ Subiendo...';
+  btn.disabled = true;
+
+  // Upload in batches of 50
+  const BATCH = 50;
+  let uploaded = 0;
+  let errors = 0;
+
+  for (let i = 0; i < allMilitantes.length; i += BATCH) {
+    const batch = allMilitantes.slice(i, i + BATCH).map(m => ({
+      cedula:               m.cedula,
+      nombre_completo:      m.nombre,
+      telefono:             m.telefono || null,
+      direccion:            m.direccion || null,
+      voto_primaria:        m.voto || null,
+      empadronado_exterior: m.exterior || false,
+      concurrencia_2016:    m.concurrencia?.includes('2016') || false,
+      concurrencia_2010:    m.concurrencia?.includes('2010') || false,
+      colegio_num:          m.colegio || null,
+      recinto_nombre:       m.recinto || null,
+      foto_base64:          m.foto_b64 || null,
+      municipio:            'MAO'
+    }));
+
+    const { error } = await sb
+      .from('padron_maestro')
+      .upsert(batch, { onConflict: 'cedula' });
+
+    if (error) { errors += batch.length; }
+    else { uploaded += batch.length; }
+
+    btn.textContent = `⏳ ${uploaded}/${allMilitantes.length}...`;
+  }
+
+  btn.disabled = false;
+  if (errors === 0) {
+    btn.textContent = `✅ ${uploaded} subidos`;
+    btn.style.background = '#16a34a';
+  } else {
+    btn.textContent = `⚠️ ${uploaded} OK / ${errors} errores`;
+  }
 }
 
 // ============================================================
