@@ -47,9 +47,9 @@
 <header class="bg-[#003da5] text-white shadow-lg border-b-4 border-[#efbc00]">
     <div class="container mx-auto px-4 py-3 flex justify-between items-center">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-[#efbc00] rounded-lg flex items-center justify-center">
-                <span class="font-display font-black text-[#003da5] text-xl">P</span>
-            </div>
+<div style="width:40px;height:40px;background:#003087;border-radius:50%;border:2px solid #C8102E;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.3)">
+  <span style="font-family:Arial Black,sans-serif;font-weight:900;font-size:11px;color:white;letter-spacing:0.5px">PRM</span>
+</div>
             <div>
                 <p class="font-display font-black text-lg leading-none tracking-wider">PRM · VALVERDE</p>
                 <p class="text-[10px] font-bold text-blue-200 tracking-widest uppercase">Partido Revolucionario Moderno</p>
@@ -222,10 +222,13 @@
                     </div>
                 </div>
                 <div class="flex gap-2 pt-1">
-                    <button class="flex-1 bg-green-600 text-white text-xs py-3 rounded-xl font-black hover:bg-green-700 transition-all">
-                        <i class="fa-solid fa-check-double mr-1"></i> Marcar Voto
-                    </button>
-                    <button class="flex-1 bg-white border-2 border-slate-200 text-slate-700 text-xs py-3 rounded-xl font-black hover:bg-slate-50 transition-all">
+                    <div id="btn-marcar-voto" style="display:none" class="flex-1">
+                        <button class="w-full bg-green-600 text-white text-xs py-3 rounded-xl font-black hover:bg-green-700 transition-all">
+                            <i class="fa-solid fa-check-double mr-1"></i> Marcar Voto
+                        </button>
+                    </div>
+                    <button class="flex-1 bg-white border-2 border-slate-200 text-slate-700 text-xs py-3 rounded-xl font-black hover:bg-slate-50 transition-all"
+                        onclick="if(document.getElementById('res-direccion')?.textContent) alert(document.getElementById('res-direccion').textContent)">
                         <i class="fa-solid fa-location-dot mr-1"></i> Ver Dirección
                     </button>
                 </div>

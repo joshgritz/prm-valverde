@@ -192,7 +192,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
         Sistema →
       </a>
     </div>
-    <div class="logo">P</div>
+    <div style="width:72px;height:72px;background:#003087;border-radius:50%;border:3px solid #C8102E;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 16px rgba(0,0,0,0.3)"><span style="font-family:Arial Black,sans-serif;font-weight:900;font-size:18px;color:white;letter-spacing:1px">PRM</span></div></div>
     <h1>Portal de Dirigentes</h1>
     <p>Partido Revolucionario Moderno · Valverde</p>
   </div>
@@ -332,7 +332,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
       <span style="font-size:12px; opacity:0.6">Portal Dirigentes</span>
       <button class="btn-sm btn-gris" style="background:rgba(255,255,255,0.2); color:white; font-size:11px" onclick="cerrarSesion()">Salir 🔒</button>
     </div>
-    <div class="logo" style="margin-top:10px">P</div>
+    <div style="width:48px;height:48px;background:#003087;border-radius:50%;border:3px solid #C8102E;display:flex;align-items:center;justify-content:center;margin:8px auto 10px;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><span style="font-family:Arial Black,sans-serif;font-weight:900;font-size:12px;color:white;letter-spacing:1px">PRM</span></div>
     <h1 id="dash-bienvenida">¡Bienvenido!</h1>
     <p id="dash-subtitulo">Valverde · PRM</p>
   </div>
@@ -632,11 +632,16 @@ async function cargarDatosCompletos() {
     // Cargar comité
     const { data: comite } = await sb
       .from('comite_miembros')
-      .select('cedula_miembro, nombre_miembro, fecha_ingreso')
+      .select('cedula_miembro, nombre_miembro, recinto_nombre, colegio_num, direccion, fecha_ingreso')
       .eq('dirigente_cedula', sesion.cedula)
       .order('fecha_ingreso');
     if (comite) sesion.comite = comite.map(m => ({
-      cedula: m.cedula_miembro, nombre: m.nombre_miembro, fecha_ingreso: m.fecha_ingreso
+      cedula:    m.cedula_miembro,
+      nombre:    m.nombre_miembro,
+      recinto:   m.recinto_nombre || '',
+      colegio:   m.colegio_num || '',
+      direccion: m.direccion || '',
+      fecha_ingreso: m.fecha_ingreso
     }));
 
     // Cargar estructuras
@@ -1015,7 +1020,13 @@ async function buscarMiembro() {
   const result = await buscarEnPadron(cedula);
 
   if (result && result.enPadron) {
-    miembroTemporal = { cedula: result.cedula, nombre: result.nombre };
+    miembroTemporal = {
+      cedula:    result.cedula,
+      nombre:    result.nombre,
+      recinto:   result.recinto || '',
+      colegio:   result.colegio || '',
+      direccion: result.dir || result.direccion || ''
+    };
     let infoExtra = '✅ En padrón PRM';
     if (esDirigente) infoExtra += ' · ' + mensajeDisp;
 
@@ -1040,7 +1051,10 @@ async function agregarMiembro() {
     const { error } = await sb.from('comite_miembros').insert({
       dirigente_cedula: sesion.cedula,
       cedula_miembro:   miembroTemporal.cedula,
-      nombre_miembro:   miembroTemporal.nombre
+      nombre_miembro:   miembroTemporal.nombre,
+      recinto_nombre:   miembroTemporal.recinto || null,
+      colegio_num:      miembroTemporal.colegio || null,
+      direccion:        miembroTemporal.direccion || null
     });
     if (error) {
       if (error.code === '23505') { alerta('Esta persona ya está en tu comité', 'error'); return; }
@@ -1050,7 +1064,11 @@ async function agregarMiembro() {
 
   if (!sesion.comite) sesion.comite = [];
   sesion.comite.push({
-    cedula: miembroTemporal.cedula, nombre: miembroTemporal.nombre,
+    cedula:        miembroTemporal.cedula,
+    nombre:        miembroTemporal.nombre,
+    recinto:       miembroTemporal.recinto || '',
+    colegio:       miembroTemporal.colegio || '',
+    direccion:     miembroTemporal.direccion || '',
     fecha_ingreso: new Date().toISOString()
   });
   miembroTemporal = null;
