@@ -1029,22 +1029,6 @@ async function cargarPadronJSON(event) {
     event.target.value = '';
 }
 
-function actualizarStatusPadron() {
-    const badge = document.getElementById('padron-badge');
-    const count  = document.getElementById('padron-count');
-    if (!badge) return;
-
-    if (estado.padron.cargado && estado.padron.totalMilitantes > 0) {
-        badge.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-green-100 text-green-700';
-        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block"></span> PADRÓN ACTIVO`;
-        if (count) count.textContent = estado.padron.totalMilitantes.toLocaleString();
-    } else {
-        badge.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-orange-100 text-orange-600';
-        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-orange-400 inline-block"></span> SIN PADRÓN`;
-        if (count) count.textContent = '0';
-    }
-}
-
 function buscarEnPadronLocal(cedula) {
     const cedLimpia = cedula.replace(/\D/g, '');
     // Búsqueda con guiones
@@ -1057,158 +1041,6 @@ function buscarEnPadronLocal(cedula) {
 // ─────────────────────────────────────────────
 // BÚSQUEDA DE PERSONA (con padrón real)
 // ─────────────────────────────────────────────
-
-async function buscarPersona() {
-    const inputEl = document.getElementById('input-cedula');
-    const cedula  = inputEl?.value?.trim() || '';
-
-    if (!cedula || cedula.replace(/\D/g,'').length < 11) {
-        mostrarAlerta('Ingresa una cédula válida de 11 dígitos.', 'error');
-        return;
-    }
-
-    const perfil = document.getElementById('perfil-votante');
-    if (perfil) perfil.classList.add('opacity-50');
-
-    try {
-        let datos = null;
-
-        // 1. Buscar primero en padrón local (JSON cargado)
-        const local = buscarEnPadronLocal(cedula);
-        if (local) {
-            datos = normalizarDatosPadron(local);
-        }
-
-        // 2. Si no está en local, intentar Supabase
-        if (!datos && supabase) {
-            const { data, error } = await supabase
-                .from('padron_maestro')
-                .select('*')
-                .eq('cedula', cedula.replace(/\D/g,'').replace(/(\d{3})(\d{7})(\d)/,'$1-$2-$3'))
-                .single();
-            if (!error && data) datos = normalizarDatosSupabase(data);
-        }
-
-        if (datos) {
-            renderPerfilVotante(datos);
-        } else {
-            if (perfil) perfil.classList.add('hidden');
-            const msg = estado.padron.cargado
-                ? 'Cédula no encontrada en el padrón cargado. Verifica el número.'
-                : 'Padrón no cargado. Usa el botón "Cargar Padrón" para subir los archivos JSON.';
-            mostrarAlerta(msg, 'advertencia');
-        }
-
-    } catch(e) {
-        console.error(e);
-        mostrarAlerta('Error al buscar. Intenta de nuevo.', 'error');
-    } finally {
-        if (perfil) perfil.classList.remove('opacity-50');
-    }
-}
-
-function normalizarDatosPadron(m) {
-    // Convierte datos del padrón JSON al formato que espera renderPerfilVotante
-    const partes = (m.nombre || '').trim().split(' ');
-    // Formato: APELLIDO APELLIDO, NOMBRE NOMBRE  (coma separa apellidos de nombres)
-    let apellido = '', nombre = '';
-    const coma = m.nombre?.indexOf(',');
-    if (coma > -1) {
-        apellido = m.nombre.substring(0, coma).trim();
-        nombre   = m.nombre.substring(coma + 1).trim();
-    } else {
-        // Sin coma: primeras 2 palabras = apellidos, resto = nombres
-        apellido = partes.slice(0, 2).join(' ');
-        nombre   = partes.slice(2).join(' ') || partes[0];
-    }
-
-    return {
-        cedula:             m.cedula,
-        nombre:             nombre,
-        apellido:           apellido,
-        nombre_completo:    m.nombre,
-        telefono:           m.telefono || '',
-        direccion:          m.direccion || '',
-        foto_b64:           m.foto_b64 || null,
-        voto:               m.voto || '',
-        exterior:           m.exterior || false,
-        concurrencia:       m.concurrencia || [],
-        colegio_electoral:  m.colegio || '',
-        recinto:            (m.recinto || '').replace(/^\d{4}\s+Rec:\s+\d+\s+-\s+/, ''),
-        zonas:              { nombre: '—' },
-        sectores:           { nombre: m.direccion || '—' },
-        fidelidad:          m.concurrencia?.includes('2016') ? 'DURO' : 'BLANDO',
-        estatus_militante:  'ACTIVO',
-        anios_militancia:   null,
-        // raw para info extra
-        _raw: m
-    };
-}
-
-function normalizarDatosSupabase(data) {
-    return {
-        ...data,
-        nombre_completo: `${data.nombre || ''} ${data.apellido || ''}`.trim(),
-        foto_b64: null,
-    };
-}
-
-function renderPerfilVotante(datos) {
-    const perfil = document.getElementById('perfil-votante');
-    if (!perfil) return;
-    perfil.classList.remove('hidden');
-
-    const edad = datos.fecha_nacimiento
-        ? Math.floor((Date.now() - new Date(datos.fecha_nacimiento)) / 31557600000)
-        : '—';
-
-    document.getElementById('res-nombre').textContent  = datos.nombre_completo || `${datos.nombre || ''} ${datos.apellido || ''}`.trim();
-    document.getElementById('res-cedula-display').textContent = datos.cedula;
-    document.getElementById('res-zona').textContent    = datos.zonas?.nombre || '—';
-    document.getElementById('res-recinto').textContent = datos.recinto || '—';
-    document.getElementById('res-colegio').textContent = datos.colegio_electoral || '—';
-    document.getElementById('res-bloque').textContent  = datos.sectores?.nombre || '—';
-
-    // Foto: primero foto real del padrón, luego avatar generado
-    const foto = document.getElementById('res-foto');
-    if (foto) {
-        if (datos.foto_b64) {
-            foto.src = `data:image/jpeg;base64,${datos.foto_b64}`;
-        } else if (datos.foto_url) {
-            foto.src = datos.foto_url;
-        } else {
-            const nombreAvatar = encodeURIComponent(`${datos.nombre} ${datos.apellido}`);
-            foto.src = `https://ui-avatars.com/api/?name=${nombreAvatar}&background=003da5&color=fff&size=200`;
-        }
-    }
-
-    // Datos extra del padrón
-    const telEl = document.getElementById('res-telefono');
-    if (telEl) telEl.textContent = datos.telefono || '—';
-    const dirEl = document.getElementById('res-direccion');
-    if (dirEl) dirEl.textContent = datos.direccion || '—';
-
-    // Badges de concurrencia y voto
-    const concEl = document.getElementById('res-concurrencia');
-    if (concEl) {
-        const conc = datos.concurrencia || [];
-        concEl.innerHTML = conc.length
-            ? conc.map(y => `<span class="inline-block bg-blue-100 text-blue-700 text-[9px] font-black px-2 py-0.5 rounded-full mr-1">${y}</span>`).join('')
-            : '<span class="text-slate-400 text-xs">Sin historial</span>';
-    }
-    const votoEl = document.getElementById('res-tipo-voto');
-    if (votoEl) {
-        const v = datos.voto || datos._raw?.voto || '';
-        votoEl.textContent = v === 'PA' ? 'Primaria Abierta' : v === 'PC' ? 'Primaria Cerrada' : '—';
-    }
-
-    const tag = document.getElementById('tag-fidelidad');
-    if (tag) {
-        const colores = { DURO:'bg-green-500', BLANDO:'bg-yellow-500', INDECISO:'bg-orange-400', OPOSICION:'bg-red-500' };
-        tag.textContent = `VOTO ${datos.fidelidad || 'SIN DATOS'}`;
-        tag.className   = `absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-black text-white ${colores[datos.fidelidad] || 'bg-slate-400'}`;
-    }
-}
 
 // ─────────────────────────────────────────────
 // MÓDULO: INSCRIPCIÓN DE PLANCHAS ZONALES
@@ -1563,126 +1395,11 @@ function setIndicador(id, ok, texto) {
         <span class="text-[10px] font-black uppercase ${ok ? 'text-green-700' : 'text-red-700'}">${texto}: ${ok ? 'CUMPLIDO ✓' : 'INCUMPLIDO ✗'}</span>`;
 }
 
-// ─────────────────────────────────────────────
-// GUARDAR / LIMPIAR PLANCHA
-// ─────────────────────────────────────────────
-async function guardarPlancha() {
-    if (estado.guardandoPlancha) return;
-
-    const miembros = Object.values(estado.planchaActiva.miembros).filter(m => m.validado);
-
-    if (miembros.length === 0) {
-        mostrarAlerta('Debes registrar al menos un miembro para guardar.', 'error');
-        return;
-    }
-
-    if (!verificarCargosObligatorios()) {
-        mostrarAlerta('Faltan cargos obligatorios. Revisa la plancha.', 'error');
-        return;
-    }
-
-    estado.guardandoPlancha = true;
-    const btnGuardar = document.getElementById('btn-guardar-plancha');
-    if (btnGuardar) btnGuardar.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Guardando...';
-
-    try {
-        const zonaId      = estado.usuario.zona_id || 4;
-        const municipioId = estado.usuario.municipio_id || 1;
-        const timestamp   = Date.now();
-        const codigo      = `VAL-MAO-Z${zonaId}-${new Date().getFullYear()}-${String(timestamp).slice(-3)}`;
-
-        let planchaId = estado.planchaActiva.id;
-
-        if (supabase) {
-            // Crear o actualizar plancha en Supabase
-            const planchaData = {
-                codigo,
-                nombre_plancha: estado.planchaActiva.nombre_plancha || `Plancha ${estado.usuario.zona_nombre}`,
-                nivel:         'ZONA',
-                zona_id:        zonaId,
-                municipio_id:   municipioId,
-                provincia_id:   1,
-                estatus:       'BORRADOR',
-            };
-
-            if (!planchaId) {
-                const { data, error } = await supabase.from('planchas').insert(planchaData).select().single();
-                if (error) throw error;
-                planchaId = data.id;
-            } else {
-                await supabase.from('planchas').update({ ...planchaData, actualizado_en: new Date() }).eq('id', planchaId);
-            }
-
-            // Insertar miembros
-            for (const [cargoId, miembro] of Object.entries(estado.planchaActiva.miembros)) {
-                if (!miembro.validado) continue;
-                await supabase.from('plancha_miembros').upsert({
-                    plancha_id:     planchaId,
-                    cargo_id:       parseInt(cargoId),
-                    cedula_titular: miembro.cedula,
-                    nombre_titular: miembro.nombre,
-                    sexo_titular:   miembro.sexo,
-                    edad_titular:   miembro.edad,
-                    validado:       true,
-                    posicion:       parseInt(cargoId),
-                }, { onConflict: 'plancha_id,cargo_id' });
-            }
-        } else {
-            // Guardar en localStorage como fallback
-            planchaId = `LOCAL-${timestamp}`;
-            const planchasLocales = JSON.parse(localStorage.getItem('prm_planchas') || '[]');
-            const nuevaPlancha = {
-                id: planchaId, codigo,
-                nombre_plancha: `Plancha ${estado.usuario.zona_nombre}`,
-                zona_nombre: estado.usuario.zona_nombre,
-                estatus: 'BORRADOR',
-                miembros: estado.planchaActiva.miembros,
-                creado_en: new Date().toISOString(),
-            };
-            planchasLocales.push(nuevaPlancha);
-            localStorage.setItem('prm_planchas', JSON.stringify(planchasLocales));
-        }
-
-        estado.planchaActiva.id     = planchaId;
-        estado.planchaActiva.codigo = codigo;
-
-        mostrarAlerta(`✅ Plancha guardada con código: ${codigo}`, 'exito');
-        renderTablaPlanchas();
-
-    } catch(e) {
-        console.error('Error guardando plancha:', e);
-        mostrarAlerta('Error al guardar. Revisa la conexión con Supabase.', 'error');
-    } finally {
-        estado.guardandoPlancha = false;
-        if (btnGuardar) btnGuardar.innerHTML = '<i class="fa-solid fa-save mr-2"></i> Registrar Plancha';
-    }
-}
-
 function limpiarPlancha() {
     if (!confirm('¿Seguro que quieres limpiar todos los campos?')) return;
     estado.planchaActiva = { id: null, codigo: null, zona_id: null, zona_nombre: null, nombre_plancha: '', miembros: {} };
     renderFormularioPlancha();
     actualizarPanelCuotas();
-}
-
-// ─────────────────────────────────────────────
-// TABLA DE PLANCHAS REGISTRADAS
-// ─────────────────────────────────────────────
-async function cargarListaPlanchas() {
-    try {
-        if (supabase) {
-            const { data } = await supabase
-                .from('v_planchas_resumen')
-                .select('*')
-                .order('creado_en', { ascending: false });
-            if (data) estado.planchas = data;
-        } else {
-            estado.planchas = JSON.parse(localStorage.getItem('prm_planchas') || '[]');
-        }
-    } catch(e) {
-        estado.planchas = [];
-    }
-    renderTablaPlanchas();
 }
 
 function renderTablaPlanchas() {
@@ -1751,17 +1468,6 @@ function editarPlancha(id) {
         renderFormularioPlancha();
         mostrarAlerta('Plancha cargada para edición.', 'info');
     }
-}
-
-async function eliminarPlancha(id) {
-    if (!confirm('¿Eliminar esta plancha? Esta acción no se puede deshacer.')) return;
-    if (supabase) {
-        await supabase.from('planchas').delete().eq('id', id);
-    } else {
-        const planchas = JSON.parse(localStorage.getItem('prm_planchas') || '[]').filter(p => p.id !== id);
-        localStorage.setItem('prm_planchas', JSON.stringify(planchas));
-    }
-    await cargarListaPlanchas();
 }
 
 function abrirInscripcionPlancha() {
@@ -1837,6 +1543,47 @@ window.onload = () => {
     mostrarModulo('buscador');
 };
 
+
+
+function renderPerfilVotante(dados) {
+    const perfil = document.getElementById('perfil-votante');
+    if (!perfil) return;
+    perfil.classList.remove('hidden');
+
+    document.getElementById('res-nombre').textContent  = dados.nombre_completo || (dados.nome + ' ' + dados.apellido);
+    document.getElementById('res-cedula-display').textContent = dados.cedula;
+    document.getElementById('res-zona').textContent    = dados.zonas?.nombre || '—';
+    document.getElementById('res-recinto').textContent = dados.recinto || '—';
+    document.getElementById('res-colegio').textContent = dados.colegio_electoral || '—';
+
+    const telEl = document.getElementById('res-telefono');
+    if (telEl) telEl.textContent = dados.telefono || '—';
+    const dirEl = document.getElementById('res-direccion');
+    if (dirEl) dirEl.textContent = dados.direccion || '—';
+    const votoEl = document.getElementById('res-tipo-voto');
+    if (votoEl) votoEl.textContent = dados.voto === 'PA' ? 'Primaria Abierta' : dados.voto === 'PC' ? 'Primaria Cerrada' : '—';
+
+    const concEl = document.getElementById('res-concurrencia');
+    if (concEl) {
+        const conc = dados.concurrencia || [];
+        concEl.innerHTML = conc.length
+            ? conc.map(y => `<span class="inline-block bg-blue-100 text-blue-700 text-[9px] font-black px-2 py-0.5 rounded-full mr-1">${y}</span>`).join('')
+            : '<span class="text-slate-400 text-xs">Sin historial</span>';
+    }
+
+    const foto = document.getElementById('res-foto');
+    if (foto) {
+        if (dados.foto_b64) foto.src = `data:image/jpeg;base64,${dados.foto_b64}`;
+        else foto.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(dados.nombre_completo||dados.nombre||'?')}&background=003da5&color=fff&size=200`;
+    }
+
+    const tag = document.getElementById('tag-fidelidad');
+    if (tag) {
+        const colores = { DURO:'bg-green-500', BLANDO:'bg-yellow-500', INDECISO:'bg-orange-400', OPOSICION:'bg-red-500' };
+        tag.textContent = `VOTO ${dados.fidelidad || 'SIN DATOS'}`;
+        tag.className   = `absolute top-2 right-2 px-2 py-1 rounded text-[10px] font-black text-white ${colores[dados.fidelidad] || 'bg-slate-400'}`;
+    }
+}
 
 // ── BÚSQUEDA SUPABASE ─────────────────────────────────
 async function buscarPersona() {
