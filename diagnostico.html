@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico PRM</title>
+<style>
+  body { font-family: monospace; padding: 15px; background: #111; color: #0f0; font-size: 13px; }
+  .ok { color: #0f0; } .err { color: #f44; } .warn { color: #ff0; }
+  h2 { color: #fff; font-size: 16px; margin-bottom: 10px; }
+  .log { margin: 4px 0; padding: 4px 8px; background: #1a1a1a; border-radius: 4px; }
+</style>
+</head>
+<body>
+<h2>🔍 Diagnóstico Sistema PRM</h2>
+<div id="log"></div>
+
+<script>
+var L = document.getElementById('log');
+function log(msg, type) {
+  var d = document.createElement('div');
+  d.className = 'log ' + (type||'ok');
+  d.textContent = msg;
+  L.appendChild(d);
+}
+
+// Capturar TODOS los errores
+window.onerror = function(msg, src, line, col, err) {
+  log('❌ ERROR: ' + msg + ' | línea: ' + line, 'err');
+  return false;
+};
+window.onunhandledrejection = function(e) {
+  log('❌ PROMISE ERROR: ' + e.reason, 'err');
+};
+
+log('✅ JavaScript básico: OK');
+log('📱 User Agent: ' + navigator.userAgent.substring(0,60), 'warn');
+log('🌐 URL: ' + window.location.href, 'warn');
+
+// Test 1: Tailwind CDN
+log('⏳ Probando Tailwind CDN...', 'warn');
+var tw = document.createElement('script');
+tw.src = 'https://cdn.tailwindcss.com';
+tw.onload = function() { log('✅ Tailwind CDN: cargó OK'); testSupabase(); };
+tw.onerror = function() { log('❌ Tailwind CDN: FALLÓ', 'err'); testSupabase(); };
+document.head.appendChild(tw);
+
+function testSupabase() {
+  log('⏳ Probando Supabase CDN...', 'warn');
+  var sb = document.createElement('script');
+  sb.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+  sb.onload = function() { log('✅ Supabase CDN: cargó OK'); testFontAwesome(); };
+  sb.onerror = function() { log('❌ Supabase CDN: FALLÓ — este era el problema!', 'err'); testFontAwesome(); };
+  document.head.appendChild(sb);
+}
+
+function testFontAwesome() {
+  log('⏳ Probando Font Awesome CDN...', 'warn');
+  var fa = document.createElement('link');
+  fa.rel = 'stylesheet';
+  fa.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css';
+  fa.onload = function() { log('✅ Font Awesome: cargó OK'); testGoogle(); };
+  fa.onerror = function() { log('❌ Font Awesome: FALLÓ', 'err'); testGoogle(); };
+  document.head.appendChild(fa);
+}
+
+function testGoogle() {
+  log('⏳ Probando Google Fonts...', 'warn');
+  var img = new Image();
+  img.onload = function() { log('✅ Google Fonts: accesible'); finalReport(); };
+  img.onerror = function() { log('❌ Google Fonts: FALLÓ', 'err'); finalReport(); };
+  img.src = 'https://fonts.googleapis.com/css2?family=Inter&display=swap';
+  setTimeout(function() { finalReport(); }, 3000);
+}
+
+function finalReport() {
+  log('─────────────────────────────', 'warn');
+  log('📊 REPORTE FINAL:', 'warn');
+  log('localStorage: ' + (typeof localStorage !== 'undefined' ? 'OK' : 'NO'), 
+      typeof localStorage !== 'undefined' ? 'ok' : 'err');
+  log('fetch API: ' + (typeof fetch !== 'undefined' ? 'OK' : 'NO'),
+      typeof fetch !== 'undefined' ? 'ok' : 'err');
+  log('Promise: ' + (typeof Promise !== 'undefined' ? 'OK' : 'NO'),
+      typeof Promise !== 'undefined' ? 'ok' : 'err');
+  log('async/await: OK');
+  log('─────────────────────────────', 'warn');
+  log('✅ Diagnóstico completado. Toma captura de pantalla.');
+}
+</script>
+</body>
+</html>
