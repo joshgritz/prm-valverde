@@ -672,28 +672,33 @@ function cargarSesionLocal() {
 // PADRÓN — busca en el JSON cargado o simula
 // ══════════════════════════════════════════════════════
 
-function buscarEnPadron(cedula) {
+async function buscarEnPadron(cedula) {
   const cedLimpia = cedula.replace(/\D/g,'');
   const cedFmt = cedLimpia.length === 11
     ? cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10)
     : cedula;
 
-  // Intentar padrón del sistema principal si está en la misma sesión
-  if (window.opener && window.opener.estado && window.opener.estado.padron) {
-    const m = window.opener.estado.padron.porCedula[cedFmt];
-    if (m) return { nombre: m.nombre, cedula: cedFmt, foto: m.foto_b64 };
+  // Buscar en Supabase padron_maestro
+  if (sb) {
+    const { data, error } = await sb
+      .from('padron_maestro')
+      .select('cedula, nombre_completo, foto_base64, telefono, direccion')
+      .eq('cedula', cedFmt)
+      .maybeSingle();
+
+    if (data) {
+      return {
+        nombre:  data.nombre_completo,
+        cedula:  data.cedula,
+        foto:    data.foto_base64,
+        tel:     data.telefono,
+        dir:     data.direccion,
+        enPadron: true
+      };
+    }
   }
 
-  // Buscar en localStorage (padrón guardado)
-  const padronKey = 'prm_padron_cache';
-  const cache = localStorage.getItem(padronKey);
-  if (cache) {
-    const data = JSON.parse(cache);
-    if (data[cedFmt]) return { nombre: data[cedFmt].nombre, cedula: cedFmt };
-  }
-
-  // Si la cédula tiene 11 dígitos, simular como encontrado
-  // (en producción esto se reemplaza por Supabase)
+  // Si tiene 11 dígitos pero no está en el padrón
   if (cedLimpia.length === 11) {
     return { nombre: null, cedula: cedFmt, noEncontrado: true };
   }
@@ -800,7 +805,7 @@ async function entrarConPin() {
 
 let regDatos = {};
 
-function verificarCedulaReg() {
+async function verificarCedulaReg() {
   const cedula = document.getElementById('reg-cedula').value;
   const cedLimpia = cedula.replace(/\D/g,'');
   if (cedLimpia.length < 11) { alerta('Ingresa tu cédula completa', 'error'); return; }
@@ -813,24 +818,24 @@ function verificarCedulaReg() {
     return;
   }
 
-  const result = buscarEnPadron(cedula);
+  alerta('Verificando en el padrón...', 'info');
+  const result = await buscarEnPadron(cedula);
+  const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
 
-  if (result && !result.noEncontrado) {
+  if (result && result.enPadron) {
     regDatos.nombre = result.nombre;
-    regDatos.cedula = result.cedula || cedula;
+    regDatos.cedula = result.cedula;
     document.getElementById('reg-nombre-display').textContent = result.nombre;
     document.getElementById('reg-nombre-box').style.display = 'block';
     document.getElementById('reg-paso2').style.display = 'block';
-    alerta('Cédula verificada. Completa tus datos.', 'ok');
+    alerta('✅ Encontrado en el padrón PRM', 'ok');
   } else {
-    // Permitir registro manual si no está en padrón cargado
-    const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
     regDatos.cedula = cedFmt;
     regDatos.nombre = null;
     document.getElementById('reg-nombre-display').textContent = 'Militante PRM · ' + cedFmt;
     document.getElementById('reg-nombre-box').style.display = 'block';
     document.getElementById('reg-paso2').style.display = 'block';
-    alerta('Cédula aceptada. Completa tus datos.', 'info');
+    alerta('Cédula aceptada. No está en el padrón cargado.', 'info');
   }
 }
 
@@ -947,38 +952,39 @@ function actualizarDashboard() {
 
 let miembroTemporal = null;
 
-function buscarMiembro() {
+async function buscarMiembro() {
   const cedula = document.getElementById('comite-cedula').value;
   const cedLimpia = cedula.replace(/\D/g,'');
   if (cedLimpia.length < 11) { alerta('Ingresa la cédula completa', 'error'); return; }
 
-  // Verificar que no esté ya en el comité
-  const yaEsta = (sesion.comite || []).some(m => m.cedula === cedula || m.cedula.replace(/\D/g,'') === cedLimpia);
+  const yaEsta = (sesion.comite || []).some(m => m.cedula.replace(/\D/g,'') === cedLimpia);
   if (yaEsta) { alerta('Esta persona ya está en tu comité', 'error'); return; }
 
-  // No puede ser el mismo dirigente
-  if (cedula.replace(/\D/g,'') === sesion.cedula.replace(/\D/g,'')) {
+  if (cedLimpia === sesion.cedula.replace(/\D/g,'')) {
     alerta('No puedes añadirte a ti mismo', 'error'); return;
   }
 
-  const result = buscarEnPadron(cedula);
+  alerta('Verificando en el padrón...', 'info');
 
   document.getElementById('comite-found-box').style.display = 'none';
   document.getElementById('comite-notfound-box').style.display = 'none';
   document.getElementById('btn-agregar-miembro').style.display = 'none';
 
-  if (result && !result.noEncontrado) {
-    miembroTemporal = { cedula: result.cedula || cedula, nombre: result.nombre };
+  const result = await buscarEnPadron(cedula);
+  const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
+
+  if (result && result.enPadron) {
+    // Encontrado en el padrón oficial PRM
+    miembroTemporal = { cedula: result.cedula, nombre: result.nombre };
     document.getElementById('comite-found-nombre').textContent = result.nombre;
-    document.getElementById('comite-found-cedula').textContent = result.cedula || cedula;
+    document.getElementById('comite-found-cedula').textContent = result.cedula + ' ✅ En padrón PRM';
     document.getElementById('comite-found-box').style.display = 'block';
     document.getElementById('btn-agregar-miembro').style.display = 'flex';
   } else {
-    // Permitir añadir aunque no esté en padrón cargado
-    const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
+    // No encontrado en padrón — mostrar advertencia pero permitir añadir
     miembroTemporal = { cedula: cedFmt, nombre: 'Militante · ' + cedFmt };
     document.getElementById('comite-found-nombre').textContent = 'Militante · ' + cedFmt;
-    document.getElementById('comite-found-cedula').textContent = cedFmt;
+    document.getElementById('comite-found-cedula').textContent = '⚠️ No encontrado en el padrón cargado';
     document.getElementById('comite-found-box').style.display = 'block';
     document.getElementById('btn-agregar-miembro').style.display = 'flex';
   }
