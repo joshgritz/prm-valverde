@@ -10,7 +10,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Supabase SDK -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+    // Inicializar Supabase inmediatamente después del CDN
+    var _sbClient = null;
+    var _sbUrl = 'https://ilivjaiexfqpioqrozlf.supabase.co';
+    var _sbKey = 'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW';
+    if (window.supabase) {
+        _sbClient = window.supabase.createClient(_sbUrl, _sbKey);
+    }
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,700;0,900;1,900&family=IBM+Plex+Mono:wght@400;700&family=Inter:wght@400;500;600;700;900&display=swap');
         body     { font-family: 'Inter', sans-serif; }
@@ -724,11 +733,11 @@
 // Reemplaza estos valores con los tuyos de:
 // supabaseClient.com → Tu proyecto → Settings → API
 // ─────────────────────────────────────────────
-const SUPABASE_URL  = 'https://ilivjaiexfqpioqrozlf.supabaseClient.co';
+const SUPABASE_URL  = 'https://ilivjaiexfqpioqrozlf.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW';
 
 // Cliente Supabase (se carga desde CDN en index.html)
-let supabaseClient = null;
+let supabaseClient = (typeof _sbClient !== "undefined" ? _sbClient : null);
 
 // ─────────────────────────────────────────────
 // ESTADO GLOBAL DE LA APLICACIÓN
@@ -837,7 +846,9 @@ const cargosZonales = [
 
 function inicializarSupabase() {
     try {
-        if (window.supabase) {
+        if (typeof _sbClient !== "undefined" && _sbClient) {
+            supabaseClient = _sbClient;
+        } else if (window.supabase) {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             console.log('✅ Supabase conectado');
         } else {
