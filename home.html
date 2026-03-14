@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#003087">
+<title>Sistema Electoral PRM — Valverde</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f0f4f8;
+    min-height: 100vh;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #003087 0%, #001a4d 100%);
+    color: white;
+    padding: 28px 20px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 180px; height: 180px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; left: -30px;
+    width: 200px; height: 200px;
+    background: rgba(200,16,46,0.15);
+    border-radius: 50%;
+  }
+  .logo {
+    width: 64px; height: 64px;
+    background: white;
+    border-radius: 50%;
+    margin: 0 auto 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 26px; font-weight: 900; color: #C8102E;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative; z-index: 1;
+  }
+  .header h1 {
+    font-size: 22px; font-weight: 900;
+    letter-spacing: -0.5px;
+    position: relative; z-index: 1;
+  }
+  .header p {
+    font-size: 13px; opacity: 0.75; margin-top: 4px;
+    position: relative; z-index: 1;
+  }
+  .version-badge {
+    display: inline-block;
+    background: rgba(245,166,35,0.25);
+    border: 1px solid rgba(245,166,35,0.5);
+    color: #F5A623;
+    font-size: 10px; font-weight: 800;
+    padding: 3px 10px; border-radius: 20px;
+    margin-top: 10px; letter-spacing: 1px;
+    position: relative; z-index: 1;
+  }
+
+  .container { padding: 20px 16px; max-width: 480px; margin: 0 auto; }
+
+  .section-label {
+    font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+    color: #94a3b8; text-transform: uppercase;
+    margin: 20px 0 10px 4px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    text-decoration: none;
+    display: block;
+    transition: transform 0.15s, box-shadow 0.15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card:active { transform: scale(0.98); box-shadow: 0 1px 2px rgba(0,0,0,0.06); }
+
+  .card-inner {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px;
+  }
+  .card-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .card-text { flex: 1; min-width: 0; }
+  .card-title {
+    font-size: 15px; font-weight: 800; color: #1e293b;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .card-desc { font-size: 12px; color: #64748b; margin-top: 2px; line-height: 1.4; }
+  .card-arrow { color: #cbd5e1; font-size: 18px; flex-shrink: 0; }
+
+  .card-badge {
+    display: inline-block;
+    font-size: 9px; font-weight: 800;
+    padding: 2px 7px; border-radius: 8px;
+    margin-top: 5px; letter-spacing: 0.5px;
+  }
+  .badge-ready { background: #dcfce7; color: #166534; }
+  .badge-tool  { background: #dbeafe; color: #1e40af; }
+  .badge-db    { background: #fef3c7; color: #92400e; }
+  .badge-doc   { background: #f3e8ff; color: #6b21a8; }
+  .badge-py    { background: #fff7ed; color: #9a3412; }
+
+  .icon-main   { background: linear-gradient(135deg, #003087, #1a4fa8); }
+  .icon-import { background: linear-gradient(135deg, #0ea5e9, #0284c7); }
+  .icon-db     { background: linear-gradient(135deg, #f59e0b, #d97706); }
+  .icon-doc    { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+  .icon-py     { background: linear-gradient(135deg, #f97316, #ea580c); }
+
+  .status-box {
+    background: white; border-radius: 16px;
+    padding: 14px 16px; margin-bottom: 20px;
+    border-left: 4px solid #22c55e;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  }
+  .status-box .status-title {
+    font-size: 11px; font-weight: 800; color: #166534;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .status-box .status-text {
+    font-size: 12px; color: #475569; margin-top: 4px; line-height: 1.5;
+  }
+
+  .divider {
+    height: 1px; background: #e2e8f0; margin: 8px 0 16px;
+  }
+
+  .footer {
+    text-align: center; padding: 24px 16px;
+    font-size: 11px; color: #94a3b8;
+  }
+  .footer a { color: #003087; text-decoration: none; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">PRM</div>
+  <h1>Sistema Electoral PRM</h1>
+  <p>Provincia Valverde — República Dominicana</p>
+  <span class="version-badge">v0.3 · EN DESARROLLO</span>
+</div>
+
+<div class="container">
+
+  <div class="status-box">
+    <div class="status-title">✅ Estado actual del proyecto</div>
+    <div class="status-text">
+      Módulo de inscripción de planchas zonales operativo.<br>
+      Extractor de padrón PRM con fotos funcionando.<br>
+      Búsqueda de militantes con foto real integrada.
+    </div>
+  </div>
+
+  <div class="section-label">🗳️ Aplicación Principal</div>
+
+  <a href="index.html" class="card">
+    <div class="card-inner">
+      <div class="card-icon icon-main">🗳️</div>
+      <div class="card-text">
+        <div class="card-title">Sistema Electoral Principal</div>
+        <div class="card-desc">Inscripción de planchas, buscador de militantes, módulo de dirigentes y reportes</div>
+        <span class="card-badge badge-ready">OPERATIVO</span>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </a>
+
+  <div class="divider"></div>
+  <div class="section-label">🛠️ Herramientas</div>
+
+  <a href="importador_padron.html" class="card">
+    <div class="card-inner">
+      <div class="card-icon icon-import">📋</div>
+      <div class="card-text">
+        <div class="card-title">Importador de Padrón</div>
+        <div class="card-desc">Sube PDFs del padrón PRM y extrae militantes con fotos. Exporta a JSON y SQL.</div>
+        <span class="card-badge badge-tool">HERRAMIENTA</span>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </a>
+
+  <div class="divider"></div>
+  <div class="section-label">📁 Archivos del Proyecto</div>
+
+  <a href="estructura_db.sql" class="card" download>
+    <div class="card-inner">
+      <div class="card-icon icon-db">🗄️</div>
+      <div class="card-text">
+        <div class="card-title">estructura_db.sql</div>
+        <div class="card-desc">Esquema Supabase — 16 tablas, trigger de cuotas, datos semilla de Valverde</div>
+        <span class="card-badge badge-db">SUPABASE SQL</span>
+      </div>
+      <div class="card-arrow">⬇</div>
+    </div>
+  </a>
+
+  <a href="extractor_padron.py" class="card" download>
+    <div class="card-inner">
+      <div class="card-icon icon-py">🐍</div>
+      <div class="card-text">
+        <div class="card-title">extractor_padron.py</div>
+        <div class="card-desc">Script Python para procesar todos los PDFs del padrón en lote (requiere Python)</div>
+        <span class="card-badge badge-py">PYTHON</span>
+      </div>
+      <div class="card-arrow">⬇</div>
+    </div>
+  </a>
+
+  <a href="README.md" class="card">
+    <div class="card-inner">
+      <div class="card-icon icon-doc">📄</div>
+      <div class="card-text">
+        <div class="card-title">Documentación del Proyecto</div>
+        <div class="card-desc">Arquitectura, decisiones técnicas, bugs pendientes y próximos pasos</div>
+        <span class="card-badge badge-doc">MARKDOWN</span>
+      </div>
+      <div class="card-arrow">›</div>
+    </div>
+  </a>
+
+  <div class="divider"></div>
+  <div class="section-label">📊 Progreso</div>
+
+  <div style="background:white; border-radius:16px; padding:16px; box-shadow:0 1px 4px rgba(0,0,0,0.08)">
+    <div style="margin-bottom:12px">
+      <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px">
+        <span>Base de datos Supabase</span><span style="color:#22c55e">✅</span>
+      </div>
+      <div style="height:6px; background:#f1f5f9; border-radius:3px">
+        <div style="height:100%; width:100%; background:#22c55e; border-radius:3px"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px">
+        <span>Módulo inscripción planchas</span><span style="color:#22c55e">✅</span>
+      </div>
+      <div style="height:6px; background:#f1f5f9; border-radius:3px">
+        <div style="height:100%; width:90%; background:#22c55e; border-radius:3px"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px">
+        <span>Extractor de padrón con fotos</span><span style="color:#22c55e">✅</span>
+      </div>
+      <div style="height:6px; background:#f1f5f9; border-radius:3px">
+        <div style="height:100%; width:100%; background:#22c55e; border-radius:3px"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px">
+        <span>Integración padrón → sistema</span><span style="color:#22c55e">✅</span>
+      </div>
+      <div style="height:6px; background:#f1f5f9; border-radius:3px">
+        <div style="height:100%; width:85%; background:#22c55e; border-radius:3px"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px">
+        <span>Conexión Supabase real</span><span style="color:#f59e0b">⏳</span>
+      </div>
+      <div style="height:6px; background:#f1f5f9; border-radius:3px">
+        <div style="height:100%; width:10%; background:#f59e0b; border-radius:3px"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:4px">
+      <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#475569; margin-bottom:5px">
+        <span>Control multi-tenant por rol</span><span style="color:#94a3b8">🔜</span>
+      </div>
+      <div style="height:6px; background:#f1f5f9; border-radius:3px">
+        <div style="height:100%; width:5%; background:#94a3b8; border-radius:3px"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  Sistema Electoral PRM — Provincia Valverde<br>
+  Basado en <a href="README.md">Estatutos PRM enero 2022</a> · Arts. 77, 89, 96, 117, 151, 154, 155
+</div>
+
+</body>
+</html>
