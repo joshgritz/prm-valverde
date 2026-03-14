@@ -1180,12 +1180,27 @@ async function validarCargo(cargoId) {
         let persona = null;
 
         if (supabaseClient) {
-            const { data } = await supabase
+            const cedFmt = cedulaLimpiada.slice(0,3)+'-'+cedulaLimpiada.slice(3,10)+'-'+cedulaLimpiada.slice(10);
+            const { data } = await supabaseClient
                 .from('padron_maestro')
-                .select('cedula, nombre, apellido, sexo, fecha_nacimiento, anios_militancia, estatus_militante, foto_url')
-                .eq('cedula', cedulaLimpiada)
-                .single();
-            if (data) persona = data;
+                .select('cedula, nombre_completo, foto_base64, telefono, direccion, voto_primaria, concurrencia_2016, concurrencia_2010')
+                .eq('cedula', cedFmt)
+                .maybeSingle();
+            if (data) {
+                const nc = data.nombre_completo || '';
+                const coma = nc.indexOf(',');
+                persona = {
+                    cedula:           data.cedula,
+                    nombre:           coma > -1 ? nc.slice(coma+1).trim().split(' ')[0] : nc.split(' ')[2] || '',
+                    apellido:         coma > -1 ? nc.slice(0,coma).trim() : nc.split(' ').slice(0,2).join(' '),
+                    nombre_completo:  nc,
+                    sexo:             null,
+                    fecha_nacimiento: null,
+                    anios_militancia: 99,
+                    estatus_militante:'ACTIVO',
+                    foto:             data.foto_base64 || null,
+                };
+            }
         }
 
         // Simulación si no hay DB
