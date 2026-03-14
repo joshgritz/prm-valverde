@@ -1,0 +1,1396 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#003087">
+<title>Portal Dirigentes PRM — Valverde</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --azul: #003087;
+  --azul2: #1a4fa8;
+  --rojo: #C8102E;
+  --oro: #F5A623;
+  --verde: #16a34a;
+  --gris: #f0f4f8;
+  --texto: #1e293b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); color: var(--texto); min-height: 100vh; }
+
+/* ── PANTALLAS ── */
+.pantalla { display: none; min-height: 100vh; }
+.pantalla.activa { display: block; }
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, var(--azul), #001a4d);
+  color: white; padding: 20px 20px 24px;
+  text-align: center; position: relative; overflow: hidden;
+}
+.header::after {
+  content: ''; position: absolute; bottom: -30px; right: -30px;
+  width: 120px; height: 120px; background: rgba(200,16,46,0.2); border-radius: 50%;
+}
+.header .logo {
+  width: 56px; height: 56px; background: white; border-radius: 50%;
+  margin: 0 auto 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 900; color: var(--rojo);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25); position: relative; z-index:1;
+}
+.header h1 { font-size: 20px; font-weight: 900; position: relative; z-index:1; }
+.header p  { font-size: 12px; opacity: 0.7; margin-top: 3px; position: relative; z-index:1; }
+
+/* ── CONTENEDOR ── */
+.wrap { padding: 20px 16px; max-width: 480px; margin: 0 auto; }
+
+/* ── CARD ── */
+.card {
+  background: white; border-radius: 16px; padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px;
+}
+.card-title { font-size: 13px; font-weight: 800; color: var(--azul); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
+
+/* ── INPUTS ── */
+.campo { margin-bottom: 14px; }
+.campo label { display: block; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
+.campo input, .campo select {
+  width: 100%; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 12px;
+  font-size: 16px; outline: none; transition: border 0.2s; background: white;
+  font-family: inherit;
+}
+.campo input:focus, .campo select:focus { border-color: var(--azul); }
+.campo input.cedula-input { font-family: monospace; letter-spacing: 1px; }
+.campo.pin-wrap { display: flex; gap: 10px; justify-content: center; }
+.campo.pin-wrap input {
+  width: 56px; height: 64px; text-align: center; font-size: 24px; font-weight: 900;
+  border-radius: 12px; padding: 0;
+}
+
+/* ── BOTONES ── */
+.btn {
+  width: 100%; padding: 15px; border: none; border-radius: 14px;
+  font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.15s;
+  margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  touch-action: manipulation;
+}
+.btn:active { transform: scale(0.97); }
+.btn-azul  { background: var(--azul); color: white; }
+.btn-rojo  { background: var(--rojo); color: white; }
+.btn-verde { background: var(--verde); color: white; }
+.btn-gris  { background: #e2e8f0; color: #475569; }
+.btn-oro   { background: var(--oro); color: white; }
+.btn-sm {
+  padding: 10px 16px; font-size: 13px; border-radius: 10px;
+  border: none; cursor: pointer; font-weight: 700; touch-action: manipulation;
+}
+
+/* ── PERFIL CARD ── */
+.perfil-card {
+  background: linear-gradient(135deg, var(--azul), var(--azul2));
+  border-radius: 16px; padding: 16px; color: white; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 14px;
+}
+.perfil-foto {
+  width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;
+  border: 3px solid rgba(255,255,255,0.4);
+}
+.perfil-nombre { font-size: 16px; font-weight: 900; }
+.perfil-cedula { font-size: 11px; opacity: 0.7; font-family: monospace; margin-top: 2px; }
+.perfil-zona   { font-size: 11px; background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 20px; display: inline-block; margin-top: 5px; font-weight: 700; }
+
+/* ── MENU TARJETAS ── */
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.menu-card {
+  background: white; border-radius: 16px; padding: 18px 14px; text-align: center;
+  cursor: pointer; transition: all 0.15s; border: 2px solid transparent;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06); touch-action: manipulation;
+}
+.menu-card:active { transform: scale(0.96); }
+.menu-card.azul  { border-color: var(--azul); }
+.menu-card.rojo  { border-color: var(--rojo); }
+.menu-card.verde { border-color: var(--verde); }
+.menu-card.oro   { border-color: var(--oro); }
+.menu-card .mc-icon { font-size: 32px; margin-bottom: 8px; }
+.menu-card .mc-label { font-size: 12px; font-weight: 800; color: var(--texto); line-height: 1.3; }
+.menu-card .mc-sub { font-size: 10px; color: #94a3b8; margin-top: 3px; }
+
+/* ── MIEMBRO ITEM ── */
+.miembro-item {
+  display: flex; align-items: center; gap: 12px; padding: 12px;
+  background: #f8fafc; border-radius: 12px; margin-bottom: 8px; border: 1px solid #e2e8f0;
+}
+.miembro-num { width: 28px; height: 28px; background: var(--azul); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 900; flex-shrink: 0; }
+.miembro-data { flex: 1; }
+.miembro-nombre { font-size: 13px; font-weight: 700; }
+.miembro-cedula { font-size: 11px; color: #94a3b8; font-family: monospace; }
+.miembro-del { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; padding: 4px; touch-action: manipulation; }
+
+/* ── BARRA PROGRESO ── */
+.barra-wrap { background: #e2e8f0; border-radius: 999px; height: 10px; margin: 8px 0; overflow: hidden; }
+.barra-fill { height: 100%; border-radius: 999px; background: var(--verde); transition: width 0.4s; }
+
+/* ── BADGE ── */
+.badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; }
+.badge-verde { background: #dcfce7; color: #166534; }
+.badge-azul  { background: #dbeafe; color: #1e40af; }
+.badge-rojo  { background: #fee2e2; color: #991b1b; }
+.badge-gris  { background: #f1f5f9; color: #475569; }
+.badge-oro   { background: #fef3c7; color: #92400e; }
+
+/* ── ESTRUCTURA CARD ── */
+.estructura-item {
+  background: #f8fafc; border-radius: 12px; padding: 14px; margin-bottom: 10px;
+  border: 2px solid #e2e8f0; cursor: pointer; touch-action: manipulation; transition: all 0.15s;
+}
+.estructura-item:active { transform: scale(0.98); }
+.estructura-item.activa { border-color: var(--verde); background: #f0fdf4; }
+.ei-top { display: flex; justify-content: space-between; align-items: center; }
+.ei-nombre { font-size: 14px; font-weight: 800; }
+.ei-cargo  { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+/* ── ALERTA ── */
+.alerta {
+  position: fixed; bottom: 20px; left: 16px; right: 16px; max-width: 440px; margin: 0 auto;
+  padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 700;
+  z-index: 9999; animation: slideUp 0.3s ease; text-align: center;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+.alerta-ok    { background: #16a34a; color: white; }
+.alerta-error { background: #dc2626; color: white; }
+.alerta-info  { background: var(--azul); color: white; }
+
+/* ── NAV BACK ── */
+.nav-back {
+  display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+  background: rgba(0,0,0,0.15); cursor: pointer; touch-action: manipulation;
+}
+.nav-back span { font-size: 14px; font-weight: 700; color: white; }
+
+/* ── SEPARADOR ── */
+.sep { height: 1px; background: #e2e8f0; margin: 16px 0; }
+.texto-center { text-align: center; }
+.texto-muted  { color: #94a3b8; font-size: 13px; }
+.mt8 { margin-top: 8px; }
+.mt16 { margin-top: 16px; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     PANTALLA 1: LOGIN / ENTRADA
+════════════════════════════════════════ -->
+<div id="p-login" class="pantalla activa">
+  <div class="header">
+    <div class="logo">P</div>
+    <h1>Portal de Dirigentes</h1>
+    <p>Partido Revolucionario Moderno · Valverde</p>
+  </div>
+  <div class="wrap">
+    <div class="card mt16">
+      <div class="card-title">🔐 Identificación</div>
+      <div class="campo">
+        <label>Tu Cédula</label>
+        <input type="tel" id="login-cedula" class="cedula-input" placeholder="000-0000000-0" maxlength="13" oninput="formatCedula(this)" onkeyup="if(event.key==='Enter') buscarDirigente()">
+      </div>
+      <div id="login-nombre-box" style="display:none; margin-bottom:14px">
+        <div style="background:#f0fdf4; border:2px solid #bbf7d0; border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px">
+          <span style="font-size:24px">👤</span>
+          <div>
+            <div id="login-nombre" style="font-weight:800; font-size:14px; color:#166534"></div>
+            <div style="font-size:11px; color:#16a34a; margin-top:1px">Militante verificado en el padrón</div>
+          </div>
+        </div>
+      </div>
+      <div id="login-pin-box" style="display:none; margin-bottom:14px">
+        <div class="campo">
+          <label>PIN de 4 dígitos</label>
+          <div class="campo pin-wrap">
+            <input type="tel" maxlength="1" id="pin0" oninput="moverPin(this,1)" style="border-color:#003087">
+            <input type="tel" maxlength="1" id="pin1" oninput="moverPin(this,2)">
+            <input type="tel" maxlength="1" id="pin2" oninput="moverPin(this,3)">
+            <input type="tel" maxlength="1" id="pin3" oninput="moverPin(this,null)" onkeyup="if(event.key==='Enter') entrarConPin()">
+          </div>
+        </div>
+      </div>
+      <button class="btn btn-azul" onclick="buscarDirigente()">🔍 Continuar</button>
+      <div class="texto-center mt8">
+        <span class="texto-muted">¿Primera vez?</span>
+        <button class="btn-sm btn-gris mt8" style="width:100%" onclick="irARegistro()">📝 Registrarme como Dirigente</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PANTALLA 2: REGISTRO NUEVO DIRIGENTE
+════════════════════════════════════════ -->
+<div id="p-registro" class="pantalla">
+  <div class="header">
+    <div class="nav-back" onclick="irA('p-login')">
+      <span>← Volver</span>
+    </div>
+    <div class="logo" style="margin-top:8px">P</div>
+    <h1>Nuevo Dirigente</h1>
+    <p>Registro en el sistema</p>
+  </div>
+  <div class="wrap">
+
+    <!-- Paso 1: Cédula -->
+    <div id="reg-paso1" class="card mt16">
+      <div class="card-title">Paso 1 — Verifica tu identidad</div>
+      <div class="campo">
+        <label>Tu Cédula</label>
+        <input type="tel" id="reg-cedula" class="cedula-input" placeholder="000-0000000-0" maxlength="13" oninput="formatCedula(this)">
+      </div>
+      <div id="reg-nombre-box" style="display:none; margin-bottom:14px">
+        <div style="background:#f0fdf4; border:2px solid #bbf7d0; border-radius:12px; padding:12px 14px">
+          <div id="reg-nombre-display" style="font-weight:900; font-size:15px; color:#166534"></div>
+          <div style="font-size:11px; color:#16a34a; margin-top:2px">✅ Encontrado en el padrón PRM</div>
+        </div>
+      </div>
+      <button class="btn btn-azul" onclick="verificarCedulaReg()">Verificar Cédula</button>
+    </div>
+
+    <!-- Paso 2: Zona y datos -->
+    <div id="reg-paso2" class="card" style="display:none">
+      <div class="card-title">Paso 2 — Tu información</div>
+      <div class="campo">
+        <label>Municipio</label>
+        <select id="reg-municipio" onchange="cargarZonasReg()">
+          <option value="">Selecciona municipio...</option>
+          <option value="MAO">Mao (Cabecera)</option>
+          <option value="ESPERANZA">Esperanza</option>
+          <option value="LAGUNA_SALADA">Laguna Salada</option>
+          <option value="AMINA">Amina (D.M.)</option>
+          <option value="GUATAPANAL">Guatapanal (D.M.)</option>
+          <option value="JAIBON">Jaibón (D.M.)</option>
+          <option value="POTRERO">Potrero (D.M.)</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Zona Política</label>
+        <select id="reg-zona">
+          <option value="">Primero selecciona municipio</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label>Sector / Barrio</label>
+        <input type="text" id="reg-sector" placeholder="Ej: Los Multis, El Centro...">
+      </div>
+      <div class="campo">
+        <label>Teléfono / Celular</label>
+        <input type="tel" id="reg-telefono" placeholder="809-000-0000">
+      </div>
+      <button class="btn btn-azul" onclick="irPaso3()">Continuar →</button>
+    </div>
+
+    <!-- Paso 3: Crear PIN -->
+    <div id="reg-paso3" class="card" style="display:none">
+      <div class="card-title">Paso 3 — Crea tu PIN</div>
+      <p style="font-size:13px; color:#64748b; margin-bottom:14px">Este PIN de 4 dígitos es tu contraseña. Guárdalo bien — solo tú lo sabes.</p>
+      <div class="campo">
+        <label>PIN (4 dígitos)</label>
+        <div class="campo pin-wrap">
+          <input type="tel" maxlength="1" id="rpin0" oninput="moverPinReg(this,1)">
+          <input type="tel" maxlength="1" id="rpin1" oninput="moverPinReg(this,2)">
+          <input type="tel" maxlength="1" id="rpin2" oninput="moverPinReg(this,3)">
+          <input type="tel" maxlength="1" id="rpin3" oninput="moverPinReg(this,null)">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Confirmar PIN</label>
+        <div class="campo pin-wrap">
+          <input type="tel" maxlength="1" id="rpin4" oninput="moverPinReg(this,5)">
+          <input type="tel" maxlength="1" id="rpin5" oninput="moverPinReg(this,6)">
+          <input type="tel" maxlength="1" id="rpin6" oninput="moverPinReg(this,7)">
+          <input type="tel" maxlength="1" id="rpin7" oninput="moverPinReg(this,null)">
+        </div>
+      </div>
+      <button class="btn btn-verde" onclick="completarRegistro()">✅ Completar Registro</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PANTALLA 3: DASHBOARD DIRIGENTE
+════════════════════════════════════════ -->
+<div id="p-dashboard" class="pantalla">
+  <div class="header">
+    <div style="display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1">
+      <span style="font-size:12px; opacity:0.6">Portal Dirigentes</span>
+      <button class="btn-sm btn-gris" style="background:rgba(255,255,255,0.2); color:white; font-size:11px" onclick="cerrarSesion()">Salir 🔒</button>
+    </div>
+    <div class="logo" style="margin-top:10px">P</div>
+    <h1 id="dash-bienvenida">¡Bienvenido!</h1>
+    <p id="dash-subtitulo">Valverde · PRM</p>
+  </div>
+  <div class="wrap">
+
+    <!-- Tarjeta perfil -->
+    <div class="perfil-card mt16">
+      <div class="perfil-foto">👤</div>
+      <div>
+        <div class="perfil-nombre" id="dash-nombre">—</div>
+        <div class="perfil-cedula" id="dash-cedula">—</div>
+        <div class="perfil-zona" id="dash-zona">—</div>
+      </div>
+    </div>
+
+    <!-- Estadísticas rápidas -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px">
+      <div class="card" style="padding:12px; text-align:center; margin:0">
+        <div id="dash-comite-count" style="font-size:24px; font-weight:900; color:var(--azul)">0</div>
+        <div style="font-size:10px; color:#94a3b8; font-weight:700">COMITÉ</div>
+      </div>
+      <div class="card" style="padding:12px; text-align:center; margin:0">
+        <div id="dash-estructura-badge" style="font-size:20px">—</div>
+        <div style="font-size:10px; color:#94a3b8; font-weight:700">ESTRUCTURA</div>
+      </div>
+      <div class="card" style="padding:12px; text-align:center; margin:0">
+        <div id="dash-estatus-badge" style="font-size:11px; font-weight:800; color:var(--verde)">ACTIVO</div>
+        <div style="font-size:10px; color:#94a3b8; font-weight:700; margin-top:2px">ESTATUS</div>
+      </div>
+    </div>
+
+    <!-- Menú principal -->
+    <div class="menu-grid">
+      <div class="menu-card azul" onclick="irA('p-comite')">
+        <div class="mc-icon">👥</div>
+        <div class="mc-label">Mi Comité de Base</div>
+        <div class="mc-sub">10+1 mínimo</div>
+      </div>
+      <div class="menu-card rojo" onclick="irA('p-estructura')">
+        <div class="mc-icon">🏛️</div>
+        <div class="mc-label">Mi Estructura</div>
+        <div class="mc-sub">Candidatos y zonas</div>
+      </div>
+      <div class="menu-card verde" onclick="irA('p-zona')">
+        <div class="mc-icon">📍</div>
+        <div class="mc-label">Mi Zona</div>
+        <div class="mc-sub">Info y dirigentes</div>
+      </div>
+      <div class="menu-card oro" onclick="irA('p-perfil')">
+        <div class="mc-icon">⚙️</div>
+        <div class="mc-label">Mi Perfil</div>
+        <div class="mc-sub">Datos y PIN</div>
+      </div>
+    </div>
+
+    <!-- Alerta estatutaria si comité incompleto -->
+    <div id="dash-alerta-comite" style="display:none; background:#fef3c7; border:2px solid #fcd34d; border-radius:14px; padding:14px; margin-bottom:16px">
+      <div style="font-weight:800; font-size:13px; color:#92400e">⚠️ Comité de Base Incompleto</div>
+      <div style="font-size:12px; color:#b45309; margin-top:4px">Según el Art. 89 de los Estatutos PRM necesitas mínimo 10 miembros en tu comité de base.</div>
+      <button class="btn btn-oro" style="margin-top:10px; margin-bottom:0" onclick="irA('p-comite')">Completar ahora →</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PANTALLA 4: COMITÉ DE BASE
+════════════════════════════════════════ -->
+<div id="p-comite" class="pantalla">
+  <div class="header">
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>← Dashboard</span></div>
+    <div style="padding: 8px 20px 4px; position:relative; z-index:1">
+      <h1>👥 Mi Comité de Base</h1>
+      <p>Solo tú puedes ver esta información</p>
+    </div>
+  </div>
+  <div class="wrap">
+
+    <!-- Progreso -->
+    <div class="card mt16">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+        <span style="font-size:13px; font-weight:800">Progreso del Comité</span>
+        <span id="comite-count-label" style="font-size:13px; font-weight:900; color:var(--azul)">0 / 10</span>
+      </div>
+      <div class="barra-wrap"><div class="barra-fill" id="comite-barra" style="width:0%"></div></div>
+      <div style="font-size:11px; color:#94a3b8; margin-top:4px">Mínimo 10 miembros según Art. 89 Estatutos PRM</div>
+    </div>
+
+    <!-- Añadir miembro -->
+    <div class="card">
+      <div class="card-title">➕ Añadir Miembro</div>
+      <div class="campo">
+        <label>Cédula del Miembro</label>
+        <input type="tel" id="comite-cedula" class="cedula-input" placeholder="000-0000000-0" maxlength="13" oninput="formatCedula(this)" onkeyup="if(event.key==='Enter') buscarMiembro()">
+      </div>
+      <div id="comite-found-box" style="display:none; margin-bottom:12px">
+        <div style="background:#f0fdf4; border:2px solid #bbf7d0; border-radius:12px; padding:12px 14px">
+          <div id="comite-found-nombre" style="font-weight:800; color:#166534"></div>
+          <div id="comite-found-cedula" style="font-size:11px; color:#16a34a; font-family:monospace"></div>
+        </div>
+      </div>
+      <div id="comite-notfound-box" style="display:none; margin-bottom:12px">
+        <div style="background:#fef2f2; border:2px solid #fecaca; border-radius:12px; padding:12px 14px">
+          <div style="font-weight:800; color:#991b1b; font-size:13px">❌ Cédula no encontrada en el padrón</div>
+          <div style="font-size:11px; color:#dc2626; margin-top:2px">Verifica el número e intenta de nuevo</div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px">
+        <button class="btn btn-azul" style="flex:1; margin:0" onclick="buscarMiembro()">🔍 Verificar</button>
+        <button class="btn btn-verde" id="btn-agregar-miembro" style="flex:1; margin:0; display:none" onclick="agregarMiembro()">✅ Añadir</button>
+      </div>
+    </div>
+
+    <!-- Lista de miembros -->
+    <div class="card">
+      <div class="card-title">📋 Miembros Registrados</div>
+      <div id="comite-lista">
+        <div class="texto-center texto-muted" style="padding:20px 0">Aún no has añadido miembros</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PANTALLA 5: MI ESTRUCTURA
+════════════════════════════════════════ -->
+<div id="p-estructura" class="pantalla">
+  <div class="header">
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>← Dashboard</span></div>
+    <div style="padding: 8px 20px 4px; position:relative; z-index:1">
+      <h1>🏛️ Mi Estructura</h1>
+      <p>Candidatos y organizaciones</p>
+    </div>
+  </div>
+  <div class="wrap">
+
+    <!-- Estructura actual -->
+    <div class="card mt16">
+      <div class="card-title">Estructura Actual</div>
+      <div id="estructura-actual-box">
+        <div class="texto-muted texto-center" style="padding:12px 0">No estás en ninguna estructura actualmente</div>
+      </div>
+    </div>
+
+    <!-- Candidatos disponibles -->
+    <div class="card">
+      <div class="card-title">🗳️ Candidatos Disponibles</div>
+      <p style="font-size:12px; color:#64748b; margin-bottom:14px">Puedes unirte a la estructura de un candidato. Puedes salir cuando quieras.</p>
+      <div id="candidatos-lista"></div>
+    </div>
+
+    <!-- Pre-candidatos -->
+    <div class="card">
+      <div class="card-title">⭐ Pre-Candidatos</div>
+      <div id="precandidatos-lista"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PANTALLA 6: MI ZONA
+════════════════════════════════════════ -->
+<div id="p-zona" class="pantalla">
+  <div class="header">
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>← Dashboard</span></div>
+    <div style="padding: 8px 20px 4px; position:relative; z-index:1">
+      <h1>📍 Mi Zona</h1>
+      <p id="zona-header-sub">Valverde · PRM</p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="card mt16">
+      <div class="card-title">Información de tu Zona</div>
+      <div id="zona-info"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">👥 Dirigentes en tu Zona</div>
+      <div id="zona-dirigentes"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PANTALLA 7: MI PERFIL
+════════════════════════════════════════ -->
+<div id="p-perfil" class="pantalla">
+  <div class="header">
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>← Dashboard</span></div>
+    <div style="padding: 8px 20px 4px; position:relative; z-index:1">
+      <h1>⚙️ Mi Perfil</h1>
+      <p>Configuración de tu cuenta</p>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="card mt16">
+      <div class="card-title">Mis Datos</div>
+      <div id="perfil-datos"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔐 Cambiar PIN</div>
+      <div class="campo">
+        <label>PIN Actual</label>
+        <div class="campo pin-wrap">
+          <input type="tel" maxlength="1" id="cpin0" oninput="moverPinCambio(this,1)">
+          <input type="tel" maxlength="1" id="cpin1" oninput="moverPinCambio(this,2)">
+          <input type="tel" maxlength="1" id="cpin2" oninput="moverPinCambio(this,3)">
+          <input type="tel" maxlength="1" id="cpin3" oninput="moverPinCambio(this,null)">
+        </div>
+      </div>
+      <div class="campo">
+        <label>Nuevo PIN</label>
+        <div class="campo pin-wrap">
+          <input type="tel" maxlength="1" id="npin0" oninput="moverPinCambio(this,5)">
+          <input type="tel" maxlength="1" id="npin1" oninput="moverPinCambio(this,6)">
+          <input type="tel" maxlength="1" id="npin2" oninput="moverPinCambio(this,7)">
+          <input type="tel" maxlength="1" id="npin3" oninput="moverPinCambio(this,null)">
+        </div>
+      </div>
+      <button class="btn btn-azul" onclick="cambiarPin()">Actualizar PIN</button>
+    </div>
+    <button class="btn btn-rojo" onclick="cerrarSesion()">🔒 Cerrar Sesión</button>
+  </div>
+</div>
+
+<!-- Contenedor de alertas -->
+<div id="alertas-box"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// SUPABASE CONFIG
+// ══════════════════════════════════════════════════════
+const SUPA_URL = 'https://ilivjaiexfqpioqrozlf.supabase.co';
+const SUPA_KEY = 'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW';
+let sb = null;
+
+function initSupabase() {
+  try {
+    if (window.supabase) {
+      sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
+      console.log('✅ Supabase conectado');
+    }
+  } catch(e) {
+    console.warn('Supabase no disponible — modo offline');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// DATOS DEL SISTEMA
+// ══════════════════════════════════════════════════════
+
+const ZONAS = {
+  MAO:          ['Zona A','Zona B','Zona C','Zona D','Zona E','Zona F'],
+  ESPERANZA:    ['Zona 1','Zona 2','Zona 3'],
+  LAGUNA_SALADA:['Zona Única'],
+  AMINA:        ['Zona Única'],
+  GUATAPANAL:   ['Zona Única'],
+  JAIBON:       ['Zona Única'],
+  POTRERO:      ['Zona Única'],
+};
+
+// Candidatos demo — luego se reemplazan con datos reales
+const CANDIDATOS_DEMO = [
+  { id:'c1', nombre:'José Ramírez Peña',    cargo:'Candidato a Senador',   tipo:'candidato',     activo:true },
+  { id:'c2', nombre:'María Santos Cruz',    cargo:'Candidata a Diputada',  tipo:'candidato',     activo:true },
+  { id:'c3', nombre:'Carlos Mena Báez',     cargo:'Candidato a Alcalde',   tipo:'candidato',     activo:true },
+  { id:'p1', nombre:'Ana López Domínguez',  cargo:'Pre-candidata Senadora', tipo:'precandidato', activo:true },
+  { id:'p2', nombre:'Pedro Vargas Reyes',   cargo:'Pre-candidato Alcalde',  tipo:'precandidato', activo:true },
+];
+
+// ══════════════════════════════════════════════════════
+// SESIÓN ACTIVA
+// ══════════════════════════════════════════════════════
+let sesion = null;  // { cedula, nombre, zona, municipio, sector, telefono, pin_hash, estructuras:[], comite:[] }
+
+// ══════════════════════════════════════════════════════
+// STORAGE — cada dirigente tiene su propio espacio
+// ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+// STORAGE — Supabase + localStorage como fallback
+// ══════════════════════════════════════════════════════
+
+function hashPin(pin) {
+  let h = 0;
+  for (let i = 0; i < pin.length; i++) h = Math.imul(31, h) + pin.charCodeAt(i) | 0;
+  return h.toString(36);
+}
+
+// ══════════════════════════════════════════════════════
+// CARGAR DATOS COMPLETOS DEL DIRIGENTE DESDE SUPABASE
+// ══════════════════════════════════════════════════════
+async function cargarDatosCompletos() {
+  if (!sesion || !sb) return;
+  try {
+    // Cargar comité
+    const { data: comite } = await sb
+      .from('comite_miembros')
+      .select('cedula_miembro, nombre_miembro, fecha_ingreso')
+      .eq('dirigente_cedula', sesion.cedula)
+      .order('fecha_ingreso');
+    if (comite) sesion.comite = comite.map(m => ({
+      cedula: m.cedula_miembro, nombre: m.nombre_miembro, fecha_ingreso: m.fecha_ingreso
+    }));
+
+    // Cargar estructuras
+    const { data: estructuras } = await sb
+      .from('estructuras_dirigente')
+      .select('candidato_id, candidato_nombre, cargo_candidato, fecha_ingreso')
+      .eq('dirigente_cedula', sesion.cedula)
+      .eq('activo', true);
+    if (estructuras) sesion.estructuras = estructuras.map(e => ({
+      candidato_id: e.candidato_id, candidato_nombre: e.candidato_nombre,
+      cargo: e.cargo_candidato, fecha_ingreso: e.fecha_ingreso
+    }));
+  } catch(e) { console.warn('Error cargando datos:', e); }
+}
+
+// Guardar token de sesión localmente
+function guardarSesionLocal(datos) {
+  localStorage.setItem('prm_sesion', JSON.stringify({
+    cedula:  datos.cedula,
+    token:   datos.token,
+    nombre:  datos.nombre,
+    zona:    datos.zona,
+    municipio: datos.municipio,
+    sector:  datos.sector,
+    telefono: datos.telefono,
+    expires: Date.now() + (24 * 60 * 60 * 1000)
+  }));
+}
+
+function cargarSesionLocal() {
+  try {
+    const raw = localStorage.getItem('prm_sesion');
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    if (s.expires < Date.now()) { localStorage.removeItem('prm_sesion'); return null; }
+    return s;
+  } catch(e) { return null; }
+}
+
+// ══════════════════════════════════════════════════════
+// PADRÓN — busca en el JSON cargado o simula
+// ══════════════════════════════════════════════════════
+
+function buscarEnPadron(cedula) {
+  const cedLimpia = cedula.replace(/\D/g,'');
+  const cedFmt = cedLimpia.length === 11
+    ? cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10)
+    : cedula;
+
+  // Intentar padrón del sistema principal si está en la misma sesión
+  if (window.opener && window.opener.estado && window.opener.estado.padron) {
+    const m = window.opener.estado.padron.porCedula[cedFmt];
+    if (m) return { nombre: m.nombre, cedula: cedFmt, foto: m.foto_b64 };
+  }
+
+  // Buscar en localStorage (padrón guardado)
+  const padronKey = 'prm_padron_cache';
+  const cache = localStorage.getItem(padronKey);
+  if (cache) {
+    const data = JSON.parse(cache);
+    if (data[cedFmt]) return { nombre: data[cedFmt].nombre, cedula: cedFmt };
+  }
+
+  // Si la cédula tiene 11 dígitos, simular como encontrado
+  // (en producción esto se reemplaza por Supabase)
+  if (cedLimpia.length === 11) {
+    return { nombre: null, cedula: cedFmt, noEncontrado: true };
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════
+// NAVEGACIÓN
+// ══════════════════════════════════════════════════════
+
+function irA(pantalla) {
+  document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
+  const el = document.getElementById(pantalla);
+  if (el) { el.classList.add('activa'); window.scrollTo(0,0); }
+
+  // Acciones al entrar
+  if (pantalla === 'p-dashboard') actualizarDashboard();
+  if (pantalla === 'p-comite')    renderComite();
+  if (pantalla === 'p-estructura') renderEstructura();
+  if (pantalla === 'p-zona')      renderZona();
+  if (pantalla === 'p-perfil')    renderPerfil();
+}
+
+function irARegistro() {
+  const cedula = document.getElementById('login-cedula').value;
+  irA('p-registro');
+  if (cedula) document.getElementById('reg-cedula').value = cedula;
+}
+
+// ══════════════════════════════════════════════════════
+// LOGIN
+// ══════════════════════════════════════════════════════
+
+let loginNombreTemporal = '';
+let loginEstadoBusqueda = 'inicial'; // inicial | encontrado | nuevo
+
+function buscarDirigente() {
+  const cedula = document.getElementById('login-cedula').value;
+  const cedLimpia = cedula.replace(/\D/g,'');
+
+  if (cedLimpia.length < 11) { alerta('Ingresa tu cédula completa (11 dígitos)', 'error'); return; }
+
+  const dirigente = cargarDirigente(cedula);
+
+  if (dirigente) {
+    // Dirigente registrado — pedir PIN
+    loginNombreTemporal = dirigente.nombre;
+    document.getElementById('login-nombre').textContent = dirigente.nombre;
+    document.getElementById('login-nombre-box').style.display = 'block';
+    document.getElementById('login-pin-box').style.display = 'block';
+    loginEstadoBusqueda = 'encontrado';
+    document.getElementById('pin0').focus();
+    alerta('¡Hola ' + dirigente.nombre.split(',')[1]?.trim().split(' ')[0] + '! Ingresa tu PIN', 'info');
+  } else {
+    // No registrado aún
+    irARegistro();
+  }
+}
+
+async function entrarConPin() {
+  if (loginEstadoBusqueda !== 'encontrado') return;
+  const pin = ['pin0','pin1','pin2','pin3'].map(id => document.getElementById(id).value).join('');
+  if (pin.length < 4) { alerta('Ingresa los 4 dígitos del PIN', 'error'); return; }
+
+  const cedula = document.getElementById('login-cedula').value;
+  alerta('Verificando PIN...', 'info');
+
+  if (sb) {
+    // Llamar función RPC de login seguro
+    const { data, error } = await sb.rpc('login_dirigente', {
+      p_cedula:   cedula,
+      p_pin_hash: hashPin(pin)
+    });
+
+    if (data && data.ok) {
+      sesion = {
+        cedula:    data.cedula,
+        nombre:    data.nombre,
+        zona:      data.zona,
+        municipio: data.municipio,
+        sector:    data.sector,
+        telefono:  data.telefono,
+        token:     data.token,
+        comite:    [],
+        estructuras: []
+      };
+      guardarSesionLocal(sesion);
+      // Cargar comité y estructuras del dirigente
+      await cargarDatosCompletos();
+      irA('p-dashboard');
+      alerta('¡Bienvenido ' + getNombreCorto(sesion.nombre) + '!', 'ok');
+      return;
+    }
+  }
+
+  alerta('PIN incorrecto. Intenta de nuevo.', 'error');
+  ['pin0','pin1','pin2','pin3'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pin0').focus();
+}
+
+// ══════════════════════════════════════════════════════
+// REGISTRO
+// ══════════════════════════════════════════════════════
+
+let regDatos = {};
+
+function verificarCedulaReg() {
+  const cedula = document.getElementById('reg-cedula').value;
+  const cedLimpia = cedula.replace(/\D/g,'');
+  if (cedLimpia.length < 11) { alerta('Ingresa tu cédula completa', 'error'); return; }
+
+  // Verificar que no esté ya registrado
+  const existe = cargarDirigente(cedula);
+  if (existe) {
+    alerta('Esta cédula ya está registrada. Ve al login.', 'error');
+    irA('p-login');
+    return;
+  }
+
+  const result = buscarEnPadron(cedula);
+
+  if (result && !result.noEncontrado) {
+    regDatos.nombre = result.nombre;
+    regDatos.cedula = result.cedula || cedula;
+    document.getElementById('reg-nombre-display').textContent = result.nombre;
+    document.getElementById('reg-nombre-box').style.display = 'block';
+    document.getElementById('reg-paso2').style.display = 'block';
+    alerta('Cédula verificada. Completa tus datos.', 'ok');
+  } else {
+    // Permitir registro manual si no está en padrón cargado
+    const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
+    regDatos.cedula = cedFmt;
+    regDatos.nombre = null;
+    document.getElementById('reg-nombre-display').textContent = 'Militante PRM · ' + cedFmt;
+    document.getElementById('reg-nombre-box').style.display = 'block';
+    document.getElementById('reg-paso2').style.display = 'block';
+    alerta('Cédula aceptada. Completa tus datos.', 'info');
+  }
+}
+
+function cargarZonasReg() {
+  const mun = document.getElementById('reg-municipio').value;
+  const select = document.getElementById('reg-zona');
+  select.innerHTML = '<option value="">Selecciona zona...</option>';
+  if (ZONAS[mun]) {
+    ZONAS[mun].forEach(z => {
+      const op = document.createElement('option');
+      op.value = z; op.textContent = z;
+      select.appendChild(op);
+    });
+  }
+}
+
+function irPaso3() {
+  const municipio = document.getElementById('reg-municipio').value;
+  const zona      = document.getElementById('reg-zona').value;
+  const sector    = document.getElementById('reg-sector').value.trim();
+  const telefono  = document.getElementById('reg-telefono').value.trim();
+
+  if (!municipio) { alerta('Selecciona tu municipio', 'error'); return; }
+  if (!zona)      { alerta('Selecciona tu zona política', 'error'); return; }
+
+  regDatos.municipio = municipio;
+  regDatos.zona      = zona;
+  regDatos.sector    = sector;
+  regDatos.telefono  = telefono;
+
+  document.getElementById('reg-paso3').style.display = 'block';
+  document.getElementById('rpin0').focus();
+}
+
+function completarRegistro() {
+  const pin1 = ['rpin0','rpin1','rpin2','rpin3'].map(id => document.getElementById(id).value).join('');
+  const pin2 = ['rpin4','rpin5','rpin6','rpin7'].map(id => document.getElementById(id).value).join('');
+
+  if (pin1.length < 4) { alerta('Ingresa tu PIN de 4 dígitos', 'error'); return; }
+  if (pin1 !== pin2)   { alerta('Los PINs no coinciden. Intenta de nuevo.', 'error'); return; }
+  if (!/^\d{4}$/.test(pin1)) { alerta('El PIN solo puede tener números', 'error'); return; }
+
+  const nuevoDirigente = {
+    cedula:    regDatos.cedula,
+    nombre:    regDatos.nombre || 'Dirigente · ' + regDatos.cedula,
+    municipio: regDatos.municipio,
+    zona:      regDatos.zona,
+    sector:    regDatos.sector,
+    telefono:  regDatos.telefono,
+    pin_hash:  hashPin(pin1),
+    activo:    true
+  };
+
+  if (sb) {
+    const { error } = await sb.from('dirigentes').insert(nuevoDirigente);
+    if (error) {
+      if (error.code === '23505') {
+        alerta('Esta cédula ya está registrada. Ve al login.', 'error');
+        irA('p-login'); return;
+      }
+      alerta('Error al registrar: ' + error.message, 'error'); return;
+    }
+  }
+
+  // Login automático tras registro
+  if (sb) {
+    const { data } = await sb.rpc('login_dirigente', {
+      p_cedula: nuevoDirigente.cedula, p_pin_hash: hashPin(pin1)
+    });
+    if (data && data.ok) {
+      sesion = { ...nuevoDirigente, token: data.token, comite: [], estructuras: [] };
+      guardarSesionLocal(sesion);
+    }
+  } else {
+    sesion = { ...nuevoDirigente, comite: [], estructuras: [] };
+  }
+
+  alerta('¡Registro completado! Bienvenido al sistema.', 'ok');
+  setTimeout(() => irA('p-dashboard'), 800);
+}
+
+// ══════════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════════
+
+function actualizarDashboard() {
+  if (!sesion) return;
+
+  const nombre = getNombreCorto(sesion.nombre);
+  document.getElementById('dash-bienvenida').textContent = '¡Bienvenido, ' + nombre + '!';
+  document.getElementById('dash-subtitulo').textContent = sesion.zona + ' · ' + sesion.municipio;
+  document.getElementById('dash-nombre').textContent = sesion.nombre;
+  document.getElementById('dash-cedula').textContent = sesion.cedula;
+  document.getElementById('dash-zona').textContent = sesion.zona + ' — ' + sesion.municipio;
+
+  const comiteCount = (sesion.comite || []).length;
+  document.getElementById('dash-comite-count').textContent = comiteCount;
+
+  const estructuraActiva = (sesion.estructuras || []).length > 0;
+  document.getElementById('dash-estructura-badge').textContent = estructuraActiva ? '✅' : '—';
+
+  // Mostrar alerta si comité incompleto
+  const alertaComite = document.getElementById('dash-alerta-comite');
+  if (comiteCount < 10) {
+    alertaComite.style.display = 'block';
+  } else {
+    alertaComite.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// COMITÉ DE BASE
+// ══════════════════════════════════════════════════════
+
+let miembroTemporal = null;
+
+function buscarMiembro() {
+  const cedula = document.getElementById('comite-cedula').value;
+  const cedLimpia = cedula.replace(/\D/g,'');
+  if (cedLimpia.length < 11) { alerta('Ingresa la cédula completa', 'error'); return; }
+
+  // Verificar que no esté ya en el comité
+  const yaEsta = (sesion.comite || []).some(m => m.cedula === cedula || m.cedula.replace(/\D/g,'') === cedLimpia);
+  if (yaEsta) { alerta('Esta persona ya está en tu comité', 'error'); return; }
+
+  // No puede ser el mismo dirigente
+  if (cedula.replace(/\D/g,'') === sesion.cedula.replace(/\D/g,'')) {
+    alerta('No puedes añadirte a ti mismo', 'error'); return;
+  }
+
+  const result = buscarEnPadron(cedula);
+
+  document.getElementById('comite-found-box').style.display = 'none';
+  document.getElementById('comite-notfound-box').style.display = 'none';
+  document.getElementById('btn-agregar-miembro').style.display = 'none';
+
+  if (result && !result.noEncontrado) {
+    miembroTemporal = { cedula: result.cedula || cedula, nombre: result.nombre };
+    document.getElementById('comite-found-nombre').textContent = result.nombre;
+    document.getElementById('comite-found-cedula').textContent = result.cedula || cedula;
+    document.getElementById('comite-found-box').style.display = 'block';
+    document.getElementById('btn-agregar-miembro').style.display = 'flex';
+  } else {
+    // Permitir añadir aunque no esté en padrón cargado
+    const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
+    miembroTemporal = { cedula: cedFmt, nombre: 'Militante · ' + cedFmt };
+    document.getElementById('comite-found-nombre').textContent = 'Militante · ' + cedFmt;
+    document.getElementById('comite-found-cedula').textContent = cedFmt;
+    document.getElementById('comite-found-box').style.display = 'block';
+    document.getElementById('btn-agregar-miembro').style.display = 'flex';
+  }
+}
+
+async function agregarMiembro() {
+  if (!miembroTemporal) return;
+
+  if (sb) {
+    const { error } = await sb.from('comite_miembros').insert({
+      dirigente_cedula: sesion.cedula,
+      cedula_miembro:   miembroTemporal.cedula,
+      nombre_miembro:   miembroTemporal.nombre
+    });
+    if (error) {
+      if (error.code === '23505') { alerta('Esta persona ya está en tu comité', 'error'); return; }
+      alerta('Error al guardar: ' + error.message, 'error'); return;
+    }
+  }
+
+  if (!sesion.comite) sesion.comite = [];
+  sesion.comite.push({
+    cedula: miembroTemporal.cedula, nombre: miembroTemporal.nombre,
+    fecha_ingreso: new Date().toISOString()
+  });
+  miembroTemporal = null;
+
+  // Limpiar formulario
+  document.getElementById('comite-cedula').value = '';
+  document.getElementById('comite-found-box').style.display = 'none';
+  document.getElementById('btn-agregar-miembro').style.display = 'none';
+
+  renderComite();
+  actualizarDashboard();
+  alerta('Miembro añadido al comité ✅', 'ok');
+}
+
+async function eliminarMiembro(cedula) {
+  if (!confirm('¿Eliminar este miembro del comité?')) return;
+  if (sb) {
+    await sb.from('comite_miembros')
+      .delete()
+      .eq('dirigente_cedula', sesion.cedula)
+      .eq('cedula_miembro', cedula);
+  }
+  sesion.comite = (sesion.comite || []).filter(m => m.cedula !== cedula);
+  renderComite();
+  actualizarDashboard();
+}
+
+function renderComite() {
+  if (!sesion) return;
+  const comite = sesion.comite || [];
+  const total  = comite.length;
+  const minimo = 10;
+
+  // Barra de progreso
+  const pct = Math.min(100, Math.round((total / minimo) * 100));
+  document.getElementById('comite-barra').style.width = pct + '%';
+  document.getElementById('comite-count-label').textContent = total + ' / ' + minimo + (total >= minimo ? ' ✅' : '');
+
+  // Lista
+  const lista = document.getElementById('comite-lista');
+  if (comite.length === 0) {
+    lista.innerHTML = '<div class="texto-center texto-muted" style="padding:20px 0">Aún no has añadido miembros</div>';
+    return;
+  }
+
+  lista.innerHTML = comite.map((m, i) => `
+    <div class="miembro-item">
+      <div class="miembro-num">${i + 1}</div>
+      <div class="miembro-data">
+        <div class="miembro-nombre">${m.nombre}</div>
+        <div class="miembro-cedula">${m.cedula}</div>
+      </div>
+      <button class="miembro-del" onclick="eliminarMiembro('${m.cedula}')">🗑</button>
+    </div>
+  `).join('');
+
+  // Total al final
+  if (total >= minimo) {
+    lista.innerHTML += `<div style="text-align:center; padding:12px; background:#f0fdf4; border-radius:12px; margin-top:8px; font-weight:800; color:#166534; font-size:13px">✅ Comité completo — cumple Art. 89 Estatutos PRM</div>`;
+  } else {
+    lista.innerHTML += `<div style="text-align:center; padding:10px; color:#94a3b8; font-size:12px">Faltan ${minimo - total} miembro${minimo - total !== 1 ? 's' : ''} para completar el mínimo</div>`;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// ESTRUCTURA DE CANDIDATOS
+// ══════════════════════════════════════════════════════
+
+async function renderEstructura() {
+  if (!sesion) return;
+
+  // Cargar candidatos desde Supabase
+  let candidatosData = CANDIDATOS_DEMO;
+  if (sb) {
+    const { data } = await sb.from('candidatos').select('*').eq('activo', true).order('tipo');
+    if (data && data.length > 0) candidatosData = data;
+  }
+
+  // Estructura actual
+  const box = document.getElementById('estructura-actual-box');
+  const estructuras = sesion.estructuras || [];
+
+  if (estructuras.length === 0) {
+    box.innerHTML = '<div class="texto-muted texto-center" style="padding:12px 0">No estás en ninguna estructura actualmente</div>';
+  } else {
+    box.innerHTML = estructuras.map(e => `
+      <div class="estructura-item activa">
+        <div class="ei-top">
+          <div>
+            <div class="ei-nombre">${e.candidato_nombre}</div>
+            <div class="ei-cargo">${e.cargo}</div>
+          </div>
+          <button class="btn-sm btn-rojo" onclick="salirEstructura('${e.candidato_id}')">Salir</button>
+        </div>
+        <div style="margin-top:6px"><span class="badge badge-verde">✅ ACTIVO</span></div>
+      </div>
+    `).join('');
+  }
+
+  // Lista de candidatos
+  const candidatos    = candidatosData.filter(c => c.tipo === 'candidato');
+  const precandidatos = candidatosData.filter(c => c.tipo === 'precandidato');
+
+  renderListaCandidatos('candidatos-lista', candidatos);
+  renderListaCandidatos('precandidatos-lista', precandidatos);
+}
+
+function renderListaCandidatos(containerId, lista) {
+  const el = document.getElementById(containerId);
+  if (lista.length === 0) {
+    el.innerHTML = '<div class="texto-muted texto-center" style="padding:12px 0">No hay registrados aún</div>';
+    return;
+  }
+
+  el.innerHTML = lista.map(c => {
+    const enEstructura = (sesion.estructuras || []).some(e => e.candidato_id === c.id);
+    return `
+      <div class="estructura-item ${enEstructura ? 'activa' : ''}">
+        <div class="ei-top">
+          <div>
+            <div class="ei-nombre">${c.nombre}</div>
+            <div class="ei-cargo">${c.cargo}</div>
+          </div>
+          ${enEstructura
+            ? `<button class="btn-sm btn-rojo" onclick="salirEstructura('${c.id}')">Salir</button>`
+            : `<button class="btn-sm btn-verde" onclick="unirseEstructura('${c.id}','${c.nombre}','${c.cargo}')">Unirse</button>`
+          }
+        </div>
+        ${enEstructura ? '<div style="margin-top:4px"><span class="badge badge-verde">✅ En tu estructura</span></div>' : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+async function unirseEstructura(id, nombre, cargo) {
+  if (!sesion.estructuras) sesion.estructuras = [];
+  const yaEsta = sesion.estructuras.some(e => e.candidato_id === id);
+  if (yaEsta) { alerta('Ya estás en esta estructura', 'info'); return; }
+
+  if (sb) {
+    const { error } = await sb.from('estructuras_dirigente').upsert({
+      dirigente_cedula: sesion.cedula,
+      candidato_id:     id,
+      candidato_nombre: nombre,
+      cargo_candidato:  cargo,
+      activo:           true
+    }, { onConflict: 'dirigente_cedula,candidato_id' });
+    if (error) { alerta('Error al guardar: ' + error.message, 'error'); return; }
+  }
+
+  sesion.estructuras.push({ candidato_id: id, candidato_nombre: nombre, cargo, fecha_ingreso: new Date().toISOString() });
+  renderEstructura();
+  actualizarDashboard();
+  alerta('Te uniste a la estructura de ' + nombre.split(' ')[0], 'ok');
+}
+
+async function salirEstructura(id) {
+  if (!confirm('¿Salir de esta estructura?')) return;
+  if (sb) {
+    await sb.from('estructuras_dirigente')
+      .update({ activo: false })
+      .eq('dirigente_cedula', sesion.cedula)
+      .eq('candidato_id', id);
+  }
+  sesion.estructuras = (sesion.estructuras || []).filter(e => e.candidato_id !== id);
+  renderEstructura();
+  actualizarDashboard();
+  alerta('Saliste de la estructura', 'info');
+}
+
+// ══════════════════════════════════════════════════════
+// MI ZONA
+// ══════════════════════════════════════════════════════
+
+function renderZona() {
+  if (!sesion) return;
+
+  document.getElementById('zona-header-sub').textContent = sesion.zona + ' · ' + sesion.municipio;
+
+  document.getElementById('zona-info').innerHTML = `
+    <div style="display:grid; gap:10px">
+      <div style="display:flex; justify-content:space-between; padding:10px; background:#f8fafc; border-radius:10px">
+        <span style="font-size:12px; color:#64748b; font-weight:700">Municipio</span>
+        <span style="font-size:13px; font-weight:800">${sesion.municipio}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px; background:#f8fafc; border-radius:10px">
+        <span style="font-size:12px; color:#64748b; font-weight:700">Zona Política</span>
+        <span style="font-size:13px; font-weight:800">${sesion.zona}</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding:10px; background:#f8fafc; border-radius:10px">
+        <span style="font-size:12px; color:#64748b; font-weight:700">Sector</span>
+        <span style="font-size:13px; font-weight:800">${sesion.sector || '—'}</span>
+      </div>
+    </div>
+  `;
+
+  // Contar otros dirigentes en la misma zona (de localStorage)
+  const mismaZona = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('prm_dirigente_')) {
+      try {
+        const d = JSON.parse(localStorage.getItem(key));
+        if (d.zona === sesion.zona && d.municipio === sesion.municipio && d.cedula !== sesion.cedula) {
+          mismaZona.push(d);
+        }
+      } catch(e) {}
+    }
+  }
+
+  const zd = document.getElementById('zona-dirigentes');
+  if (mismaZona.length === 0) {
+    zd.innerHTML = '<div class="texto-muted texto-center" style="padding:12px 0">Eres el primer dirigente registrado en esta zona</div>';
+  } else {
+    zd.innerHTML = mismaZona.map(d => `
+      <div class="miembro-item">
+        <div class="miembro-num">👤</div>
+        <div class="miembro-data">
+          <div class="miembro-nombre">${getNombreCorto(d.nombre)}</div>
+          <div class="miembro-cedula">${d.zona} · ${d.sector || 'Sin sector'}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// PERFIL
+// ══════════════════════════════════════════════════════
+
+function renderPerfil() {
+  if (!sesion) return;
+  document.getElementById('perfil-datos').innerHTML = `
+    <div style="display:grid; gap:10px">
+      <div style="padding:10px; background:#f8fafc; border-radius:10px">
+        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Nombre</div>
+        <div style="font-size:14px; font-weight:800; margin-top:3px">${sesion.nombre}</div>
+      </div>
+      <div style="padding:10px; background:#f8fafc; border-radius:10px">
+        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Cédula</div>
+        <div style="font-size:14px; font-family:monospace; font-weight:700; margin-top:3px">${sesion.cedula}</div>
+      </div>
+      <div style="padding:10px; background:#f8fafc; border-radius:10px">
+        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Zona · Municipio</div>
+        <div style="font-size:14px; font-weight:800; margin-top:3px">${sesion.zona} — ${sesion.municipio}</div>
+      </div>
+      <div style="padding:10px; background:#f8fafc; border-radius:10px">
+        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Teléfono</div>
+        <div style="font-size:14px; font-weight:800; margin-top:3px">${sesion.telefono || '—'}</div>
+      </div>
+      <div style="padding:10px; background:#f8fafc; border-radius:10px">
+        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Miembro desde</div>
+        <div style="font-size:13px; font-weight:700; margin-top:3px">${new Date(sesion.fecha_registro).toLocaleDateString('es-DO', {day:'2-digit',month:'long',year:'numeric'})}</div>
+      </div>
+    </div>
+  `;
+}
+
+function cambiarPin() {
+  const pinActual = ['cpin0','cpin1','cpin2','cpin3'].map(id => document.getElementById(id).value).join('');
+  const pinNuevo  = ['npin0','npin1','npin2','npin3'].map(id => document.getElementById(id).value).join('');
+
+  if (pinActual.length < 4) { alerta('Ingresa tu PIN actual', 'error'); return; }
+  if (pinNuevo.length < 4)  { alerta('Ingresa el nuevo PIN', 'error'); return; }
+  if (sesion.pin_hash !== hashPin(pinActual)) { alerta('PIN actual incorrecto', 'error'); return; }
+  if (!/^\d{4}$/.test(pinNuevo)) { alerta('El PIN solo puede tener números', 'error'); return; }
+
+  const nuevoHash = hashPin(pinNuevo);
+  if (sb) {
+    const { error } = await sb.from('dirigentes')
+      .update({ pin_hash: nuevoHash })
+      .eq('cedula', sesion.cedula);
+    if (error) { alerta('Error al actualizar PIN', 'error'); return; }
+  }
+  sesion.pin_hash = nuevoHash;
+  guardarSesionLocal(sesion);
+  ['cpin0','cpin1','cpin2','cpin3','npin0','npin1','npin2','npin3'].forEach(id => document.getElementById(id).value = '');
+  alerta('PIN actualizado correctamente ✅', 'ok');
+}
+
+async function cerrarSesion() {
+  if (sesion && sb) {
+    await sb.from('dirigentes')
+      .update({ session_token: null, session_expires: null })
+      .eq('cedula', sesion.cedula);
+  }
+  localStorage.removeItem('prm_sesion');
+  sesion = null;
+  document.getElementById('login-cedula').value = '';
+  ['pin0','pin1','pin2','pin3'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('login-nombre-box').style.display = 'none';
+  document.getElementById('login-pin-box').style.display = 'none';
+  loginEstadoBusqueda = 'inicial';
+  irA('p-login');
+}
+
+// ══════════════════════════════════════════════════════
+// HELPERS — PIN INPUTS
+// ══════════════════════════════════════════════════════
+
+function moverPin(el, siguiente) {
+  if (el.value.length === 1) {
+    if (siguiente !== null) document.getElementById('pin' + siguiente)?.focus();
+    else entrarConPin();
+  }
+}
+
+function moverPinReg(el, siguiente) {
+  if (el.value.length === 1 && siguiente !== null) {
+    document.getElementById('rpin' + siguiente)?.focus();
+  }
+}
+
+function moverPinCambio(el, siguiente) {
+  if (el.value.length === 1 && siguiente !== null) {
+    const ids = ['cpin0','cpin1','cpin2','cpin3','npin0','npin1','npin2','npin3'];
+    ids[siguiente]?.focus && document.getElementById(ids[siguiente])?.focus();
+  }
+}
+
+function formatCedula(input) {
+  let v = input.value.replace(/\D/g,'');
+  if (v.length > 11) v = v.slice(0,11);
+  if (v.length > 10) v = v.slice(0,3) + '-' + v.slice(3,10) + '-' + v.slice(10);
+  else if (v.length > 3) v = v.slice(0,3) + '-' + v.slice(3);
+  input.value = v;
+}
+
+function getNombreCorto(nombre) {
+  if (!nombre) return 'Dirigente';
+  const coma = nombre.indexOf(',');
+  if (coma > -1) {
+    const nombres = nombre.substring(coma + 1).trim().split(' ');
+    return nombres[0] || nombre;
+  }
+  return nombre.split(' ')[0];
+}
+
+// ══════════════════════════════════════════════════════
+// ALERTAS
+// ══════════════════════════════════════════════════════
+
+let alertaTimer = null;
+
+function alerta(msg, tipo) {
+  const box = document.getElementById('alertas-box');
+  if (alertaTimer) clearTimeout(alertaTimer);
+  const clases = { ok:'alerta-ok', error:'alerta-error', info:'alerta-info' };
+  box.innerHTML = `<div class="alerta ${clases[tipo] || 'alerta-info'}">${msg}</div>`;
+  alertaTimer = setTimeout(() => { box.innerHTML = ''; }, 3000);
+}
+
+// ══════════════════════════════════════════════════════
+// ARRANQUE
+// ══════════════════════════════════════════════════════
+
+window.addEventListener('DOMContentLoaded', async function() {
+  // Init Supabase
+  initSupabase();
+
+  // Restaurar sesión guardada
+  const sesionGuardada = cargarSesionLocal();
+  if (sesionGuardada) {
+    sesion = { ...sesionGuardada, comite: [], estructuras: [] };
+    await cargarDatosCompletos();
+    irA('p-dashboard');
+  }
+
+  // Exponer funciones globalmente
+  window.irA                  = irA;
+  window.irARegistro          = irARegistro;
+  window.buscarDirigente      = buscarDirigente;
+  window.entrarConPin         = entrarConPin;
+  window.verificarCedulaReg   = verificarCedulaReg;
+  window.cargarZonasReg       = cargarZonasReg;
+  window.irPaso3              = irPaso3;
+  window.completarRegistro    = completarRegistro;
+  window.buscarMiembro        = buscarMiembro;
+  window.agregarMiembro       = agregarMiembro;
+  window.eliminarMiembro      = eliminarMiembro;
+  window.unirseEstructura     = unirseEstructura;
+  window.salirEstructura      = salirEstructura;
+  window.cambiarPin           = cambiarPin;
+  window.cerrarSesion         = cerrarSesion;
+  window.moverPin             = moverPin;
+  window.moverPinReg          = moverPinReg;
+  window.moverPinCambio       = moverPinCambio;
+  window.formatCedula         = formatCedula;
+});
+</script>
+</body>
+</html>
