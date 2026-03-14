@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="theme-color" content="#001F5B">
+<title>Panel Zonal PRM — Valverde</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+var _sb = null;
+if (window.supabase) {
+  _sb = window.supabase.createClient(
+    'https://ilivjaiexfqpioqrozlf.supabase.co',
+    'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW'
+  );
+}
+</script>
+<style>
+:root {
+  --azul: #001F5B; --azul2: #003087; --rojo: #C8102E;
+  --oro: #F5A623; --verde: #16a34a; --gris: #f0f4f8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); min-height: 100vh; }
+
+.header {
+  background: linear-gradient(135deg, var(--azul), #001030);
+  color: white; padding: 0;
+}
+.header-top {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.header-top .logo {
+  width: 36px; height: 36px; background: white; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 11px; color: var(--rojo); letter-spacing: 0.5px;
+}
+.header-info { padding: 14px 16px 16px; }
+.header-info h1 { font-size: 20px; font-weight: 900; }
+.header-info p  { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+
+/* Tabs */
+.tabs {
+  display: flex; background: rgba(0,0,0,0.2);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.tab-btn {
+  flex: 1; padding: 12px 8px; background: none; border: none;
+  color: rgba(255,255,255,0.6); font-size: 12px; font-weight: 700;
+  cursor: pointer; touch-action: manipulation; transition: all 0.2s;
+  border-bottom: 3px solid transparent;
+}
+.tab-btn.activo { color: white; border-bottom-color: var(--oro); }
+
+.tab-content { display: none; }
+.tab-content.activo { display: block; }
+
+.wrap { padding: 16px; max-width: 600px; margin: 0 auto; }
+
+/* Stats cards */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+.stat-card {
+  background: white; border-radius: 14px; padding: 14px 10px; text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.stat-num   { font-size: 28px; font-weight: 900; color: var(--azul2); }
+.stat-label { font-size: 10px; color: #94a3b8; font-weight: 700; margin-top: 2px; text-transform: uppercase; }
+
+/* Card */
+.card { background: white; border-radius: 14px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 14px; }
+.card-title { font-size: 12px; font-weight: 800; color: var(--azul2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+
+/* Dirigente item */
+.dir-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; border-radius: 12px; background: #f8fafc;
+  margin-bottom: 10px; cursor: pointer; touch-action: manipulation;
+  transition: all 0.15s; border: 2px solid transparent;
+}
+.dir-item:active { transform: scale(0.98); }
+.dir-item:hover  { border-color: var(--azul2); }
+.dir-foto {
+  width: 48px; height: 48px; border-radius: 50%; overflow: hidden;
+  background: var(--azul2); display: flex; align-items: center;
+  justify-content: center; font-weight: 900; color: white; font-size: 16px;
+  flex-shrink: 0; border: 2px solid white; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.dir-foto img { width: 100%; height: 100%; object-fit: cover; }
+.dir-info { flex: 1; min-width: 0; }
+.dir-nombre { font-size: 13px; font-weight: 800; color: #1e293b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dir-cargo  { font-size: 11px; color: #64748b; margin-top: 1px; }
+.dir-badge  { display: flex; gap: 4px; margin-top: 5px; flex-wrap: wrap; }
+.badge {
+  font-size: 9px; font-weight: 800; padding: 2px 7px;
+  border-radius: 10px; display: inline-block;
+}
+.badge-verde  { background: #dcfce7; color: #166534; }
+.badge-rojo   { background: #fee2e2; color: #991b1b; }
+.badge-azul   { background: #dbeafe; color: #1e40af; }
+.badge-gris   { background: #f1f5f9; color: #475569; }
+
+/* Map */
+#mapa-zona { height: 380px; border-radius: 14px; overflow: hidden; }
+.leaflet-popup-content { font-size: 13px; }
+.leaflet-popup-content strong { color: var(--azul2); }
+
+/* Modal */
+.modal-bg {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 2000; align-items: center; justify-content: center; padding: 16px;
+}
+.modal-bg.open { display: flex; }
+.modal {
+  background: white; border-radius: 20px; width: 100%; max-width: 400px;
+  max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+}
+.modal-header {
+  background: linear-gradient(135deg, var(--azul2), var(--azul));
+  color: white; padding: 16px 20px; border-radius: 20px 20px 0 0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-close { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+.modal-body  { padding: 20px; }
+
+.ficha-top { display: flex; gap: 14px; margin-bottom: 16px; }
+.ficha-foto {
+  width: 80px; height: 80px; border-radius: 12px; overflow: hidden;
+  border: 3px solid var(--azul2); flex-shrink: 0; background: #ddd;
+  display: flex; align-items: center; justify-content: center; font-size: 32px;
+}
+.ficha-foto img { width: 100%; height: 100%; object-fit: cover; }
+.fila { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+.fila .lbl { color: #94a3b8; font-weight: 700; font-size: 11px; }
+.fila .val { font-weight: 700; color: #1e293b; text-align: right; }
+
+/* Loading */
+.loading-box { text-align: center; padding: 40px 20px; color: #94a3b8; }
+.spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid #e2e8f0; border-top-color: var(--azul2); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Alert */
+.toast {
+  position: fixed; bottom: 20px; left: 16px; right: 16px;
+  max-width: 400px; margin: 0 auto; padding: 14px 18px;
+  border-radius: 14px; font-size: 14px; font-weight: 700;
+  z-index: 9999; text-align: center; display: none;
+}
+.toast-ok    { background: #16a34a; color: white; }
+.toast-error { background: #dc2626; color: white; }
+.toast-info  { background: var(--azul2); color: white; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="header-top">
+    <div style="display:flex; align-items:center; gap:10px">
+      <div class="logo">PRM</div>
+      <div>
+        <div style="font-size:13px; font-weight:800" id="panel-titulo">Panel Zonal</div>
+        <div style="font-size:10px; opacity:0.6" id="panel-zona-label">Valverde</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center">
+      <span id="panel-nombre-corto" style="font-size:12px; opacity:0.7"></span>
+      <button onclick="cerrarSesion()"
+        style="background:rgba(255,255,255,0.15); border:none; color:white; padding:6px 12px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer; touch-action:manipulation">
+        Salir
+      </button>
+    </div>
+  </div>
+  <div class="header-info">
+    <h1 id="panel-bienvenida">Panel Zonal</h1>
+    <p id="panel-subtitulo">Cargando...</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn activo" onclick="cambiarTab('resumen')">📊 Resumen</button>
+    <button class="tab-btn" onclick="cambiarTab('estructura')">👥 Estructura</button>
+    <button class="tab-btn" onclick="cambiarTab('mapa')">🗺️ Mapa</button>
+    <button class="tab-btn" onclick="cambiarTab('posiciones')">🏛️ Posiciones</button>
+  </div>
+</div>
+
+<!-- ── TAB: RESUMEN ── -->
+<div id="tab-resumen" class="tab-content activo">
+  <div class="wrap">
+    <div class="stats-row" style="margin-top:16px" id="stats-container">
+      <div class="stat-card">
+        <div class="stat-num" id="stat-estructura">—</div>
+        <div class="stat-label">En mi estructura</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-comite-total">—</div>
+        <div class="stat-label">Total comité</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" id="stat-zona-total">—</div>
+        <div class="stat-label">En la zona</div>
+      </div>
+    </div>
+
+    <!-- Progreso comités -->
+    <div class="card">
+      <div class="card-title">📋 Estado de Comités — Mi Estructura</div>
+      <div id="comites-progreso">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Alertas -->
+    <div class="card">
+      <div class="card-title">⚠️ Comités Incompletos</div>
+      <div id="comites-incompletos">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB: ESTRUCTURA ── -->
+<div id="tab-estructura" class="tab-content">
+  <div class="wrap" style="padding-top:16px">
+    <div id="estructura-lista">
+      <div class="loading-box"><div class="spinner"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB: MAPA ── -->
+<div id="tab-mapa" class="tab-content">
+  <div class="wrap" style="padding-top:16px">
+    <div class="card" style="padding:0; overflow:hidden; margin-bottom:14px">
+      <div id="mapa-zona"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📍 Leyenda</div>
+      <div style="display:flex; gap:16px; flex-wrap:wrap">
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px">
+          <div style="width:14px;height:14px;background:#16a34a;border-radius:50%"></div>
+          <span>Comité completo (10+)</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px">
+          <div style="width:14px;height:14px;background:#dc2626;border-radius:50%"></div>
+          <span>Comité incompleto</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px; font-size:12px">
+          <div style="width:14px;height:14px;background:#94a3b8;border-radius:50%"></div>
+          <span>Sin ubicación</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TAB: POSICIONES ── -->
+<div id="tab-posiciones" class="tab-content">
+  <div class="wrap" style="padding-top:16px">
+    <div class="card">
+      <div class="card-title">🏛️ Posiciones Zonales</div>
+      <div id="posiciones-lista">
+        <div class="loading-box"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal ficha dirigente -->
+<div class="modal-bg" id="modal-bg" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h2>Ficha del Dirigente</h2>
+      <button class="modal-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+let sb = _sb;
+if (!sb && window.supabase) {
+  sb = window.supabase.createClient(
+    'https://ilivjaiexfqpioqrozlf.supabase.co',
+    'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW'
+  );
+}
+
+let sesion = null;
+let estructuraData = [];
+let mapaZona = null;
+
+// ══════════════════════════════════════════════════════
+// ARRANQUE
+// ══════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async function() {
+  // Cargar sesión
+  const raw = localStorage.getItem('prm_sesion');
+  if (!raw) { window.location.href = 'login.html'; return; }
+  try {
+    sesion = JSON.parse(raw);
+    if (sesion.expires < Date.now()) { window.location.href = 'login.html'; return; }
+  } catch(e) { window.location.href = 'login.html'; return; }
+
+  // Verificar rol
+  const rolesPermitidos = ['SUPER_ADMIN','PRESIDENTE_ZONAL','SECRETARIO_GENERAL',
+                           'VICEPRESIDENTE','SUBSECRETARIO_GENERAL'];
+  if (!rolesPermitidos.includes(sesion.rol)) {
+    window.location.href = 'dirigentes.html'; return;
+  }
+
+  // UI
+  const nombreCorto = (sesion.nombre||'').split(',')[0].split(' ')[0];
+  const rolLabel = {
+    PRESIDENTE_ZONAL: 'Presidente Zonal',
+    SECRETARIO_GENERAL: 'Secretario/a General',
+    VICEPRESIDENTE: 'Vicepresidente/a',
+    SUBSECRETARIO_GENERAL: 'Subsecretario/a General',
+    SUPER_ADMIN: 'Super Admin'
+  }[sesion.rol] || sesion.rol;
+
+  document.getElementById('panel-titulo').textContent = rolLabel;
+  document.getElementById('panel-zona-label').textContent = sesion.zona + ' · ' + sesion.municipio;
+  document.getElementById('panel-bienvenida').textContent = '¡Hola, ' + nombreCorto + '!';
+  document.getElementById('panel-subtitulo').textContent = rolLabel + ' · ' + sesion.zona;
+  document.getElementById('panel-nombre-corto').textContent = nombreCorto;
+
+  // Cargar datos
+  await cargarDatos();
+});
+
+// ══════════════════════════════════════════════════════
+// CARGAR DATOS DE LA ESTRUCTURA
+// ══════════════════════════════════════════════════════
+async function cargarDatos() {
+  if (!sb || !sesion) return;
+
+  // 1. Total dirigentes en la zona (solo número)
+  const { count: totalZona } = await sb.from('dirigentes')
+    .select('cedula', { count: 'exact', head: true })
+    .eq('zona', sesion.zona).eq('municipio', sesion.municipio).eq('activo', true);
+  document.getElementById('stat-zona-total').textContent = totalZona || 0;
+
+  // 2. Dirigentes en MI estructura (los que se unieron a mi candidatura/zona)
+  // Obtener la cédula del usuario actual del sistema
+  const { data: usrData } = await sb.from('usuarios_sistema')
+    .select('cedula').eq('cedula', sesion.cedula).maybeSingle();
+
+  // Traer dirigentes de la estructura zonal (plancha ganadora)
+  // Estos son los que tienen posición asignada en posiciones_zonales de esta zona
+  const { data: posData } = await sb.from('posiciones_zonales')
+    .select('cedula_titular, nombre_titular, cargo_nombre, categoria')
+    .eq('zona', sesion.zona).eq('municipio', sesion.municipio)
+    .eq('estatus', 'OCUPADA').not('cedula_titular', 'is', null);
+
+  // También traer los de mi estructura de candidato
+  const { data: estData } = await sb.from('estructuras_dirigente')
+    .select('dirigente_cedula, cargo_candidato')
+    .eq('candidato_id', sesion.cedula).eq('activo', true);
+
+  // Combinar: posiciones zonales + estructura directa
+  const cedulas = new Set();
+  const cargosMap = {};
+
+  if (posData) {
+    posData.forEach(p => {
+      if (p.cedula_titular) {
+        cedulas.add(p.cedula_titular);
+        cargosMap[p.cedula_titular] = p.cargo_nombre;
+      }
+    });
+  }
+  if (estData) {
+    estData.forEach(e => {
+      cedulas.add(e.dirigente_cedula);
+      if (!cargosMap[e.dirigente_cedula]) cargosMap[e.dirigente_cedula] = 'Estructura directa';
+    });
+  }
+
+  document.getElementById('stat-estructura').textContent = cedulas.size;
+
+  if (cedulas.size === 0) {
+    renderEstructuraVacia();
+    return;
+  }
+
+  // 3. Traer datos completos de estos dirigentes + sus comités
+  const cedulasArr = Array.from(cedulas);
+  const { data: dirigentes } = await sb.from('dirigentes')
+    .select('cedula, nombre, zona, municipio, sector, telefono, latitud, longitud, ubicacion_nombre')
+    .in('cedula', cedulasArr).eq('activo', true);
+
+  // Traer fotos del padrón
+  const { data: fotos } = await sb.from('padron_maestro')
+    .select('cedula, foto_base64').in('cedula', cedulasArr);
+  const fotosMap = {};
+  if (fotos) fotos.forEach(f => { fotosMap[f.cedula] = f.foto_base64; });
+
+  // Contar comités
+  const { data: comiteData } = await sb.from('comite_miembros')
+    .select('dirigente_cedula').in('dirigente_cedula', cedulasArr);
+  const comiteCount = {};
+  if (comiteData) {
+    comiteData.forEach(c => {
+      comiteCount[c.dirigente_cedula] = (comiteCount[c.dirigente_cedula] || 0) + 1;
+    });
+  }
+
+  // Construir estructura
+  estructuraData = (dirigentes || []).map(d => ({
+    ...d,
+    cargo:   cargosMap[d.cedula] || 'Dirigente',
+    foto:    fotosMap[d.cedula] || null,
+    comite:  comiteCount[d.cedula] || 0,
+  }));
+
+  const totalComite = estructuraData.reduce((t, d) => t + d.comite, 0);
+  document.getElementById('stat-comite-total').textContent = totalComite;
+
+  // Render todas las secciones
+  renderResumen();
+  renderEstructura();
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER RESUMEN
+// ══════════════════════════════════════════════════════
+function renderResumen() {
+  const completos   = estructuraData.filter(d => d.comite >= 10).length;
+  const incompletos = estructuraData.filter(d => d.comite < 10);
+
+  // Progreso
+  const prog = document.getElementById('comites-progreso');
+  if (estructuraData.length === 0) {
+    prog.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:16px 0">Sin dirigentes en tu estructura</div>';
+  } else {
+    const pct = Math.round((completos / estructuraData.length) * 100);
+    prog.innerHTML = `
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px">
+        <span style="font-size:12px; font-weight:700">Comités completos</span>
+        <span style="font-size:12px; font-weight:900; color:var(--azul2)">${completos} / ${estructuraData.length}</span>
+      </div>
+      <div style="height:10px; background:#f1f5f9; border-radius:999px; overflow:hidden; margin-bottom:8px">
+        <div style="height:100%; width:${pct}%; background:${pct>=80?'#16a34a':pct>=50?'#f59e0b':'#dc2626'}; border-radius:999px; transition:width 0.5s"></div>
+      </div>
+      <div style="font-size:11px; color:#94a3b8">${pct}% completado · Mínimo 10 miembros por comité</div>
+    `;
+  }
+
+  // Incompletos
+  const incompEl = document.getElementById('comites-incompletos');
+  if (incompletos.length === 0) {
+    incompEl.innerHTML = '<div style="color:#16a34a; font-weight:700; padding:8px 0">✅ Todos los comités están completos</div>';
+  } else {
+    incompEl.innerHTML = incompletos.map(d => `
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid #f1f5f9">
+        <div>
+          <div style="font-size:13px; font-weight:700">${d.nombre.split(',')[0]}</div>
+          <div style="font-size:11px; color:#64748b">${d.cargo}</div>
+        </div>
+        <div style="text-align:right">
+          <span style="background:#fee2e2; color:#991b1b; padding:3px 10px; border-radius:10px; font-size:11px; font-weight:800">
+            ${d.comite}/10
+          </span>
+        </div>
+      </div>
+    `).join('');
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER ESTRUCTURA
+// ══════════════════════════════════════════════════════
+function renderEstructura() {
+  const el = document.getElementById('estructura-lista');
+  if (estructuraData.length === 0) {
+    renderEstructuraVacia();
+    return;
+  }
+
+  // Agrupar por categoría
+  const grupos = { 'ALTA_DIRECCION': [], 'SECRETARIA': [], 'FRENTE_SECTORIAL': [], 'Otros': [] };
+  estructuraData.forEach(d => {
+    const cat = getCategoriaFromCargo(d.cargo);
+    if (grupos[cat]) grupos[cat].push(d);
+    else grupos['Otros'].push(d);
+  });
+
+  const labels = {
+    ALTA_DIRECCION: '👑 Alta Dirección',
+    SECRETARIA: '📋 Secretarías',
+    FRENTE_SECTORIAL: '🌟 Frentes Sectoriales',
+    Otros: '👥 Estructura Directa'
+  };
+
+  let html = '';
+  Object.entries(grupos).forEach(([cat, dirs]) => {
+    if (dirs.length === 0) return;
+    html += `<div style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin:14px 0 8px">${labels[cat]}</div>`;
+    html += dirs.map(d => renderDirigenteItem(d)).join('');
+  });
+
+  el.innerHTML = html;
+}
+
+function renderDirigenteItem(d) {
+  const iniciales = (d.nombre||'').split(',')[0].split(' ').map(w=>w[0]).slice(0,2).join('');
+  const fotoHtml = d.foto
+    ? `<img src="data:image/jpeg;base64,${d.foto}" alt="${d.nombre}">`
+    : iniciales;
+  const comiteBadge = d.comite >= 10
+    ? `<span class="badge badge-verde">${d.comite} comité ✅</span>`
+    : `<span class="badge badge-rojo">${d.comite}/10 ⚠️</span>`;
+  const ubiBadge = d.latitud
+    ? `<span class="badge badge-azul">📍 Ubicado</span>`
+    : `<span class="badge badge-gris">Sin ubicación</span>`;
+
+  return `
+    <div class="dir-item" onclick="verFicha('${d.cedula}')">
+      <div class="dir-foto">${fotoHtml}</div>
+      <div class="dir-info">
+        <div class="dir-nombre">${d.nombre}</div>
+        <div class="dir-cargo">${d.cargo}</div>
+        <div class="dir-badge">${comiteBadge}${ubiBadge}</div>
+      </div>
+      <div style="color:#cbd5e1; font-size:18px">›</div>
+    </div>`;
+}
+
+function renderEstructuraVacia() {
+  const el = document.getElementById('estructura-lista');
+  if (el) el.innerHTML = `
+    <div style="text-align:center; padding:40px 20px; color:#94a3b8">
+      <div style="font-size:48px; margin-bottom:12px">🏛️</div>
+      <div style="font-weight:700; margin-bottom:6px">Sin estructura registrada</div>
+      <div style="font-size:12px">Los dirigentes que se unan a tu estructura aparecerán aquí</div>
+    </div>`;
+}
+
+function getCategoriaFromCargo(cargo) {
+  if (!cargo) return 'Otros';
+  if (cargo.includes('Presidente') || cargo.includes('Vicepresidente') ||
+      cargo.includes('Secretario General') || cargo.includes('Subsecretario')) return 'ALTA_DIRECCION';
+  if (cargo.includes('Sec.') || cargo.includes('Secretar')) return 'SECRETARIA';
+  if (cargo.includes('Frente') || cargo.includes('Pdte.')) return 'FRENTE_SECTORIAL';
+  return 'Otros';
+}
+
+// ══════════════════════════════════════════════════════
+// VER FICHA DE UN DIRIGENTE
+// ══════════════════════════════════════════════════════
+function verFicha(cedula) {
+  const d = estructuraData.find(x => x.cedula === cedula);
+  if (!d) return;
+
+  const fotoHtml = d.foto
+    ? `<img src="data:image/jpeg;base64,${d.foto}" alt="${d.nombre}">`
+    : `<span style="font-size:32px">👤</span>`;
+
+  const mapsUrl = d.latitud
+    ? `https://www.google.com/maps?q=${d.latitud},${d.longitud}`
+    : d.sector ? `https://www.google.com/maps/search/${encodeURIComponent(d.sector + ' Mao Valverde')}` : null;
+
+  document.getElementById('modal-body').innerHTML = `
+    <div class="ficha-top">
+      <div class="ficha-foto">${fotoHtml}</div>
+      <div style="flex:1">
+        <div style="font-size:15px; font-weight:900; color:var(--azul2); line-height:1.2">${d.nombre}</div>
+        <div style="font-size:12px; color:#64748b; margin-top:4px">${d.cargo}</div>
+        <div style="margin-top:8px">
+          ${d.comite >= 10
+            ? `<span class="badge badge-verde">✅ Comité completo (${d.comite})</span>`
+            : `<span class="badge badge-rojo">⚠️ Comité incompleto (${d.comite}/10)</span>`}
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="fila"><span class="lbl">Cédula</span><span class="val" style="font-family:monospace">${d.cedula}</span></div>
+      <div class="fila"><span class="lbl">Zona</span><span class="val">${d.zona}</span></div>
+      <div class="fila"><span class="lbl">Sector</span><span class="val">${d.sector || '—'}</span></div>
+      <div class="fila"><span class="lbl">Teléfono</span><span class="val">${d.telefono ? '<a href="tel:'+d.telefono+'" style="color:var(--azul2)">'+d.telefono+'</a>' : '—'}</span></div>
+      <div class="fila"><span class="lbl">Miembros comité</span><span class="val" style="font-size:18px; font-weight:900; color:${d.comite>=10?'#16a34a':'#dc2626'}">${d.comite}</span></div>
+      <div class="fila"><span class="lbl">Ubicación</span><span class="val">${d.ubicacion_nombre || (d.latitud ? '📍 Marcado' : 'Sin ubicar')}</span></div>
+    </div>
+    ${mapsUrl ? `
+    <a href="${mapsUrl}" target="_blank"
+      style="display:block; margin-top:14px; background:var(--azul2); color:white; padding:13px; border-radius:12px; text-align:center; font-weight:800; font-size:14px; text-decoration:none">
+      🗺️ Ver en el mapa
+    </a>` : ''}
+  `;
+
+  document.getElementById('modal-bg').classList.add('open');
+}
+
+function cerrarModal() { document.getElementById('modal-bg').classList.remove('open'); }
+function closeModal(e) { if (e.target === document.getElementById('modal-bg')) cerrarModal(); }
+
+// ══════════════════════════════════════════════════════
+// MAPA DE LA ZONA
+// ══════════════════════════════════════════════════════
+function initMapaZona() {
+  if (mapaZona) { mapaZona.remove(); mapaZona = null; }
+
+  mapaZona = L.map('mapa-zona').setView([19.5557, -71.0831], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 19
+  }).addTo(mapaZona);
+
+  const conUbicacion = estructuraData.filter(d => d.latitud && d.longitud);
+
+  if (conUbicacion.length === 0) {
+    document.getElementById('tab-mapa').querySelector('.wrap').innerHTML += `
+      <div style="text-align:center; color:#94a3b8; padding:16px 0; font-size:13px">
+        Ningún dirigente de tu estructura ha marcado su ubicación aún
+      </div>`;
+    return;
+  }
+
+  const bounds = [];
+  conUbicacion.forEach(d => {
+    const color = d.comite >= 10 ? '#16a34a' : '#dc2626';
+    const icono = L.divIcon({
+      html: `<div style="background:${color};color:white;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:11px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);overflow:hidden">
+        ${d.foto ? `<img src="data:image/jpeg;base64,${d.foto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (d.nombre||'?').split(',')[0][0]}
+      </div>`,
+      iconSize: [38, 38], iconAnchor: [19, 38], className: ''
+    });
+
+    const marker = L.marker([d.latitud, d.longitud], { icon: icono }).addTo(mapaZona);
+    marker.bindPopup(`
+      <strong>${d.nombre.split(',')[0]}</strong><br>
+      <span style="color:#64748b;font-size:11px">${d.cargo}</span><br>
+      <span style="font-size:12px;font-weight:700;color:${d.comite>=10?'#16a34a':'#dc2626'}">
+        Comité: ${d.comite} miembros
+      </span>
+      ${d.telefono ? `<br><a href="tel:${d.telefono}" style="font-size:11px">📞 ${d.telefono}</a>` : ''}
+    `);
+    marker.on('click', () => verFicha(d.cedula));
+    bounds.push([d.latitud, d.longitud]);
+  });
+
+  if (bounds.length > 0) mapaZona.fitBounds(bounds, { padding: [30, 30] });
+}
+
+// ══════════════════════════════════════════════════════
+// POSICIONES ZONALES
+// ══════════════════════════════════════════════════════
+async function cargarPosiciones() {
+  if (!sb) return;
+  const { data } = await sb.from('posiciones_zonales')
+    .select('cargo_id, cargo_nombre, categoria, cedula_titular, nombre_titular, estatus')
+    .eq('zona', sesion.zona).eq('municipio', sesion.municipio)
+    .order('cargo_id');
+
+  const el = document.getElementById('posiciones-lista');
+  if (!data || data.length === 0) {
+    el.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:16px">Sin posiciones configuradas</div>';
+    return;
+  }
+
+  const cats = { ALTA_DIRECCION: [], SECRETARIA: [], FRENTE_SECTORIAL: [] };
+  data.forEach(p => { if (cats[p.categoria]) cats[p.categoria].push(p); });
+  const catLabels = { ALTA_DIRECCION: '👑 Alta Dirección', SECRETARIA: '📋 Secretarías', FRENTE_SECTORIAL: '🌟 Frentes' };
+
+  el.innerHTML = Object.entries(cats).map(([cat, pos]) => `
+    <div style="font-size:11px;font-weight:800;color:#94a3b8;text-transform:uppercase;margin:12px 0 6px">${catLabels[cat]}</div>
+    ${pos.map(p => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f1f5f9">
+        <div>
+          <div style="font-size:13px;font-weight:700">${p.cargo_nombre}</div>
+          ${p.nombre_titular ? `<div style="font-size:11px;color:#64748b;margin-top:1px">${p.nombre_titular}</div>` : ''}
+        </div>
+        <span style="background:${p.estatus==='OCUPADA'?'#dcfce7':p.estatus==='PENDIENTE_REMOCION'?'#fef3c7':'#f1f5f9'};
+              color:${p.estatus==='OCUPADA'?'#166534':p.estatus==='PENDIENTE_REMOCION'?'#92400e':'#64748b'};
+              padding:3px 10px;border-radius:10px;font-size:10px;font-weight:800;white-space:nowrap">
+          ${p.estatus==='OCUPADA'?'✅ Ocupada':p.estatus==='PENDIENTE_REMOCION'?'⏳ Pendiente':'🔓 Libre'}
+        </span>
+      </div>`).join('')}
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════════
+function cambiarTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'));
+  document.getElementById('tab-' + tab).classList.add('activo');
+  event.target.classList.add('activo');
+
+  if (tab === 'mapa') setTimeout(initMapaZona, 100);
+  if (tab === 'posiciones') cargarPosiciones();
+}
+
+// ══════════════════════════════════════════════════════
+// SESIÓN
+// ══════════════════════════════════════════════════════
+function cerrarSesion() {
+  localStorage.removeItem('prm_sesion');
+  window.location.href = 'login.html';
+}
+
+// Toast
+let toastTimer;
+function toast(msg, tipo) {
+  const el = document.getElementById('toast');
+  if (toastTimer) clearTimeout(toastTimer);
+  el.textContent = msg; el.className = 'toast toast-' + tipo;
+  el.style.display = 'block';
+  toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
+</script>
+</body>
+</html>
