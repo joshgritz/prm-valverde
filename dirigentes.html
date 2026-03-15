@@ -746,16 +746,32 @@ function hashPin(pin) {
 async function cargarDatosCompletos() {
   if (!sesion || !sb) return;
   try {
-    // Cargar ubicación del dirigente
+    // Cargar datos completos del dirigente
+    const cedLimpiaLoad = sesion.cedula.replace(/\D/g,'');
+    const cedFmtLoad = cedLimpiaLoad.length === 11
+      ? cedLimpiaLoad.slice(0,3)+'-'+cedLimpiaLoad.slice(3,10)+'-'+cedLimpiaLoad.slice(10)
+      : sesion.cedula;
+
     const { data: dir } = await sb.from('dirigentes')
-      .select('latitud, longitud, ubicacion_nombre, sector, telefono')
-      .eq('cedula', sesion.cedula).maybeSingle();
+      .select('latitud, longitud, ubicacion_nombre, sector, telefono, email')
+      .eq('cedula', cedFmtLoad).maybeSingle();
     if (dir) {
       sesion.latitud          = dir.latitud;
       sesion.longitud         = dir.longitud;
       sesion.ubicacion_nombre = dir.ubicacion_nombre;
       sesion.sector           = dir.sector;
       sesion.telefono         = dir.telefono;
+      sesion.email            = dir.email;
+    }
+
+    // Cargar foto, sexo y edad del padrón
+    const { data: pad } = await sb.from('padron_maestro')
+      .select('foto_base64, sexo, fecha_nacimiento')
+      .eq('cedula', cedFmtLoad).maybeSingle();
+    if (pad) {
+      sesion.foto_base64       = pad.foto_base64;
+      sesion.sexo              = pad.sexo;
+      sesion.fecha_nacimiento  = pad.fecha_nacimiento;
     }
     // Cargar comité
     const { data: comite } = await sb
@@ -1155,7 +1171,9 @@ async function buscarMiembro() {
       nombre:    result.nombre,
       recinto:   result.recinto || '',
       colegio:   result.colegio || '',
-      direccion: result.dir || result.direccion || ''
+      direccion: result.dir || result.direccion || '',
+      sexo:      result.sexo || '',
+      fecha_nacimiento: result.fecha_nacimiento || ''
     };
     let infoExtra = '✅ En padrón PRM';
     if (esDirigente) infoExtra += ' · ' + mensajeDisp;
@@ -1194,12 +1212,14 @@ async function agregarMiembro() {
 
   if (!sesion.comite) sesion.comite = [];
   sesion.comite.push({
-    cedula:        miembroTemporal.cedula,
-    nombre:        miembroTemporal.nombre,
-    recinto:       miembroTemporal.recinto || '',
-    colegio:       miembroTemporal.colegio || '',
-    direccion:     miembroTemporal.direccion || '',
-    fecha_ingreso: new Date().toISOString()
+    cedula:          miembroTemporal.cedula,
+    nombre:          miembroTemporal.nombre,
+    recinto:         miembroTemporal.recinto || '',
+    colegio:         miembroTemporal.colegio || '',
+    direccion:       miembroTemporal.direccion || '',
+    sexo:            miembroTemporal.sexo || '',
+    fecha_nacimiento: miembroTemporal.fecha_nacimiento || '',
+    fecha_ingreso:   new Date().toISOString()
   });
   miembroTemporal = null;
 
@@ -1289,7 +1309,17 @@ async function guardarEdicionMiembro(cedula) {
 
   // Update in Supabase
   if (sb) {
-    const { error } = await sb.from('comite_miembros')
+    // Formato correcto de cédulas
+    const cedLimpia = sesion.cedula.replace(/\D/g,'');
+    const cedFmt = cedLimpia.length === 11
+      ? cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10)
+      : sesion.cedula;
+    const mLimpia = cedula.replace(/\D/g,'');
+    const mFmt = mLimpia.length === 11
+      ? mLimpia.slice(0,3)+'-'+mLimpia.slice(3,10)+'-'+mLimpia.slice(10)
+      : cedula;
+
+    const { data, error } = await sb.from('comite_miembros')
       .update({ 
         telefono, 
         direccion, 
@@ -1297,9 +1327,11 @@ async function guardarEdicionMiembro(cedula) {
         fidelidad,
         transporte
       })
-      .eq('dirigente_cedula', sesion.cedula)
-      .eq('cedula_miembro', cedula);
-    if (error) { alerta('Error al guardar: ' + error.message, 'error'); return; }
+      .eq('dirigente_cedula', cedFmt)
+      .eq('cedula_miembro', mFmt)
+      .select();
+    if (error) { alerta('Error: ' + error.message, 'error'); return; }
+    if (!data || data.length === 0) { alerta('No se encontró el registro', 'error'); return; }
   }
 
   // Update local session
@@ -1532,14 +1564,34 @@ function renderZona() {
 async function actualizarPerfil() {
   const tel    = document.getElementById('edit-telefono')?.value?.trim();
   const sector = document.getElementById('edit-sector')?.value?.trim();
+
+  if (!sesion?.cedula) { alerta('Error: sesión no válida', 'error'); return; }
+
+  // Asegurar formato correcto de cédula (con guiones)
+  const cedLimpia = sesion.cedula.replace(/\D/g,'');
+  const cedFmt = cedLimpia.length === 11
+    ? cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10)
+    : sesion.cedula;
+
   if (sb) {
-    const { error } = await sb.from('dirigentes')
+    const { data, error } = await sb.from('dirigentes')
       .update({ telefono: tel, sector: sector })
-      .eq('cedula', sesion.cedula);
-    if (error) { alerta('Error al guardar', 'error'); return; }
+      .eq('cedula', cedFmt)
+      .select();
+
+    if (error) {
+      alerta('Error: ' + error.message, 'error');
+      console.error('Update error:', error, 'cedula:', cedFmt);
+      return;
+    }
+    if (!data || data.length === 0) {
+      alerta('No se encontró tu registro. Cédula: ' + cedFmt, 'error');
+      return;
+    }
   }
   sesion.telefono = tel;
-  sesion.sector = sector;
+  sesion.sector   = sector;
+  guardarSesionLocal(sesion);
   alerta('✅ Datos actualizados', 'ok');
   renderPerfil();
 }
@@ -1549,11 +1601,44 @@ function renderPerfil() {
   const desde = sesion.fecha_registro
     ? new Date(sesion.fecha_registro).toLocaleDateString('es-DO', {day:'2-digit',month:'long',year:'numeric'})
     : '—';
+  
+  // Calcular edad si hay fecha de nacimiento
+  let edadStr = '—';
+  if (sesion.fecha_nacimiento) {
+    const hoy = new Date();
+    const nac = new Date(sesion.fecha_nacimiento);
+    const edad = hoy.getFullYear() - nac.getFullYear() -
+      (hoy < new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate()) ? 1 : 0);
+    edadStr = edad + ' años';
+  }
+  
+  const generoStr = sesion.sexo === 'F' ? '♀ Femenino' : sesion.sexo === 'M' ? '♂ Masculino' : '—';
+  const fotoHtml = sesion.foto_base64
+    ? `<img src="data:image/jpeg;base64,${sesion.foto_base64}" 
+        style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #003087;box-shadow:0 2px 10px rgba(0,0,0,0.2)">`
+    : `<div style="width:80px;height:80px;border-radius:50%;background:#003087;color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:28px;border:3px solid #C8102E">
+        ${(sesion.nombre||'?').split(',')[0][0]}
+       </div>`;
+
   document.getElementById('perfil-datos').innerHTML = `
     <div style="display:grid; gap:12px">
+      <!-- Foto -->
+      <div style="text-align:center; padding:16px 0 8px">
+        ${fotoHtml}
+      </div>
       <div style="padding:12px; background:#f8fafc; border-radius:10px">
         <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Nombre completo</div>
         <div style="font-size:15px; font-weight:800; margin-top:4px">${sesion.nombre}</div>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div style="padding:12px; background:#f8fafc; border-radius:10px">
+          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Edad</div>
+          <div style="font-size:15px; font-weight:800; margin-top:4px">${edadStr}</div>
+        </div>
+        <div style="padding:12px; background:#f8fafc; border-radius:10px">
+          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Género</div>
+          <div style="font-size:15px; font-weight:800; margin-top:4px">${generoStr}</div>
+        </div>
       </div>
       <div style="padding:12px; background:#f8fafc; border-radius:10px">
         <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Cédula</div>
@@ -1615,12 +1700,8 @@ async function cerrarSesion() {
   }
   localStorage.removeItem('prm_sesion');
   sesion = null;
-  document.getElementById('login-cedula').value = '';
-  ['pin0','pin1','pin2','pin3'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('login-nombre-box').style.display = 'none';
-  document.getElementById('login-pin-box').style.display = 'none';
-  loginEstadoBusqueda = 'inicial';
-  irA('p-login');
+  // Recargar la página para limpiar todo el estado
+  window.location.reload();
 }
 
 // ══════════════════════════════════════════════════════
@@ -1806,6 +1887,38 @@ async function guardarUbicacion() {
 // ARRANQUE
 // ══════════════════════════════════════════════════════
 
+function mostrarListaBusqueda(resultados) {
+  // Remove existing list
+  document.getElementById('lista-busqueda')?.remove();
+  
+  const div = document.createElement('div');
+  div.id = 'lista-busqueda';
+  div.style.cssText = 'background:white;border:2px solid #e2e8f0;border-radius:12px;overflow:hidden;margin-top:8px';
+  div.innerHTML = resultados.map(r => `
+    <div onclick="seleccionarMiembro('${r.cedula}')"
+      style="padding:12px 14px;border-bottom:1px solid #f1f5f9;cursor:pointer;display:flex;align-items:center;gap:10px;touch-action:manipulation"
+      onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='white'">
+      ${r.foto_base64 
+        ? `<img src="data:image/jpeg;base64,${r.foto_base64}" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`
+        : `<div style="width:36px;height:36px;border-radius:50%;background:#003087;color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:12px">${(r.nombre_completo||'?')[0]}</div>`}
+      <div>
+        <div style="font-size:13px;font-weight:800">${r.nombre_completo}</div>
+        <div style="font-size:11px;color:#64748b;font-family:monospace">${r.cedula}</div>
+      </div>
+    </div>
+  `).join('');
+  
+  const inputEl = document.getElementById('input-miembro');
+  inputEl?.parentElement?.appendChild(div);
+}
+
+async function seleccionarMiembro(cedula) {
+  document.getElementById('lista-busqueda')?.remove();
+  const input = document.getElementById('input-miembro');
+  if (input) input.value = cedula;
+  await buscarMiembro();
+}
+
 window.addEventListener('DOMContentLoaded', async function() {
   // Init Supabase
   initSupabase();
@@ -1841,6 +1954,7 @@ window.addEventListener('DOMContentLoaded', async function() {
   window.salirEstructura      = salirEstructura;
   window.cambiarPin           = cambiarPin;
   window.cerrarSesion         = cerrarSesion;
+  window.seleccionarMiembro   = seleccionarMiembro;
   window.moverPin             = moverPin;
   window.moverPinReg          = moverPinReg;
   window.moverPinCambio       = moverPinCambio;
