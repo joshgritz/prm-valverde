@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#003087">
 <title>Portal Dirigentes PRM — Valverde</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1722,10 +1722,28 @@ function initMapaDirigente() {
 
   mapaDirigente = L.map('mapa-dirigente').setView(centro, 14);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 19
-  }).addTo(mapaDirigente);
+  // Capas del mapa
+  const calles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 19
+  });
+
+  const satelital = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© Esri', maxZoom: 19
+  });
+
+  const negocios = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap HOT', maxZoom: 19
+  });
+
+  // Capa por defecto
+  calles.addTo(mapaDirigente);
+
+  // Control de capas
+  L.control.layers({
+    '🗺️ Calles':    calles,
+    '🛰️ Satelital': satelital,
+    '📍 Negocios':  negocios
+  }, {}, { position: 'topright', collapsed: false }).addTo(mapaDirigente);
 
   // Si ya tiene ubicación guardada, mostrarla
   if (sesion.latitud && sesion.longitud) {
