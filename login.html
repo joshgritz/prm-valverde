@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="theme-color" content="#001F5B">
+<meta name="theme-color" content="#003087">
 <title>Portal PRM — Valverde</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -16,219 +16,207 @@ if (window.supabase) {
 }
 </script>
 <style>
-:root {
-  --azul:    #001F5B;
-  --azul2:   #003087;
-  --rojo:    #C8102E;
-  --oro:     #F5A623;
-  --verde:   #16a34a;
-  --gris:    #f0f4f8;
-}
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
 body {
   font-family: 'Segoe UI', system-ui, sans-serif;
   background: #f0f4f8;
   color: #1e293b;
   min-height: 100vh;
-  display: flex; flex-direction: column;
-  position: relative; overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
 }
 
-/* Background pattern */
-
-
-.wrap {
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  padding: 24px 20px; position: relative; z-index: 1;
-}
-
-/* Logo */
-.logo-box {
-  text-align: center; margin-bottom: 32px;
+/* ── LOGO ── */
+.logo-area {
+  text-align: center;
+  margin-bottom: 20px;
 }
 .logo-circle {
-  width: 80px; height: 80px; border-radius: 50%;
-  background: white; margin: 0 auto 14px;
+  width: 72px; height: 72px; border-radius: 50%;
+  background: #003087; border: 3px solid #C8102E;
   display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 4px rgba(255,255,255,0.1);
-  font-size: 32px; font-weight: 900; color: var(--rojo);
-  letter-spacing: -1px;
+  margin: 0 auto 12px;
+  box-shadow: 0 4px 16px rgba(0,48,135,0.25);
 }
-.logo-box h1 {
-  color: #003087; font-size: 22px; font-weight: 900;
-  letter-spacing: 1px; text-transform: uppercase;
+.logo-circle span {
+  font-family: Arial Black, sans-serif;
+  font-weight: 900; font-size: 20px;
+  color: white; letter-spacing: 1px;
 }
-.logo-box p { color: #64748b; font-size: 12px; margin-top: 4px; }
+.logo-area h1 {
+  font-size: 20px; font-weight: 900;
+  color: #003087; margin-bottom: 3px;
+}
+.logo-area p {
+  font-size: 12px; color: #64748b;
+}
 
-/* Card */
+/* ── CARD ── */
 .card {
-  background: white; border-radius: 20px; width: 100%; max-width: 400px;
-  box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  background: white;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.1);
   overflow: hidden;
 }
 .card-header {
-  background: linear-gradient(135deg, var(--azul2), var(--azul));
-  padding: 20px 24px; color: white;
+  background: linear-gradient(135deg, #003087, #1a4fa8);
+  padding: 18px 22px;
+  color: white;
 }
 .card-header h2 { font-size: 16px; font-weight: 800; }
-.card-header p  { font-size: 12px; opacity: 0.7; margin-top: 3px; }
-.card-body { padding: 24px; }
+.card-header p  { font-size: 12px; opacity: 0.7; margin-top: 2px; }
+.card-body { padding: 22px; }
 
-/* Steps */
+/* ── STEPS ── */
 .step { display: none; }
 .step.active { display: block; }
 
-/* Inputs */
-.campo { margin-bottom: 16px; }
+/* ── INPUTS ── */
+.campo { margin-bottom: 14px; }
 .campo label {
   display: block; font-size: 10px; font-weight: 800;
   color: #64748b; text-transform: uppercase;
   letter-spacing: 0.8px; margin-bottom: 6px;
 }
-.campo input {
-  width: 100%; padding: 13px 16px; border: 2px solid #e2e8f0;
-  border-radius: 12px; font-size: 16px; outline: none;
-  transition: border 0.2s; font-family: inherit; background: white;
+.campo input, .campo select {
+  width: 100%; padding: 12px 15px;
+  border: 2px solid #e2e8f0; border-radius: 12px;
+  font-size: 15px; outline: none; font-family: inherit;
+  background: white; transition: border 0.2s;
 }
-.campo input:focus { border-color: var(--azul2); }
-.campo input.cedula-input { font-family: monospace; letter-spacing: 1px; }
+.campo input:focus { border-color: #003087; }
 
-/* PIN inputs */
-.pin-row { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+/* ── PIN ── */
+.pin-row {
+  display: flex; gap: 10px;
+  justify-content: center; margin-bottom: 14px;
+}
 .pin-row input {
-  width: 56px; height: 64px; text-align: center;
-  font-size: 24px; font-weight: 900; border-radius: 12px;
-  border: 2px solid #e2e8f0; outline: none; font-family: inherit;
+  width: 54px; height: 60px; text-align: center;
+  font-size: 22px; font-weight: 900;
+  border-radius: 12px; border: 2px solid #e2e8f0;
+  outline: none; font-family: inherit;
   transition: border 0.2s;
 }
-.pin-row input:focus { border-color: var(--azul2); }
+.pin-row input:focus { border-color: #003087; }
 
-/* Perfil encontrado */
+/* ── PERFIL BOX ── */
 .perfil-box {
   background: #f0fdf4; border: 2px solid #bbf7d0;
-  border-radius: 14px; padding: 14px;
-  display: flex; align-items: center; gap: 12px;
-  margin-bottom: 16px;
+  border-radius: 14px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
 }
 .perfil-foto {
-  width: 52px; height: 52px; border-radius: 50%;
-  background: var(--azul2); color: white;
+  width: 50px; height: 50px; border-radius: 50%;
+  background: #003087; color: white; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px; font-weight: 900; flex-shrink: 0;
-  overflow: hidden;
+  font-size: 16px; font-weight: 900; overflow: hidden;
 }
 .perfil-foto img { width: 100%; height: 100%; object-fit: cover; }
-.perfil-nombre { font-weight: 800; font-size: 14px; color: #166534; }
-.perfil-cedula { font-size: 11px; color: #16a34a; font-family: monospace; }
-.perfil-badge  {
-  display: inline-block; margin-top: 4px;
-  font-size: 9px; font-weight: 800; padding: 2px 8px;
-  border-radius: 20px; text-transform: uppercase;
-}
 
-/* Opciones de acción */
-.opciones { display: grid; gap: 10px; margin-bottom: 16px; }
+/* ── OPCIONES ── */
+.opciones { display: grid; gap: 8px; margin-bottom: 14px; }
 .opcion-btn {
-  width: 100%; padding: 14px 16px; border: 2px solid #e2e8f0;
-  border-radius: 14px; background: white; cursor: pointer;
-  text-align: left; display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 12px 14px;
+  border: 2px solid #e2e8f0; border-radius: 14px;
+  background: white; cursor: pointer;
+  text-align: left; display: flex; align-items: center; gap: 10px;
   transition: all 0.15s; touch-action: manipulation; font-family: inherit;
 }
 .opcion-btn:active { transform: scale(0.98); }
-.opcion-btn:hover  { border-color: var(--azul2); background: #f0f7ff; }
-.opcion-btn .icon  { font-size: 24px; flex-shrink: 0; width: 36px; text-align: center; }
+.opcion-btn.destacada { border-color: #003087; background: #eff6ff; }
+.opcion-btn .icon  { font-size: 22px; width: 32px; text-align: center; flex-shrink: 0; }
 .opcion-btn .text  { flex: 1; }
 .opcion-btn .title { font-size: 14px; font-weight: 800; color: #1e293b; }
-.opcion-btn .sub   { font-size: 11px; color: #64748b; margin-top: 2px; }
-.opcion-btn .arrow { color: #cbd5e1; font-size: 18px; }
-.opcion-btn.destacada { border-color: var(--azul2); background: #eff6ff; }
-.opcion-btn.destacada .title { color: var(--azul2); }
+.opcion-btn .sub   { font-size: 11px; color: #64748b; margin-top: 1px; }
 
-/* Botones */
+/* ── BOTONES ── */
 .btn {
-  width: 100%; padding: 15px; border: none; border-radius: 14px;
-  font-size: 15px; font-weight: 800; cursor: pointer;
-  touch-action: manipulation; font-family: inherit;
-  transition: all 0.15s; margin-bottom: 10px;
+  width: 100%; padding: 14px;
+  border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 800;
+  cursor: pointer; touch-action: manipulation;
+  font-family: inherit; margin-bottom: 8px;
+  transition: all 0.15s;
 }
 .btn:active { transform: scale(0.97); }
-.btn-azul   { background: var(--azul2); color: white; }
-.btn-gris   { background: #f1f5f9; color: #64748b; }
-.btn-verde  { background: var(--verde); color: white; }
-.btn-rojo   { background: var(--rojo); color: white; }
-.btn-sm {
-  padding: 8px 16px; font-size: 12px; border-radius: 8px;
-  border: none; cursor: pointer; font-weight: 700;
-  touch-action: manipulation; font-family: inherit;
-}
+.btn-azul  { background: #003087; color: white; }
+.btn-gris  { background: #f1f5f9; color: #64748b; }
+.btn-verde { background: #16a34a; color: white; }
 
-/* Error box */
+/* ── ERROR ── */
 .error-box {
   background: #fef2f2; border: 2px solid #fecaca;
-  border-radius: 12px; padding: 12px 14px;
+  border-radius: 10px; padding: 10px 12px;
   font-size: 13px; color: #dc2626; font-weight: 600;
-  margin-bottom: 14px; display: none;
+  margin-bottom: 12px; display: none;
 }
 
-/* Loading */
-.loading {
-  text-align: center; padding: 20px;
-  color: #64748b; font-size: 14px;
+/* ── BADGES ── */
+.perfil-badge {
+  display: inline-block; margin-top: 3px;
+  font-size: 9px; font-weight: 800; padding: 2px 7px;
+  border-radius: 20px; text-transform: uppercase;
 }
-.spinner {
-  display: inline-block; width: 20px; height: 20px;
-  border: 3px solid #e2e8f0; border-top-color: var(--azul2);
-  border-radius: 50%; animation: spin 0.8s linear infinite;
-  vertical-align: middle; margin-right: 8px;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+.badge-admin     { background: #fef3c7; color: #92400e; }
+.badge-pres      { background: #dbeafe; color: #1e40af; }
+.badge-sec       { background: #f3e8ff; color: #6b21a8; }
+.badge-dirigente { background: #dcfce7; color: #166534; }
+.badge-nuevo     { background: #f1f5f9; color: #475569; }
 
-/* Info box */
+/* ── INFO BOX ── */
 .info-box {
   background: #fffbeb; border: 2px solid #fcd34d;
-  border-radius: 12px; padding: 12px 14px;
-  font-size: 12px; color: #92400e; margin-bottom: 14px;
+  border-radius: 10px; padding: 10px 12px;
+  font-size: 12px; color: #92400e; margin-bottom: 12px;
 }
 
-/* Footer */
+/* ── FOOTER ── */
 .footer {
-  text-align: center; padding: 16px;
-  font-size: 11px; color: #94a3b8;
-  position: relative; z-index: 1;
+  margin-top: 20px; text-align: center;
+  font-size: 11px; color: #94a3b8; line-height: 1.8;
 }
+.footer a {
+  color: #94a3b8; text-decoration: none;
+  margin: 0 6px;
+}
+.footer a:hover { color: #003087; }
 
-/* Alerta */
-.alerta-toast {
+/* ── TOAST ── */
+.toast {
   position: fixed; bottom: 20px; left: 16px; right: 16px;
   max-width: 400px; margin: 0 auto;
-  padding: 14px 18px; border-radius: 14px;
+  padding: 13px 18px; border-radius: 14px;
   font-size: 14px; font-weight: 700; z-index: 9999;
-  text-align: center; animation: slideUp 0.3s ease;
-  display: none;
+  text-align: center; display: none;
 }
-@keyframes slideUp { from { transform: translateY(20px); opacity:0; } to { transform: translateY(0); opacity:1; } }
-.alerta-ok    { background: #16a34a; color: white; }
-.alerta-error { background: #dc2626; color: white; }
-.alerta-info  { background: var(--azul2); color: white; }
+.toast-ok    { background: #16a34a; color: white; }
+.toast-error { background: #dc2626; color: white; }
+.toast-info  { background: #003087; color: white; }
 
-/* Badge colors */
-.badge-admin    { background: #fef3c7; color: #92400e; }
-.badge-pres     { background: #dbeafe; color: #1e40af; }
-.badge-sec      { background: #f3e8ff; color: #6b21a8; }
-.badge-dirigente{ background: #dcfce7; color: #166534; }
-.badge-nuevo    { background: #f1f5f9; color: #475569; }
+/* ── RESPONSIVE ── */
+@media (min-width: 480px) {
+  .card { box-shadow: 0 8px 40px rgba(0,0,0,0.12); }
+  .logo-circle { width: 80px; height: 80px; }
+  .logo-circle span { font-size: 22px; }
+  .logo-area h1 { font-size: 22px; }
+}
 </style>
 </head>
 <body>
 
-<div class="wrap">
-
   <!-- Logo -->
-  <div class="logo-box">
-    <div class="logo-circle" style="background:#003087; border:3px solid #C8102E;">
-      <span style="font-family:Arial Black,sans-serif; font-weight:900; font-size:22px; color:white; letter-spacing:1px">PRM</span>
-    </div></div>
+  <div class="logo-area">
+    <div class="logo-circle">
+      <span>PRM</span>
+    </div>
     <h1>Sistema Electoral</h1>
     <p>Provincia Valverde · República Dominicana</p>
   </div>
@@ -236,7 +224,7 @@ body {
   <!-- Card -->
   <div class="card">
 
-    <!-- STEP 1: Buscar por cédula -->
+    <!-- STEP 1: Buscar cédula -->
     <div id="step-cedula" class="step active">
       <div class="card-header">
         <h2>🔍 Identificación</h2>
@@ -246,43 +234,39 @@ body {
         <div class="error-box" id="err-cedula"></div>
         <div class="campo">
           <label>Cédula de identidad</label>
-          <input type="tel" id="inp-cedula" class="cedula-input"
-            placeholder="000-0000000-0" maxlength="13"
-            oninput="fmtCedula(this)"
-            onkeyup="if(event.key==='Enter') buscarCedula()">
+          <input type="tel" id="inp-cedula" placeholder="000-0000000-0"
+            maxlength="13" oninput="fmtCedula(this)"
+            onkeyup="if(event.key==='Enter') buscarCedula()"
+            style="font-family:monospace; letter-spacing:1px">
         </div>
         <button class="btn btn-azul" onclick="buscarCedula()">Continuar →</button>
-        <div style="text-align:center; margin-top:8px">
-          <span style="font-size:12px; color:#94a3b8">El procesamiento es seguro y local</span>
-        </div>
+        <p style="text-align:center; font-size:11px; color:#94a3b8; margin-top:4px">
+          El procesamiento es seguro
+        </p>
       </div>
     </div>
 
-    <!-- STEP 2: Perfil encontrado → opciones -->
+    <!-- STEP 2: Opciones según rol -->
     <div id="step-opciones" class="step">
       <div class="card-header">
         <h2>👋 Bienvenido</h2>
         <p>¿Qué deseas hacer hoy?</p>
       </div>
       <div class="card-body">
-        <!-- Perfil -->
-        <div class="perfil-box" id="perfil-box">
+        <div class="perfil-box">
           <div class="perfil-foto" id="perfil-foto">?</div>
           <div>
-            <div class="perfil-nombre" id="perfil-nombre">—</div>
-            <div class="perfil-cedula" id="perfil-cedula">—</div>
+            <div style="font-weight:800; font-size:14px; color:#166534" id="perfil-nombre">—</div>
+            <div style="font-size:11px; color:#16a34a; font-family:monospace" id="perfil-cedula">—</div>
             <span class="perfil-badge badge-nuevo" id="perfil-badge">Militante PRM</span>
           </div>
         </div>
-
-        <!-- Opciones dinámicas según contexto -->
         <div class="opciones" id="opciones-container"></div>
-
         <button class="btn btn-gris" onclick="irStep('step-cedula')">← Cambiar cédula</button>
       </div>
     </div>
 
-    <!-- STEP 3: Ingresar PIN -->
+    <!-- STEP 3: PIN -->
     <div id="step-pin" class="step">
       <div class="card-header">
         <h2>🔐 PIN de acceso</h2>
@@ -294,10 +278,11 @@ body {
           <input type="tel" maxlength="1" id="p0" oninput="moverPin(this,1)">
           <input type="tel" maxlength="1" id="p1" oninput="moverPin(this,2)">
           <input type="tel" maxlength="1" id="p2" oninput="moverPin(this,3)">
-          <input type="tel" maxlength="1" id="p3" oninput="moverPin(this,null)" onkeyup="if(event.key==='Enter') verificarPin()">
+          <input type="tel" maxlength="1" id="p3" oninput="moverPin(this,null)"
+            onkeyup="if(event.key==='Enter') verificarPin()">
         </div>
         <button class="btn btn-azul" onclick="verificarPin()">Entrar al sistema</button>
-        <div style="text-align:center; margin:4px 0">
+        <div style="text-align:center; margin: 4px 0 8px">
           <button onclick="irStep('step-recuperar')"
             style="background:none;border:none;color:#64748b;font-size:12px;font-weight:700;cursor:pointer;text-decoration:underline;touch-action:manipulation">
             ¿Olvidaste tu PIN?
@@ -307,19 +292,17 @@ body {
       </div>
     </div>
 
-    <!-- STEP 4: Primer login → cambiar PIN -->
+    <!-- STEP 4: Cambiar PIN (primer login) -->
     <div id="step-cambiar-pin" class="step">
       <div class="card-header" style="background: linear-gradient(135deg, #92400e, #b45309)">
         <h2>🔑 Crear tu PIN</h2>
-        <p>Es tu primera vez — crea un PIN de 4 dígitos</p>
+        <p>Primera vez — crea tu PIN personal</p>
       </div>
       <div class="card-body">
-        <div class="info-box">
-          El administrador te asignó un PIN inicial. Debes crear uno personal antes de continuar.
-        </div>
+        <div class="info-box">El admin te asignó un PIN inicial. Crea uno propio antes de continuar.</div>
         <div class="error-box" id="err-nuevo-pin"></div>
         <div class="campo">
-          <label>Nuevo PIN (4 dígitos)</label>
+          <label>Nuevo PIN</label>
           <div class="pin-row">
             <input type="tel" maxlength="1" id="np0" oninput="moverPinN(this,1)">
             <input type="tel" maxlength="1" id="np1" oninput="moverPinN(this,2)">
@@ -336,11 +319,11 @@ body {
             <input type="tel" maxlength="1" id="np7" oninput="moverPinN(this,null)">
           </div>
         </div>
-        <button class="btn btn-verde" onclick="guardarNuevoPin()">✅ Guardar PIN y entrar</button>
+        <button class="btn btn-verde" onclick="guardarNuevoPin()">✅ Guardar y entrar</button>
       </div>
     </div>
 
-    <!-- STEP: Recuperar PIN -->
+    <!-- STEP 5: Recuperar PIN -->
     <div id="step-recuperar" class="step">
       <div class="card-header" style="background: linear-gradient(135deg, #7c3aed, #6d28d9)">
         <h2>🔑 Recuperar PIN</h2>
@@ -349,32 +332,29 @@ body {
       <div class="card-body">
         <div class="error-box" id="err-recuperar"></div>
         <div id="rec-email-box">
-          <div style="background:#f8fafc;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:13px;color:#475569">
-            Te enviaremos un código de recuperación al email registrado en tu cuenta.
-          </div>
+          <div class="info-box">Ingresa el email que registraste en tu cuenta.</div>
           <div class="campo">
-            <label>Tu email registrado</label>
-            <input type="email" id="rec-email" placeholder="tucorreo@email.com"
-              style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none;font-family:inherit">
+            <label>Tu email</label>
+            <input type="email" id="rec-email" placeholder="tucorreo@email.com">
           </div>
           <button class="btn btn-azul" onclick="enviarRecuperacion()">📧 Enviar código</button>
         </div>
         <div id="rec-codigo-box" style="display:none">
-          <div style="background:#f0fdf4;border:2px solid #bbf7d0;border-radius:12px;padding:12px;margin-bottom:14px;font-size:13px;color:#166534">
+          <div style="background:#f0fdf4;border:2px solid #bbf7d0;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#166534">
             ✅ Código enviado. Revisa tu bandeja de entrada.
           </div>
           <div class="campo">
-            <label>Código de 6 dígitos</label>
+            <label>Código recibido</label>
             <input type="tel" id="rec-codigo" placeholder="000000" maxlength="6"
-              style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:20px;font-family:monospace;text-align:center;outline:none;letter-spacing:4px">
+              style="font-size:22px;font-family:monospace;text-align:center;letter-spacing:6px">
           </div>
           <div class="campo">
-            <label>Nuevo PIN (4 dígitos)</label>
+            <label>Nuevo PIN</label>
             <div class="pin-row">
-              <input type="tel" maxlength="1" id="rp0" oninput="moverPin(this,null)">
-              <input type="tel" maxlength="1" id="rp1" oninput="moverPin(this,null)">
-              <input type="tel" maxlength="1" id="rp2" oninput="moverPin(this,null)">
-              <input type="tel" maxlength="1" id="rp3" oninput="moverPin(this,null)">
+              <input type="tel" maxlength="1" id="rp0">
+              <input type="tel" maxlength="1" id="rp1">
+              <input type="tel" maxlength="1" id="rp2">
+              <input type="tel" maxlength="1" id="rp3">
             </div>
           </div>
           <button class="btn btn-verde" onclick="confirmarRecuperacion()">✅ Cambiar PIN</button>
@@ -383,7 +363,7 @@ body {
       </div>
     </div>
 
-    <!-- STEP 5: Registrar como dirigente -->
+    <!-- STEP 6: Registro -->
     <div id="step-registro" class="step">
       <div class="card-header">
         <h2>📝 Registro de Dirigente</h2>
@@ -393,7 +373,7 @@ body {
         <div class="error-box" id="err-reg"></div>
         <div class="campo">
           <label>Municipio</label>
-          <select id="reg-municipio" onchange="cargarZonasReg()" style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none;background:white;font-family:inherit">
+          <select id="reg-municipio" onchange="cargarZonasReg()">
             <option value="">Selecciona municipio...</option>
             <option value="MAO">Mao (Cabecera)</option>
             <option value="ESPERANZA">Esperanza</option>
@@ -406,7 +386,7 @@ body {
         </div>
         <div class="campo">
           <label>Zona Política</label>
-          <select id="reg-zona" style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none;background:white;font-family:inherit">
+          <select id="reg-zona">
             <option value="">Primero selecciona municipio</option>
           </select>
         </div>
@@ -419,12 +399,16 @@ body {
           <input type="tel" id="reg-telefono" placeholder="809-000-0000">
         </div>
         <div class="campo">
+          <label>Email (para recuperar PIN)</label>
+          <input type="email" id="reg-email" placeholder="tucorreo@email.com">
+        </div>
+        <div class="campo">
           <label>Crear PIN (4 dígitos)</label>
           <div class="pin-row">
-            <input type="tel" maxlength="1" id="rp0" oninput="moverPinR(this,1)">
-            <input type="tel" maxlength="1" id="rp1" oninput="moverPinR(this,2)">
-            <input type="tel" maxlength="1" id="rp2" oninput="moverPinR(this,3)">
-            <input type="tel" maxlength="1" id="rp3" oninput="moverPinR(this,null)">
+            <input type="tel" maxlength="1" id="rpin0" oninput="moverPinR(this,1)">
+            <input type="tel" maxlength="1" id="rpin1" oninput="moverPinR(this,2)">
+            <input type="tel" maxlength="1" id="rpin2" oninput="moverPinR(this,3)">
+            <input type="tel" maxlength="1" id="rpin3" oninput="moverPinR(this,null)">
           </div>
         </div>
         <button class="btn btn-verde" onclick="completarRegistro()">✅ Registrarme</button>
@@ -433,21 +417,19 @@ body {
     </div>
 
   </div>
-</div>
 
-<div class="footer">
-  Sistema Electoral PRM · Provincia Valverde · 2025<br>
-  Basado en Estatutos PRM Enero 2022<br><br>
-  <a href="index.html" style="color:rgba(255,255,255,0.5); text-decoration:none; margin:0 8px">Sistema Principal</a>
-  · 
-  <a href="dirigentes.html" style="color:rgba(255,255,255,0.5); text-decoration:none; margin:0 8px">Portal Dirigentes</a>
-  ·
-  <a href="home.html" style="color:rgba(255,255,255,0.5); text-decoration:none; margin:0 8px">Inicio</a>
-</div>
+  <!-- Footer -->
+  <div class="footer">
+    Sistema Electoral PRM · Provincia Valverde · 2025<br>
+    <a href="index.html">Sistema Principal</a> ·
+    <a href="dirigentes.html">Portal Dirigentes</a> ·
+    <a href="home.html">Inicio</a>
+  </div>
 
-<div id="toast" class="alerta-toast"></div>
+<div id="toast" class="toast"></div>
 
 <script>
+
 // ══════════════════════════════════════════════
 // SUPABASE
 // ══════════════════════════════════════════════
@@ -1009,6 +991,7 @@ window.fmtCedula        = fmtCedula;
 window.moverPin         = moverPin;
 window.moverPinN        = moverPinN;
 window.moverPinR        = moverPinR;
+
 </script>
 </body>
 </html>
