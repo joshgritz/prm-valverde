@@ -1711,88 +1711,77 @@ let coordsSeleccionadas = null;
 function initMapaDirigente() {
   if (!sesion) return;
 
-  // Destruir mapa anterior si existe
-  if (mapaDirigente) {
-    mapaDirigente.remove();
-    mapaDirigente = null;
-  }
+  const doInit = () => {
+    const centro = { lat: sesion.latitud || 19.5557, lng: sesion.longitud || -71.0831 };
+    const zoom   = sesion.latitud ? 17 : 14;
 
-  // Centro: Mao, Valverde, RD
-  const centro = [19.5557, -71.0831];
+    mapaDirigente = new google.maps.Map(document.getElementById('mapa-dirigente'), {
+      center: centro, zoom: zoom,
+      mapTypeControl: true,
+      mapTypeControlOptions: {
+        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+        position: google.maps.ControlPosition.TOP_LEFT,
+        mapTypeIds: ['roadmap', 'satellite', 'hybrid', 'terrain']
+      },
+      fullscreenControl: true,
+      streetViewControl: true,
+      rotateControl: true,
+      tilt: 45
+    });
 
-  mapaDirigente = L.map('mapa-dirigente').setView(centro, 14);
-
-  // Capas del mapa
-  const calles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap', maxZoom: 19
-  });
-
-  const satelital = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: '© Esri', maxZoom: 19
-  });
-
-  const negocios = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap HOT', maxZoom: 19
-  });
-
-  // Capa por defecto
-  calles.addTo(mapaDirigente);
-
-  // Control de capas
-  L.control.layers({
-    '🗺️ Calles':    calles,
-    '🛰️ Satelital': satelital,
-    '📍 Detalles':  negocios
-  }, {}, { position: 'topleft', collapsed: true }).addTo(mapaDirigente);
-  
-  // Zoom controls
-  mapaDirigente.zoomControl.remove();
-  L.control.zoom({ position: 'bottomright' }).addTo(mapaDirigente);
-
-  // Si ya tiene ubicación guardada, mostrarla
-  if (sesion.latitud && sesion.longitud) {
-    coordsSeleccionadas = { lat: sesion.latitud, lng: sesion.longitud };
-    colocarMarcador(sesion.latitud, sesion.longitud);
-    mapaDirigente.setView([sesion.latitud, sesion.longitud], 16);
-
-    document.getElementById('mapa-estado-actual').style.display = 'block';
-    document.getElementById('mapa-ubi-nombre').textContent = sesion.ubicacion_nombre || 'Sin descripción';
-    document.getElementById('mapa-ubi-coords').textContent =
-      sesion.latitud.toFixed(6) + ', ' + sesion.longitud.toFixed(6);
-
-    if (sesion.ubicacion_nombre) {
-      document.getElementById('mapa-descripcion').value = sesion.ubicacion_nombre;
+    // Si ya tiene ubicación, mostrar marcador
+    if (sesion.latitud && sesion.longitud) {
+      coordsSeleccionadas = { lat: sesion.latitud, lng: sesion.longitud };
+      colocarMarcador(sesion.latitud, sesion.longitud);
+      document.getElementById('mapa-estado-actual').style.display = 'block';
+      document.getElementById('mapa-ubi-nombre').textContent = sesion.ubicacion_nombre || 'Sin descripción';
+      document.getElementById('mapa-ubi-coords').textContent =
+        sesion.latitud.toFixed(6) + ', ' + sesion.longitud.toFixed(6);
+      if (sesion.ubicacion_nombre)
+        document.getElementById('mapa-descripcion').value = sesion.ubicacion_nombre;
+      document.getElementById('btn-guardar-ubi').style.display = 'block';
     }
-    document.getElementById('btn-guardar-ubi').style.display = 'block';
-  }
 
-  // Permitir tocar el mapa para poner el marcador
-  mapaDirigente.on('click', function(e) {
-    coordsSeleccionadas = e.latlng;
-    colocarMarcador(e.latlng.lat, e.latlng.lng);
-    document.getElementById('btn-guardar-ubi').style.display = 'block';
-  });
+    // Click en mapa para poner marcador
+    mapaDirigente.addListener('click', function(e) {
+      coordsSeleccionadas = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+      colocarMarcador(coordsSeleccionadas.lat, coordsSeleccionadas.lng);
+      document.getElementById('btn-guardar-ubi').style.display = 'block';
+    });
+  };
+
+  if (window.google && window.google.maps) {
+    doInit();
+  } else {
+    window._mapaReadyCallback = doInit;
+  }
 }
 
 function colocarMarcador(lat, lng) {
+  const pos = { lat: parseFloat(lat), lng: parseFloat(lng) };
   if (marcadorTemp) {
-    marcadorTemp.setLatLng([lat, lng]);
+    marcadorTemp.setPosition(pos);
   } else {
-    const icono = L.divIcon({
-      html: '<div style="background:#003087;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4)">📌</div>',
-      iconSize: [36, 36],
-      iconAnchor: [18, 36],
-      className: ''
+    marcadorTemp = new google.maps.Marker({
+      position: pos,
+      map: mapaDirigente,
+      draggable: true,
+      animation: google.maps.Animation.DROP,
+      title: (sesion.nombre||'').split(',')[0]
     });
-    marcadorTemp = L.marker([lat, lng], { icon: icono, draggable: true }).addTo(mapaDirigente);
-    marcadorTemp.on('dragend', function(e) {
-      coordsSeleccionadas = e.target.getLatLng();
+    marcadorTemp.addListener('dragend', function(e) {
+      coordsSeleccionadas = { lat: e.latLng.lat(), lng: e.latLng.lng() };
     });
   }
-  marcadorTemp.bindPopup(
-    '<strong>' + (sesion.nombre||'').split(',')[0] + '</strong><br>' +
-    '<span style="font-size:11px;color:#64748b">' + (document.getElementById('mapa-descripcion')?.value || 'Toca guardar para confirmar') + '</span>'
-  ).openPopup();
+  // Info window
+  const infoWindow = new google.maps.InfoWindow({
+    content: '<strong>' + (sesion.nombre||'').split(',')[0] + '</strong><br>' +
+      '<span style="font-size:11px;color:#64748b">' +
+      (document.getElementById('mapa-descripcion')?.value || 'Toca guardar para confirmar') +
+      '</span>'
+  });
+  infoWindow.open(mapaDirigente, marcadorTemp);
+  mapaDirigente.panTo(pos);
 }
 
 async function usarUbicacionActual() {
@@ -1806,7 +1795,7 @@ async function usarUbicacionActual() {
       const lng = pos.coords.longitude;
       coordsSeleccionadas = { lat, lng };
       colocarMarcador(lat, lng);
-      mapaDirigente.setView([lat, lng], 17);
+      mapaDirigente.panTo({ lat: lat, lng: lng });
       document.getElementById('btn-guardar-ubi').style.display = 'block';
       alerta('✅ Ubicación encontrada. Toca Guardar.', 'ok');
     },
@@ -1845,7 +1834,7 @@ async function guardarUbicacion() {
   document.getElementById('btn-guardar-ubi').style.display = 'block';
 
   // Asegurar que el marcador y el mapa muestren el punto guardado
-  mapaDirigente.setView([lat, lng], 17);
+  mapaDirigente.panTo({ lat: lat, lng: lng });
   colocarMarcador(lat, lng);
 
   alerta('✅ Ubicación guardada correctamente', 'ok');
