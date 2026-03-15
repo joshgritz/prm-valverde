@@ -6,7 +6,11 @@
 <meta name="theme-color" content="#003087">
 <title>Portal Dirigentes PRM — Valverde</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
+  #mapa-dirigente { height: 320px; border-radius: 14px; overflow: hidden; z-index: 1; }
+  .leaflet-popup-content { font-family: 'Segoe UI', sans-serif; }
 :root {
   --azul: #003087;
   --azul2: #1a4fa8;
@@ -385,6 +389,11 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
         <div class="mc-label">Mi Estructura</div>
         <div class="mc-sub">Candidatos</div>
       </div>
+      <div class="menu-card" style="border-color:#0ea5e9;cursor:pointer" onclick="irA('p-mapa')">
+        <div class="mc-icon">📌</div>
+        <div class="mc-label">Mi Ubicación</div>
+        <div class="mc-sub">Puntear en el mapa</div>
+      </div>
       <div class="menu-card oro" onclick="irA('p-perfil')">
         <div class="mc-icon">⚙️</div>
         <div class="mc-label">Mi Perfil</div>
@@ -518,6 +527,61 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
       <div class="card-title">👥 Dirigentes en tu Zona</div>
       <div id="zona-dirigentes"></div>
     </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PANTALLA: MI UBICACIÓN
+════════════════════════════════════════ -->
+<div id="p-mapa" class="pantalla">
+  <div class="header">
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>← Dashboard</span></div>
+    <div style="padding:8px 20px 4px; position:relative; z-index:1">
+      <h1>📌 Mi Ubicación</h1>
+      <p>El presidente verá este punto en su mapa</p>
+    </div>
+  </div>
+  <div class="wrap">
+
+    <!-- Instrucción -->
+    <div style="background:#eff6ff; border:2px solid #bfdbfe; border-radius:14px; padding:14px; margin-top:16px; margin-bottom:16px">
+      <div style="font-weight:800; font-size:13px; color:#1d4ed8; margin-bottom:4px">📍 ¿Cómo puntear tu ubicación?</div>
+      <div style="font-size:12px; color:#3b82f6; line-height:1.5">
+        1. Toca el botón <strong>"Usar mi ubicación actual"</strong><br>
+        2. O toca directamente en el mapa donde vives<br>
+        3. Confirma con <strong>"Guardar ubicación"</strong>
+      </div>
+    </div>
+
+    <!-- Estado actual -->
+    <div id="mapa-estado-actual" style="display:none; background:#f0fdf4; border:2px solid #bbf7d0; border-radius:14px; padding:12px 14px; margin-bottom:16px">
+      <div style="font-size:10px; color:#166534; font-weight:800; text-transform:uppercase; margin-bottom:4px">✅ Ubicación guardada</div>
+      <div id="mapa-ubi-nombre" style="font-size:13px; font-weight:700; color:#15803d"></div>
+      <div id="mapa-ubi-coords" style="font-size:11px; color:#16a34a; font-family:monospace; margin-top:2px"></div>
+    </div>
+
+    <!-- Mapa -->
+    <div class="card" style="padding:0; overflow:hidden; margin-bottom:16px">
+      <div id="mapa-dirigente"></div>
+    </div>
+
+    <!-- Descripción -->
+    <div class="card">
+      <div class="card-title">📝 Descripción del punto</div>
+      <div class="campo">
+        <label>¿Dónde es? (opcional)</label>
+        <input type="text" id="mapa-descripcion" placeholder="Ej: Mi casa, Calle Duarte #15, Los Multis"
+          style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none;font-family:inherit">
+      </div>
+      <button class="btn btn-azul" onclick="usarUbicacionActual()" style="margin-bottom:10px">
+        📍 Usar mi ubicación actual (GPS)
+      </button>
+      <button id="btn-guardar-ubi" class="btn btn-verde" onclick="guardarUbicacion()" style="display:none">
+        💾 Guardar este punto
+      </button>
+      <button class="btn btn-gris" onclick="irA('p-dashboard')">← Volver</button>
+    </div>
+
   </div>
 </div>
 
@@ -682,6 +746,17 @@ function hashPin(pin) {
 async function cargarDatosCompletos() {
   if (!sesion || !sb) return;
   try {
+    // Cargar ubicación del dirigente
+    const { data: dir } = await sb.from('dirigentes')
+      .select('latitud, longitud, ubicacion_nombre, sector, telefono')
+      .eq('cedula', sesion.cedula).maybeSingle();
+    if (dir) {
+      sesion.latitud          = dir.latitud;
+      sesion.longitud         = dir.longitud;
+      sesion.ubicacion_nombre = dir.ubicacion_nombre;
+      sesion.sector           = dir.sector;
+      sesion.telefono         = dir.telefono;
+    }
     // Cargar comité
     const { data: comite } = await sb
       .from('comite_miembros')
@@ -787,6 +862,7 @@ function irA(pantalla) {
   if (pantalla === 'p-zona')       renderZona();
   if (pantalla === 'p-perfil')     renderPerfil();
   if (pantalla === 'p-estrategia') renderEstrategia();
+  if (pantalla === 'p-mapa')       setTimeout(initMapaDirigente, 100);
 }
 
 function irARegistro() {
@@ -1604,6 +1680,129 @@ function alerta(msg, tipo) {
 }
 
 // ══════════════════════════════════════════════════════
+// MAPA DE UBICACIÓN DEL DIRIGENTE
+// ══════════════════════════════════════════════════════
+let mapaDirigente = null;
+let marcadorTemp  = null;
+let coordsSeleccionadas = null;
+
+function initMapaDirigente() {
+  if (!sesion) return;
+
+  // Destruir mapa anterior si existe
+  if (mapaDirigente) {
+    mapaDirigente.remove();
+    mapaDirigente = null;
+  }
+
+  // Centro: Mao, Valverde, RD
+  const centro = [19.5557, -71.0831];
+
+  mapaDirigente = L.map('mapa-dirigente').setView(centro, 14);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 19
+  }).addTo(mapaDirigente);
+
+  // Si ya tiene ubicación guardada, mostrarla
+  if (sesion.latitud && sesion.longitud) {
+    coordsSeleccionadas = { lat: sesion.latitud, lng: sesion.longitud };
+    colocarMarcador(sesion.latitud, sesion.longitud);
+    mapaDirigente.setView([sesion.latitud, sesion.longitud], 16);
+
+    document.getElementById('mapa-estado-actual').style.display = 'block';
+    document.getElementById('mapa-ubi-nombre').textContent = sesion.ubicacion_nombre || 'Sin descripción';
+    document.getElementById('mapa-ubi-coords').textContent =
+      sesion.latitud.toFixed(6) + ', ' + sesion.longitud.toFixed(6);
+
+    if (sesion.ubicacion_nombre) {
+      document.getElementById('mapa-descripcion').value = sesion.ubicacion_nombre;
+    }
+    document.getElementById('btn-guardar-ubi').style.display = 'block';
+  }
+
+  // Permitir tocar el mapa para poner el marcador
+  mapaDirigente.on('click', function(e) {
+    coordsSeleccionadas = e.latlng;
+    colocarMarcador(e.latlng.lat, e.latlng.lng);
+    document.getElementById('btn-guardar-ubi').style.display = 'block';
+  });
+}
+
+function colocarMarcador(lat, lng) {
+  if (marcadorTemp) {
+    marcadorTemp.setLatLng([lat, lng]);
+  } else {
+    const icono = L.divIcon({
+      html: '<div style="background:#003087;color:white;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:14px;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4)">📌</div>',
+      iconSize: [36, 36],
+      iconAnchor: [18, 36],
+      className: ''
+    });
+    marcadorTemp = L.marker([lat, lng], { icon: icono, draggable: true }).addTo(mapaDirigente);
+    marcadorTemp.on('dragend', function(e) {
+      coordsSeleccionadas = e.target.getLatLng();
+    });
+  }
+  marcadorTemp.bindPopup(
+    '<strong>' + (sesion.nombre||'').split(',')[0] + '</strong><br>' +
+    '<span style="font-size:11px;color:#64748b">' + (document.getElementById('mapa-descripcion')?.value || 'Toca guardar para confirmar') + '</span>'
+  ).openPopup();
+}
+
+async function usarUbicacionActual() {
+  if (!navigator.geolocation) {
+    alerta('Tu dispositivo no soporta GPS', 'error'); return;
+  }
+  alerta('Obteniendo tu ubicación...', 'info');
+  navigator.geolocation.getCurrentPosition(
+    function(pos) {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      coordsSeleccionadas = { lat, lng };
+      colocarMarcador(lat, lng);
+      mapaDirigente.setView([lat, lng], 17);
+      document.getElementById('btn-guardar-ubi').style.display = 'block';
+      alerta('✅ Ubicación encontrada. Toca Guardar.', 'ok');
+    },
+    function(err) {
+      alerta('No se pudo obtener la ubicación. Toca el mapa manualmente.', 'error');
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+async function guardarUbicacion() {
+  if (!coordsSeleccionadas) {
+    alerta('Primero toca el mapa o usa el GPS', 'error'); return;
+  }
+  const descripcion = document.getElementById('mapa-descripcion').value.trim();
+  const lat = coordsSeleccionadas.lat;
+  const lng = coordsSeleccionadas.lng || coordsSeleccionadas.lng;
+
+  if (sb) {
+    const { error } = await sb.from('dirigentes').update({
+      latitud:          lat,
+      longitud:         lng,
+      ubicacion_nombre: descripcion || null,
+      ubicacion_fecha:  new Date().toISOString()
+    }).eq('cedula', sesion.cedula);
+    if (error) { alerta('Error al guardar: ' + error.message, 'error'); return; }
+  }
+
+  sesion.latitud = lat;
+  sesion.longitud = lng;
+  sesion.ubicacion_nombre = descripcion;
+
+  document.getElementById('mapa-estado-actual').style.display = 'block';
+  document.getElementById('mapa-ubi-nombre').textContent = descripcion || 'Sin descripción';
+  document.getElementById('mapa-ubi-coords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
+
+  alerta('✅ Ubicación guardada correctamente', 'ok');
+}
+
+// ══════════════════════════════════════════════════════
 // ARRANQUE
 // ══════════════════════════════════════════════════════
 
@@ -1625,6 +1824,9 @@ window.addEventListener('DOMContentLoaded', async function() {
   window.actualizarPerfil     = actualizarPerfil;
   window.editarMiembro        = editarMiembro;
   window.guardarEdicionMiembro = guardarEdicionMiembro;
+  window.usarUbicacionActual  = usarUbicacionActual;
+  window.guardarUbicacion     = guardarUbicacion;
+  window.initMapaDirigente    = initMapaDirigente;
   window.irARegistro          = irARegistro;
   window.buscarDirigente      = buscarDirigente;
   window.entrarConPin         = entrarConPin;
