@@ -616,14 +616,21 @@ async function cargarDatosCompletos() {
       sesion.email            = dir.email;
     }
 
-    // Cargar foto, sexo y edad del padrón
+    // Cargar foto del padrón
     const { data: pad } = await sb.from('padron_maestro')
-      .select('foto_base64, sexo, fecha_nacimiento')
+      .select('foto_base64')
       .eq('cedula', cedFmtLoad).maybeSingle();
     if (pad) {
-      sesion.foto_base64       = pad.foto_base64;
-      sesion.sexo              = pad.sexo;
-      sesion.fecha_nacimiento  = pad.fecha_nacimiento;
+      sesion.foto_base64 = pad.foto_base64;
+    }
+
+    // Cargar sexo y fecha_nacimiento de dirigentes
+    const { data: dirExtra } = await sb.from('dirigentes')
+      .select('sexo, fecha_nacimiento')
+      .eq('cedula', cedFmtLoad).maybeSingle();
+    if (dirExtra) {
+      sesion.sexo             = dirExtra.sexo;
+      sesion.fecha_nacimiento = dirExtra.fecha_nacimiento;
     }
     // Cargar comité
     const { data: comite } = await sb
@@ -1426,8 +1433,18 @@ async function actualizarPerfil() {
     : sesion.cedula;
 
   if (sb) {
+    const fnac  = document.getElementById('edit-fnac')?.value  || null;
+    const sexo  = document.getElementById('edit-sexo')?.value  || null;
+    const email = document.getElementById('edit-email')?.value?.trim() || null;
+
     const { data, error } = await sb.from('dirigentes')
-      .update({ telefono: tel, sector: sector })
+      .update({ 
+        telefono:         tel,
+        sector:           sector,
+        fecha_nacimiento: fnac  || null,
+        sexo:             sexo  || null,
+        email:            email || null
+      })
       .eq('cedula', cedFmt)
       .select();
 
@@ -1441,8 +1458,11 @@ async function actualizarPerfil() {
       return;
     }
   }
-  sesion.telefono = tel;
-  sesion.sector   = sector;
+  sesion.telefono         = tel;
+  sesion.sector           = sector;
+  sesion.fecha_nacimiento = document.getElementById('edit-fnac')?.value  || sesion.fecha_nacimiento;
+  sesion.sexo             = document.getElementById('edit-sexo')?.value  || sesion.sexo;
+  sesion.email            = document.getElementById('edit-email')?.value || sesion.email;
   guardarSesionLocal(sesion);
   alerta('✅ Datos actualizados', 'ok');
   renderPerfil();
@@ -1450,11 +1470,8 @@ async function actualizarPerfil() {
 
 function renderPerfil() {
   if (!sesion) return;
-  const desde = sesion.fecha_registro
-    ? new Date(sesion.fecha_registro).toLocaleDateString('es-DO', {day:'2-digit',month:'long',year:'numeric'})
-    : '—';
-  
-  // Calcular edad si hay fecha de nacimiento
+
+  // Calcular edad
   let edadStr = '—';
   if (sesion.fecha_nacimiento) {
     const hoy = new Date();
@@ -1463,61 +1480,133 @@ function renderPerfil() {
       (hoy < new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate()) ? 1 : 0);
     edadStr = edad + ' años';
   }
-  
+
   const generoStr = sesion.sexo === 'F' ? '♀ Femenino' : sesion.sexo === 'M' ? '♂ Masculino' : '—';
+  const desde = sesion.fecha_registro
+    ? new Date(sesion.fecha_registro).toLocaleDateString('es-DO', {day:'2-digit',month:'long',year:'numeric'})
+    : '—';
+
+  // Foto
   const fotoHtml = sesion.foto_base64
-    ? `<img src="data:image/jpeg;base64,${sesion.foto_base64}" 
-        style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #003087;box-shadow:0 2px 10px rgba(0,0,0,0.2)">`
-    : `<div style="width:80px;height:80px;border-radius:50%;background:#003087;color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:28px;border:3px solid #C8102E">
+    ? `<img src="data:image/jpeg;base64,${sesion.foto_base64}"
+        style="width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid #003087;box-shadow:0 2px 12px rgba(0,0,0,0.2)">`
+    : `<div style="width:90px;height:90px;border-radius:50%;background:#003087;color:white;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:32px;border:3px solid #C8102E">
         ${(sesion.nombre||'?').split(',')[0][0]}
        </div>`;
 
+  // Cargo en estructura
+  const cargoHtml = sesion.cargo_zonal
+    ? `<span style="background:#dbeafe;color:#1e40af;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800">${sesion.cargo_zonal}</span>`
+    : `<span style="background:#f1f5f9;color:#94a3b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">Sin cargo asignado</span>`;
+
+  // Plancha
+  const planchaHtml = sesion.plancha_nombre
+    ? `<span style="background:#dcfce7;color:#166534;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800">✅ ${sesion.plancha_nombre}</span>`
+    : `<span style="background:#f1f5f9;color:#94a3b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">No participó en plancha</span>`;
+
   document.getElementById('perfil-datos').innerHTML = `
     <div style="display:grid; gap:12px">
-      <!-- Foto -->
+
+      <!-- Foto centrada -->
       <div style="text-align:center; padding:16px 0 8px">
         ${fotoHtml}
+        <div style="margin-top:10px; display:flex; gap:6px; justify-content:center; flex-wrap:wrap">
+          ${cargoHtml}
+        </div>
       </div>
+
+      <!-- Nombre y cédula (solo lectura) -->
       <div style="padding:12px; background:#f8fafc; border-radius:10px">
         <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Nombre completo</div>
         <div style="font-size:15px; font-weight:800; margin-top:4px">${sesion.nombre}</div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
         <div style="padding:12px; background:#f8fafc; border-radius:10px">
-          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Edad</div>
-          <div style="font-size:15px; font-weight:800; margin-top:4px">${edadStr}</div>
+          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Cédula</div>
+          <div style="font-size:13px; font-family:monospace; font-weight:700; margin-top:4px">${sesion.cedula}</div>
         </div>
         <div style="padding:12px; background:#f8fafc; border-radius:10px">
-          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Género</div>
-          <div style="font-size:15px; font-weight:800; margin-top:4px">${generoStr}</div>
+          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Edad</div>
+          <div style="font-size:15px; font-weight:800; margin-top:4px; color:${edadStr==='—'?'#94a3b8':'#1e293b'}">${edadStr}</div>
         </div>
       </div>
-      <div style="padding:12px; background:#f8fafc; border-radius:10px">
-        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Cédula</div>
-        <div style="font-size:14px; font-family:monospace; font-weight:700; margin-top:4px">${sesion.cedula}</div>
+
+      <!-- Zona y municipio (solo lectura) -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div style="padding:12px; background:#f8fafc; border-radius:10px">
+          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Zona</div>
+          <div style="font-size:14px; font-weight:800; margin-top:4px">${sesion.zona || '—'}</div>
+        </div>
+        <div style="padding:12px; background:#f8fafc; border-radius:10px">
+          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Municipio</div>
+          <div style="font-size:14px; font-weight:800; margin-top:4px">${sesion.municipio || '—'}</div>
+        </div>
       </div>
+
+      <!-- Plancha -->
       <div style="padding:12px; background:#f8fafc; border-radius:10px">
-        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Zona · Municipio</div>
-        <div style="font-size:14px; font-weight:800; margin-top:4px">${sesion.zona} — ${sesion.municipio}</div>
+        <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase; margin-bottom:6px">Plancha / Estructura</div>
+        ${planchaHtml}
       </div>
+
+      <!-- EDITABLES -->
+      <!-- Fecha nacimiento y género -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+        <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
+          <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">✏️ Fecha Nacimiento</div>
+          <input id="edit-fnac" type="date" value="${sesion.fecha_nacimiento || ''}"
+            style="width:100%;border:2px solid #dbeafe;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;background:white">
+        </div>
+        <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
+          <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">✏️ Género</div>
+          <select id="edit-sexo"
+            style="width:100%;border:2px solid #dbeafe;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;background:white">
+            <option value="">—</option>
+            <option value="M" ${sesion.sexo==='M'?'selected':''}>♂ Masculino</option>
+            <option value="F" ${sesion.sexo==='F'?'selected':''}>♀ Femenino</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Teléfono -->
       <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
-        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:8px">✏️ Teléfono</div>
+        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">✏️ Teléfono</div>
         <input id="edit-telefono" type="tel" value="${sesion.telefono || ''}" placeholder="809-000-0000"
           style="width:100%;padding:10px 14px;border:2px solid #dbeafe;border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:white">
       </div>
+
+      <!-- Email -->
       <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
-        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:8px">✏️ Sector / Barrio</div>
+        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">✏️ Email</div>
+        <input id="edit-email" type="email" value="${sesion.email || ''}" placeholder="tucorreo@email.com"
+          style="width:100%;padding:10px 14px;border:2px solid #dbeafe;border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:white">
+      </div>
+
+      <!-- Sector -->
+      <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
+        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">✏️ Sector / Barrio</div>
         <input id="edit-sector" type="text" value="${sesion.sector || ''}" placeholder="Ej: Los Multis, El Centro..."
           style="width:100%;padding:10px 14px;border:2px solid #dbeafe;border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:white">
       </div>
+
+      <!-- Dirigente desde -->
       <div style="padding:12px; background:#f8fafc; border-radius:10px">
         <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Dirigente desde</div>
         <div style="font-size:13px; font-weight:700; margin-top:4px">${desde}</div>
       </div>
+
+      <!-- Botón guardar -->
       <button onclick="actualizarPerfil()"
         style="padding:14px;background:#003087;color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;touch-action:manipulation;width:100%">
         💾 Guardar cambios
       </button>
+
+      <!-- Botón ver ubicación -->
+      <button onclick="irA('p-mapa')"
+        style="padding:12px;background:#0ea5e9;color:white;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;touch-action:manipulation;width:100%">
+        📌 Ver / Editar mi ubicación en el mapa
+      </button>
+
     </div>
   `;
 }
