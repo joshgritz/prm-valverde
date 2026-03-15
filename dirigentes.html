@@ -1742,8 +1742,12 @@ function initMapaDirigente() {
   L.control.layers({
     '🗺️ Calles':    calles,
     '🛰️ Satelital': satelital,
-    '📍 Negocios':  negocios
-  }, {}, { position: 'topright', collapsed: false }).addTo(mapaDirigente);
+    '📍 Detalles':  negocios
+  }, {}, { position: 'topleft', collapsed: true }).addTo(mapaDirigente);
+  
+  // Zoom controls
+  mapaDirigente.zoomControl.remove();
+  L.control.zoom({ position: 'bottomright' }).addTo(mapaDirigente);
 
   // Si ya tiene ubicación guardada, mostrarla
   if (sesion.latitud && sesion.longitud) {
@@ -1838,6 +1842,11 @@ async function guardarUbicacion() {
   document.getElementById('mapa-estado-actual').style.display = 'block';
   document.getElementById('mapa-ubi-nombre').textContent = descripcion || 'Sin descripción';
   document.getElementById('mapa-ubi-coords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
+  document.getElementById('btn-guardar-ubi').style.display = 'block';
+
+  // Asegurar que el marcador y el mapa muestren el punto guardado
+  mapaDirigente.setView([lat, lng], 17);
+  colocarMarcador(lat, lng);
 
   alerta('✅ Ubicación guardada correctamente', 'ok');
 }
