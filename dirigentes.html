@@ -1370,6 +1370,8 @@ function renderComite() {
         <div class="miembro-nombre">${m.nombre}</div>
         <div class="miembro-cedula">${m.cedula}</div>
       </div>
+      <button onclick="editarMiembro('${m.cedula}')"
+        style="background:#eff6ff;border:none;color:#1d4ed8;font-size:14px;padding:6px 10px;border-radius:8px;cursor:pointer;touch-action:manipulation;margin-right:4px">✏️</button>
       <button class="miembro-del" onclick="eliminarMiembro('${m.cedula}')">🗑</button>
     </div>
   `).join('');
