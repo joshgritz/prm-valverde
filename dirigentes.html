@@ -184,157 +184,9 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 <body>
 
 <!-- ════════════════════════════════════════
-     PANTALLA 1: LOGIN / ENTRADA
+     PANTALLA: DASHBOARD DIRIGENTE
 ════════════════════════════════════════ -->
-<div id="p-login" class="pantalla activa">
-  <div class="header">
-    <div style="display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1; margin-bottom:10px">
-      <a href="login.html" style="color:rgba(255,255,255,0.7); font-size:13px; font-weight:700; text-decoration:none; display:flex; align-items:center; gap:6px">
-        ← Portal
-      </a>
-      <a href="index.html" style="color:rgba(255,255,255,0.7); font-size:13px; font-weight:700; text-decoration:none">
-        Sistema →
-      </a>
-    </div>
-    <div style="width:72px;height:72px;background:#003087;border-radius:50%;border:3px solid #C8102E;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 4px 16px rgba(0,0,0,0.3);position:relative;z-index:1">
-      <span style="font-family:Arial Black,sans-serif;font-weight:900;font-size:18px;color:white;letter-spacing:1px">PRM</span>
-    </div>
-    <h1 style="position:relative;z-index:1">Portal de Dirigentes</h1>
-    <p style="position:relative;z-index:1">Partido Revolucionario Moderno · Valverde</p>
-  </div>
-  <div class="wrap">
-    <div class="card mt16">
-      <div class="card-title">🔐 Identificación</div>
-      <div class="campo">
-        <label>Tu Cédula</label>
-        <input type="tel" id="login-cedula" class="cedula-input" placeholder="000-0000000-0" maxlength="13" oninput="formatCedula(this)" onkeyup="if(event.key==='Enter') buscarDirigente()">
-      </div>
-      <div id="login-nombre-box" style="display:none; margin-bottom:14px">
-        <div style="background:#f0fdf4; border:2px solid #bbf7d0; border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:10px">
-          <span style="font-size:24px">👤</span>
-          <div>
-            <div id="login-nombre" style="font-weight:800; font-size:14px; color:#166534"></div>
-            <div style="font-size:11px; color:#16a34a; margin-top:1px">Militante verificado en el padrón</div>
-          </div>
-        </div>
-      </div>
-      <div id="login-pin-box" style="display:none; margin-bottom:14px">
-        <div class="campo">
-          <label>PIN de 4 dígitos</label>
-          <div class="campo pin-wrap">
-            <input type="tel" maxlength="1" id="pin0" oninput="moverPin(this,1)" style="border-color:#003087">
-            <input type="tel" maxlength="1" id="pin1" oninput="moverPin(this,2)">
-            <input type="tel" maxlength="1" id="pin2" oninput="moverPin(this,3)">
-            <input type="tel" maxlength="1" id="pin3" oninput="moverPin(this,null)" onkeyup="if(event.key==='Enter') entrarConPin()">
-          </div>
-        </div>
-      </div>
-      <button class="btn btn-azul" onclick="buscarDirigente()">🔍 Continuar</button>
-      <div style="margin-top:16px; padding-top:14px; border-top:1px solid #f1f5f9; text-align:center">
-        <p style="font-size:11px; color:#94a3b8; margin-bottom:8px">¿No tienes cuenta aún?</p>
-        <button onclick="irARegistro()" style="background:none; border:1px solid #e2e8f0; color:#64748b; padding:8px 20px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer; touch-action:manipulation">
-          📝 Registrarme como Dirigente
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════
-     PANTALLA 2: REGISTRO NUEVO DIRIGENTE
-════════════════════════════════════════ -->
-<div id="p-registro" class="pantalla">
-  <div class="header">
-    <div class="nav-back" onclick="irA('p-login')">
-      <span>← Volver</span>
-    </div>
-    <div class="logo" style="margin-top:8px">P</div>
-    <h1>Nuevo Dirigente</h1>
-    <p>Registro en el sistema</p>
-  </div>
-  <div class="wrap">
-
-    <!-- Paso 1: Cédula -->
-    <div id="reg-paso1" class="card mt16">
-      <div class="card-title">Paso 1 — Verifica tu identidad</div>
-      <div class="campo">
-        <label>Tu Cédula</label>
-        <input type="tel" id="reg-cedula" class="cedula-input" placeholder="000-0000000-0" maxlength="13" oninput="formatCedula(this)">
-      </div>
-      <div id="reg-nombre-box" style="display:none; margin-bottom:14px">
-        <div style="background:#f0fdf4; border:2px solid #bbf7d0; border-radius:12px; padding:12px 14px">
-          <div id="reg-nombre-display" style="font-weight:900; font-size:15px; color:#166534"></div>
-          <div style="font-size:11px; color:#16a34a; margin-top:2px">✅ Encontrado en el padrón PRM</div>
-        </div>
-      </div>
-      <button class="btn btn-azul" onclick="verificarCedulaReg()">Verificar Cédula</button>
-    </div>
-
-    <!-- Paso 2: Zona y datos -->
-    <div id="reg-paso2" class="card" style="display:none">
-      <div class="card-title">Paso 2 — Tu información</div>
-      <div class="campo">
-        <label>Municipio</label>
-        <select id="reg-municipio" onchange="cargarZonasReg()">
-          <option value="">Selecciona municipio...</option>
-          <option value="MAO">Mao (Cabecera)</option>
-          <option value="ESPERANZA">Esperanza</option>
-          <option value="LAGUNA_SALADA">Laguna Salada</option>
-          <option value="AMINA">Amina (D.M.)</option>
-          <option value="GUATAPANAL">Guatapanal (D.M.)</option>
-          <option value="JAIBON">Jaibón (D.M.)</option>
-          <option value="POTRERO">Potrero (D.M.)</option>
-        </select>
-      </div>
-      <div class="campo">
-        <label>Zona Política</label>
-        <select id="reg-zona">
-          <option value="">Primero selecciona municipio</option>
-        </select>
-      </div>
-      <div class="campo">
-        <label>Sector / Barrio</label>
-        <input type="text" id="reg-sector" placeholder="Ej: Los Multis, El Centro...">
-      </div>
-      <div class="campo">
-        <label>Teléfono / Celular</label>
-        <input type="tel" id="reg-telefono" placeholder="809-000-0000">
-      </div>
-      <button class="btn btn-azul" onclick="irPaso3()">Continuar →</button>
-    </div>
-
-    <!-- Paso 3: Crear PIN -->
-    <div id="reg-paso3" class="card" style="display:none">
-      <div class="card-title">Paso 3 — Crea tu PIN</div>
-      <p style="font-size:13px; color:#64748b; margin-bottom:14px">Este PIN de 4 dígitos es tu contraseña. Guárdalo bien — solo tú lo sabes.</p>
-      <div class="campo">
-        <label>PIN (4 dígitos)</label>
-        <div class="campo pin-wrap">
-          <input type="tel" maxlength="1" id="rpin0" oninput="moverPinReg(this,1)">
-          <input type="tel" maxlength="1" id="rpin1" oninput="moverPinReg(this,2)">
-          <input type="tel" maxlength="1" id="rpin2" oninput="moverPinReg(this,3)">
-          <input type="tel" maxlength="1" id="rpin3" oninput="moverPinReg(this,null)">
-        </div>
-      </div>
-      <div class="campo">
-        <label>Confirmar PIN</label>
-        <div class="campo pin-wrap">
-          <input type="tel" maxlength="1" id="rpin4" oninput="moverPinReg(this,5)">
-          <input type="tel" maxlength="1" id="rpin5" oninput="moverPinReg(this,6)">
-          <input type="tel" maxlength="1" id="rpin6" oninput="moverPinReg(this,7)">
-          <input type="tel" maxlength="1" id="rpin7" oninput="moverPinReg(this,null)">
-        </div>
-      </div>
-      <button class="btn btn-verde" onclick="completarRegistro()">✅ Completar Registro</button>
-    </div>
-
-  </div>
-</div>
-
-<!-- ════════════════════════════════════════
-     PANTALLA 3: DASHBOARD DIRIGENTE
-════════════════════════════════════════ -->
-<div id="p-dashboard" class="pantalla">
+<div id="p-dashboard" class="pantalla activa">
   <div class="header">
     <div style="display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1">
       <span style="font-size:12px; opacity:0.6">Portal Dirigentes</span>
@@ -1701,7 +1553,7 @@ async function cerrarSesion() {
   localStorage.removeItem('prm_sesion');
   sesion = null;
   // Recargar la página para limpiar todo el estado
-  window.location.reload();
+  window.location.href = 'login.html';
 }
 
 // ══════════════════════════════════════════════════════
@@ -1929,6 +1781,10 @@ window.addEventListener('DOMContentLoaded', async function() {
     sesion = { ...sesionGuardada, comite: [], estructuras: [] };
     await cargarDatosCompletos();
     irA('p-dashboard');
+  } else {
+    // Sin sesión → ir al login
+    window.location.href = 'login.html';
+    return;
   }
 
   // Exponer funciones globalmente
