@@ -648,16 +648,23 @@ async function cargarDatosCompletos() {
     // Cargar comité
     const { data: comite } = await sb
       .from('comite_miembros')
-      .select('cedula_miembro, nombre_miembro, recinto_nombre, colegio_num, direccion, fecha_ingreso')
+      .select('cedula_miembro, nombre_miembro, recinto_nombre, colegio_num, direccion, telefono, nota_estrategica, fidelidad, transporte, genero, latitud, longitud, fecha_ingreso')
       .eq('dirigente_cedula', sesion.cedula)
       .order('fecha_ingreso');
     if (comite) sesion.comite = comite.map(m => ({
-      cedula:    m.cedula_miembro,
-      nombre:    m.nombre_miembro,
-      recinto:   m.recinto_nombre || '',
-      colegio:   m.colegio_num || '',
-      direccion: m.direccion || '',
-      fecha_ingreso: m.fecha_ingreso
+      cedula:         m.cedula_miembro,
+      nombre:         m.nombre_miembro,
+      recinto:        m.recinto_nombre   || '',
+      colegio:        m.colegio_num      || '',
+      direccion:      m.direccion        || '',
+      telefono:       m.telefono         || '',
+      nota:           m.nota_estrategica || '',
+      fidelidad:      m.fidelidad        || '',
+      transporte:     m.transporte       || '',
+      genero:         m.genero           || '',
+      latitud:        m.latitud          || null,
+      longitud:       m.longitud         || null,
+      fecha_ingreso:  m.fecha_ingreso
     }));
 
     // Cargar estructuras
@@ -1300,13 +1307,7 @@ async function guardarEdicionMiembro(cedula) {
       : cedula;
 
     const { data, error } = await sb.from('comite_miembros')
-      .update({ 
-        telefono, 
-        direccion, 
-        nota_estrategica: nota,
-        fidelidad,
-        transporte
-      })
+      .update(updates)
       .eq('dirigente_cedula', cedFmt)
       .eq('cedula_miembro', mFmt)
       .select();
@@ -1317,7 +1318,12 @@ async function guardarEdicionMiembro(cedula) {
   // Update local session
   const idx = (sesion.comite || []).findIndex(m => m.cedula === cedula);
   if (idx > -1) {
-    sesion.comite[idx] = { ...sesion.comite[idx], telefono, direccion, nota, fidelidad, transporte };
+    sesion.comite[idx] = { 
+      ...sesion.comite[idx], 
+      telefono, direccion, 
+      nota:       nota, 
+      fidelidad,  transporte 
+    };
   }
 
   document.getElementById('modal-editar')?.remove();
