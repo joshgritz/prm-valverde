@@ -750,7 +750,7 @@ function irA(pantalla) {
   if (pantalla === 'p-zona')       renderZona();
   if (pantalla === 'p-perfil')     renderPerfil();
   if (pantalla === 'p-estrategia') renderEstrategia();
-  if (pantalla === 'p-mapa')       setTimeout(initMapaDirigente, 100);
+  if (pantalla === 'p-mapa')       setTimeout(initMapaDirigente, 300);
 }
 
 function irARegistro() {
@@ -1725,8 +1725,22 @@ function initMapaDirigente() {
   if (!sesion) return;
 
   const doInit = () => {
-    const centro = { lat: sesion.latitud || 19.5557, lng: sesion.longitud || -71.0831 };
+    const lat    = parseFloat(sesion.latitud)  || 19.5557;
+    const lng    = parseFloat(sesion.longitud) || -71.0831;
+    const centro = { lat, lng };
     const zoom   = sesion.latitud ? 17 : 14;
+
+    // Si el mapa ya existe, solo actualizar vista
+    if (mapaDirigente) {
+      mapaDirigente.setCenter(centro);
+      mapaDirigente.setZoom(zoom);
+      if (sesion.latitud && sesion.longitud) {
+        coordsSeleccionadas = { lat, lng };
+        colocarMarcador(lat, lng);
+        mostrarEstadoUbicacion();
+      }
+      return;
+    }
 
     mapaDirigente = new google.maps.Map(document.getElementById('mapa-dirigente'), {
       center: centro, zoom: zoom,
@@ -1742,17 +1756,11 @@ function initMapaDirigente() {
       tilt: 45
     });
 
-    // Si ya tiene ubicación, mostrar marcador
+    // Si ya tiene ubicación guardada, mostrar marcador
     if (sesion.latitud && sesion.longitud) {
-      coordsSeleccionadas = { lat: sesion.latitud, lng: sesion.longitud };
-      colocarMarcador(sesion.latitud, sesion.longitud);
-      document.getElementById('mapa-estado-actual').style.display = 'block';
-      document.getElementById('mapa-ubi-nombre').textContent = sesion.ubicacion_nombre || 'Sin descripción';
-      document.getElementById('mapa-ubi-coords').textContent =
-        sesion.latitud.toFixed(6) + ', ' + sesion.longitud.toFixed(6);
-      if (sesion.ubicacion_nombre)
-        document.getElementById('mapa-descripcion').value = sesion.ubicacion_nombre;
-      document.getElementById('btn-guardar-ubi').style.display = 'block';
+      coordsSeleccionadas = { lat, lng };
+      colocarMarcador(lat, lng);
+      mostrarEstadoUbicacion();
     }
 
     // Click en mapa para poner marcador
@@ -1776,6 +1784,21 @@ function initMapaDirigente() {
     }, 200);
     setTimeout(() => clearInterval(retryTimer), 10000);
   }
+}
+
+function mostrarEstadoUbicacion() {
+  const estadoEl = document.getElementById('mapa-estado-actual');
+  const nombreEl = document.getElementById('mapa-ubi-nombre');
+  const coordsEl = document.getElementById('mapa-ubi-coords');
+  const btnEl    = document.getElementById('btn-guardar-ubi');
+  const descEl   = document.getElementById('mapa-descripcion');
+
+  if (estadoEl) estadoEl.style.display = 'block';
+  if (nombreEl) nombreEl.textContent = sesion.ubicacion_nombre || 'Sin descripción';
+  if (coordsEl && sesion.latitud) coordsEl.textContent =
+    parseFloat(sesion.latitud).toFixed(6) + ', ' + parseFloat(sesion.longitud).toFixed(6);
+  if (btnEl) btnEl.style.display = 'block';
+  if (descEl && sesion.ubicacion_nombre) descEl.value = sesion.ubicacion_nombre;
 }
 
 function colocarMarcador(lat, lng) {
@@ -1849,14 +1872,9 @@ async function guardarUbicacion() {
   sesion.longitud = lng;
   sesion.ubicacion_nombre = descripcion;
 
-  document.getElementById('mapa-estado-actual').style.display = 'block';
-  document.getElementById('mapa-ubi-nombre').textContent = descripcion || 'Sin descripción';
-  document.getElementById('mapa-ubi-coords').textContent = lat.toFixed(6) + ', ' + lng.toFixed(6);
-  document.getElementById('btn-guardar-ubi').style.display = 'block';
-
-  // Asegurar que el marcador y el mapa muestren el punto guardado
   mapaDirigente.panTo({ lat: lat, lng: lng });
   colocarMarcador(lat, lng);
+  mostrarEstadoUbicacion();
 
   alerta('✅ Ubicación guardada correctamente', 'ok');
 }
