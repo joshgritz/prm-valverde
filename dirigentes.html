@@ -1108,64 +1108,171 @@ async function agregarMiembro() {
 // ══════════════════════════════════════════════════════
 // EDITAR MIEMBRO DEL COMITÉ
 // ══════════════════════════════════════════════════════
-function editarMiembro(cedula) {
+async function editarMiembro(cedula) {
   const m = (sesion.comite || []).find(x => x.cedula === cedula);
   if (!m) return;
 
-  // Crear modal de edición
+  // Buscar datos completos del padrón
+  let padron = {};
+  if (sb) {
+    const cedLimpia = cedula.replace(/\D/g,'');
+    const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
+    const { data } = await sb.from('padron_maestro')
+      .select('nombre_completo, foto_base64, cedula, recinto_nombre, colegio_num, direccion, sexo, fecha_nacimiento, voto_primaria, concurrencia_2016, concurrencia_2010, municipio')
+      .eq('cedula', cedFmt).maybeSingle();
+    if (data) padron = data;
+  }
+
+  // Calcular edad
+  let edadStr = '—';
+  if (padron.fecha_nacimiento) {
+    const hoy = new Date();
+    const nac = new Date(padron.fecha_nacimiento);
+    const edad = hoy.getFullYear() - nac.getFullYear() -
+      (hoy < new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate()) ? 1 : 0);
+    edadStr = edad + ' años';
+  }
+
+  const generoStr = padron.sexo === 'F' ? '♀ Femenino' : padron.sexo === 'M' ? '♂ Masculino' : '—';
+  const fotoHtml = padron.foto_base64
+    ? `<img src="data:image/jpeg;base64,${padron.foto_base64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    : `<span style="font-size:28px">${(padron.nombre_completo||'?')[0]}</span>`;
+
+  const chk = (v) => v ? '✅' : '❌';
+
+  document.getElementById('modal-editar')?.remove();
   const modal = document.createElement('div');
   modal.id = 'modal-editar';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:16px';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
   modal.innerHTML = `
-    <div style="background:white;border-radius:20px;width:100%;max-width:420px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4)">
+    <div style="background:white;border-radius:20px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4);margin:auto">
+
+      <!-- Header -->
       <div style="background:linear-gradient(135deg,#003087,#1a4fa8);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
         <div>
-          <div style="font-size:15px;font-weight:800">✏️ Editar Miembro</div>
-          <div style="font-size:11px;opacity:0.7;margin-top:2px">${m.nombre}</div>
+          <div style="font-size:15px;font-weight:800">👤 Ficha del Miembro</div>
+          <div style="font-size:11px;opacity:0.7;margin-top:2px">${padron.nombre_completo || m.nombre}</div>
         </div>
         <button onclick="document.getElementById('modal-editar').remove()"
           style="background:rgba(255,255,255,0.2);border:none;color:white;font-size:20px;cursor:pointer;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center">✕</button>
       </div>
-      <div style="padding:20px;display:grid;gap:12px">
-        <div>
-          <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Teléfono</div>
-          <input id="me-telefono" type="tel" value="${m.telefono || ''}" placeholder="809-000-0000"
-            style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:inherit;outline:none">
-        </div>
-        <div>
-          <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Dirección</div>
-          <input id="me-direccion" type="text" value="${m.direccion || ''}" placeholder="Calle, número, sector..."
-            style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:15px;font-family:inherit;outline:none">
-        </div>
-        <div>
-          <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Nota estratégica</div>
-          <textarea id="me-nota" placeholder="Ej: Transportista, moviliza familia, disponible..." rows="2"
-            style="width:100%;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;resize:none">${m.nota || ''}</textarea>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:4px">
-          <div>
-            <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Fidelidad</div>
-            <select id="me-fidelidad" style="width:100%;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:white">
-              <option value="">Sin clasificar</option>
-              <option value="DURO" ${m.fidelidad==='DURO'?'selected':''}>💪 Voto Duro</option>
-              <option value="BLANDO" ${m.fidelidad==='BLANDO'?'selected':''}>🤔 Voto Blando</option>
-              <option value="INDECISO" ${m.fidelidad==='INDECISO'?'selected':''}>❓ Indeciso</option>
-            </select>
+
+      <div style="padding:18px;display:grid;gap:12px">
+
+        <!-- Foto y datos básicos -->
+        <div style="display:flex;gap:14px;align-items:center;background:#f8fafc;border-radius:14px;padding:14px">
+          <div style="width:72px;height:72px;border-radius:50%;background:#003087;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:3px solid #C8102E;overflow:hidden">
+            ${fotoHtml}
           </div>
-          <div>
-            <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:6px">Transporte</div>
-            <select id="me-transporte" style="width:100%;padding:10px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:white">
-              <option value="">No especificado</option>
-              <option value="SI" ${m.transporte==='SI'?'selected':''}>🚗 Tiene vehículo</option>
-              <option value="NO" ${m.transporte==='NO'?'selected':''}>🚶 No tiene</option>
-              <option value="MOTO" ${m.transporte==='MOTO'?'selected':''}>🏍️ Motocicleta</option>
-            </select>
+          <div style="flex:1">
+            <div style="font-size:14px;font-weight:900;color:#1e293b;line-height:1.3">${padron.nombre_completo || m.nombre}</div>
+            <div style="font-size:12px;color:#64748b;font-family:monospace;margin-top:3px">${cedula}</div>
+            <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+              <span style="background:#eff6ff;color:#1d4ed8;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:800">${generoStr}</span>
+              <span style="background:#f0fdf4;color:#166534;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:800">${edadStr}</span>
+            </div>
           </div>
         </div>
+
+        <!-- Datos electorales (solo lectura) -->
+        <div style="background:#f8fafc;border-radius:12px;padding:14px">
+          <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:10px">📋 Datos Electorales</div>
+          <div style="display:grid;gap:6px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
+              <span style="color:#64748b;font-weight:600">Recinto</span>
+              <span style="font-weight:700;text-align:right;max-width:60%">${(padron.recinto_nombre||'—').replace(/^\d+\s+Rec:\s+\d+\s+-\s+/,'')}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
+              <span style="color:#64748b;font-weight:600">Colegio</span>
+              <span style="font-weight:700">${padron.colegio_num || '—'}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
+              <span style="color:#64748b;font-weight:600">Dirección padrón</span>
+              <span style="font-weight:700;text-align:right;max-width:60%">${padron.direccion || '—'}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
+              <span style="color:#64748b;font-weight:600">Votó primaria</span>
+              <span style="font-weight:700">${chk(padron.voto_primaria)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
+              <span style="color:#64748b;font-weight:600">Concurrencia 2016</span>
+              <span style="font-weight:700">${chk(padron.concurrencia_2016)}</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0">
+              <span style="color:#64748b;font-weight:600">Concurrencia 2010</span>
+              <span style="font-weight:700">${chk(padron.concurrencia_2010)}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos estratégicos (editables) -->
+        <div style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:14px">
+          <div style="font-size:10px;color:#1d4ed8;font-weight:800;text-transform:uppercase;margin-bottom:10px">✏️ Datos Estratégicos</div>
+          <div style="display:grid;gap:10px">
+            <div>
+              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Teléfono</div>
+              <input id="me-telefono" type="tel" value="${m.telefono || ''}" placeholder="809-000-0000"
+                style="width:100%;padding:9px 12px;border:2px solid #dbeafe;border-radius:9px;font-size:14px;font-family:inherit;outline:none;background:white">
+            </div>
+            <div>
+              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Dirección actualizada</div>
+              <input id="me-direccion" type="text" value="${m.direccion || padron.direccion || ''}" placeholder="Calle, número, sector..."
+                style="width:100%;padding:9px 12px;border:2px solid #dbeafe;border-radius:9px;font-size:14px;font-family:inherit;outline:none;background:white">
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div>
+                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Fidelidad</div>
+                <select id="me-fidelidad" style="width:100%;padding:9px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
+                  <option value="">Sin clasificar</option>
+                  <option value="DURO"     ${m.fidelidad==='DURO'    ?'selected':''}>💪 Voto Duro</option>
+                  <option value="BLANDO"   ${m.fidelidad==='BLANDO'  ?'selected':''}>🤔 Voto Blando</option>
+                  <option value="INDECISO" ${m.fidelidad==='INDECISO'?'selected':''}>❓ Indeciso</option>
+                </select>
+              </div>
+              <div>
+                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Transporte</div>
+                <select id="me-transporte" style="width:100%;padding:9px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
+                  <option value="">—</option>
+                  <option value="SI"   ${m.transporte==='SI'  ?'selected':''}>🚗 Vehículo</option>
+                  <option value="MOTO" ${m.transporte==='MOTO'?'selected':''}>🏍️ Moto</option>
+                  <option value="NO"   ${m.transporte==='NO'  ?'selected':''}>🚶 No tiene</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Nota estratégica</div>
+              <textarea id="me-nota" rows="2" placeholder="Ej: Moviliza a su familia, disponible los domingos..."
+                style="width:100%;padding:9px 12px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white;resize:none">${m.nota || ''}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ubicación en mapa -->
+        <div style="background:#f0fdf4;border:2px solid #bbf7d0;border-radius:12px;padding:14px">
+          <div style="font-size:10px;color:#166534;font-weight:800;text-transform:uppercase;margin-bottom:8px">📍 Ubicación</div>
+          ${m.latitud && m.longitud
+            ? `<div style="font-size:12px;color:#16a34a;font-weight:700;margin-bottom:8px">✅ Ubicado en el mapa</div>
+               <a href="https://www.google.com/maps?q=${m.latitud},${m.longitud}" target="_blank"
+                 style="display:block;background:#16a34a;color:white;padding:9px;border-radius:9px;text-align:center;font-size:12px;font-weight:800;text-decoration:none;margin-bottom:6px">
+                 🗺️ Ver en Google Maps
+               </a>`
+            : `<div style="font-size:12px;color:#94a3b8;margin-bottom:8px">Sin ubicación registrada</div>`
+          }
+          ${padron.direccion
+            ? `<a href="https://www.google.com/maps/search/${encodeURIComponent(padron.direccion + ' Mao Valverde RD')}" target="_blank"
+                style="display:block;background:#0ea5e9;color:white;padding:9px;border-radius:9px;text-align:center;font-size:12px;font-weight:800;text-decoration:none">
+                🔍 Buscar dirección del padrón
+               </a>`
+            : ''
+          }
+        </div>
+
+        <!-- Botón guardar -->
         <button onclick="guardarEdicionMiembro('${cedula}')"
-          style="padding:14px;background:#003087;color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;touch-action:manipulation;margin-top:4px">
+          style="padding:14px;background:#003087;color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;touch-action:manipulation;width:100%">
           💾 Guardar cambios
         </button>
+
       </div>
     </div>
   `;
@@ -1178,6 +1285,7 @@ async function guardarEdicionMiembro(cedula) {
   const nota       = document.getElementById('me-nota')?.value?.trim();
   const fidelidad  = document.getElementById('me-fidelidad')?.value;
   const transporte = document.getElementById('me-transporte')?.value;
+  const updates = { telefono, direccion, nota_estrategica: nota, fidelidad, transporte };
 
   // Update in Supabase
   if (sb) {
