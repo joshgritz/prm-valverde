@@ -648,7 +648,7 @@ async function cargarDatosCompletos() {
     // Cargar comité
     const { data: comite } = await sb
       .from('comite_miembros')
-      .select('cedula_miembro, nombre_miembro, recinto_nombre, colegio_num, direccion, telefono, nota_estrategica, fidelidad, transporte, genero, latitud, longitud, fecha_ingreso')
+      .select('cedula_miembro, nombre_miembro, recinto_nombre, colegio_num, direccion, telefono, nota_estrategica, fidelidad, transporte, genero, latitud, longitud, mesa, fecha_nacimiento, fecha_ingreso')
       .eq('dirigente_cedula', sesion.cedula)
       .order('fecha_ingreso');
     if (comite) sesion.comite = comite.map(m => ({
@@ -662,9 +662,11 @@ async function cargarDatosCompletos() {
       fidelidad:      m.fidelidad        || '',
       transporte:     m.transporte       || '',
       genero:         m.genero           || '',
-      latitud:        m.latitud          || null,
-      longitud:       m.longitud         || null,
-      fecha_ingreso:  m.fecha_ingreso
+      latitud:         m.latitud          || null,
+      longitud:        m.longitud         || null,
+      mesa:            m.mesa             || '',
+      fecha_nacimiento: m.fecha_nacimiento || '',
+      fecha_ingreso:   m.fecha_ingreso
     }));
 
     // Cargar estructuras
@@ -1151,7 +1153,7 @@ async function editarMiembro(cedula) {
   document.getElementById('modal-editar')?.remove();
   const modal = document.createElement('div');
   modal.id = 'modal-editar';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;-webkit-overflow-scrolling:touch';
   modal.innerHTML = `
     <div style="background:white;border-radius:20px;width:100%;max-width:440px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.4);margin:auto">
 
@@ -1188,15 +1190,15 @@ async function editarMiembro(cedula) {
           <div style="display:grid;gap:6px">
             <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
               <span style="color:#64748b;font-weight:600">Recinto</span>
-              <span style="font-weight:700;text-align:right;max-width:60%">${(padron.recinto_nombre||'—').replace(/^\d+\s+Rec:\s+\d+\s+-\s+/,'')}</span>
+              <span style="font-weight:700;text-align:right;max-width:65%;font-size:11px">${(padron.recinto_nombre||'—').replace(/^\d+\s+Rec:\s+\d+\s+-\s+/,'')}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
               <span style="color:#64748b;font-weight:600">Colegio</span>
               <span style="font-weight:700">${padron.colegio_num || '—'}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
-              <span style="color:#64748b;font-weight:600">Dirección padrón</span>
-              <span style="font-weight:700;text-align:right;max-width:60%">${padron.direccion || '—'}</span>
+              <span style="color:#64748b;font-weight:600">Mesa</span>
+              <span style="font-weight:700">${m.mesa || '—'}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
               <span style="color:#64748b;font-weight:600">Votó primaria</span>
@@ -1213,33 +1215,66 @@ async function editarMiembro(cedula) {
           </div>
         </div>
 
-        <!-- Datos estratégicos (editables) -->
+        <!-- Datos editables -->
         <div style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:14px">
-          <div style="font-size:10px;color:#1d4ed8;font-weight:800;text-transform:uppercase;margin-bottom:10px">✏️ Datos Estratégicos</div>
+          <div style="font-size:10px;color:#1d4ed8;font-weight:800;text-transform:uppercase;margin-bottom:10px">✏️ Información Personal</div>
           <div style="display:grid;gap:10px">
-            <div>
-              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Teléfono</div>
-              <input id="me-telefono" type="tel" value="${m.telefono || ''}" placeholder="809-000-0000"
-                style="width:100%;padding:9px 12px;border:2px solid #dbeafe;border-radius:9px;font-size:14px;font-family:inherit;outline:none;background:white">
+            
+            <!-- Fecha nacimiento y género -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div>
+                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Fecha nacimiento</div>
+                <input id="me-fnac" type="date" value="${m.fecha_nacimiento || ''}"
+                  style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:12px;font-family:inherit;outline:none;background:white">
+              </div>
+              <div>
+                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Género</div>
+                <select id="me-genero"
+                  style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:12px;font-family:inherit;outline:none;background:white">
+                  <option value="">—</option>
+                  <option value="M" ${m.genero==='M'?'selected':''}>♂ Masc.</option>
+                  <option value="F" ${m.genero==='F'?'selected':''}>♀ Fem.</option>
+                </select>
+              </div>
             </div>
+
+            <!-- Mesa y teléfono -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <div>
+                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Mesa</div>
+                <input id="me-mesa" type="text" value="${m.mesa || ''}" placeholder="Ej: 15"
+                  style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
+              </div>
+              <div>
+                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Teléfono</div>
+                <input id="me-telefono" type="tel" value="${m.telefono || ''}" placeholder="809-000-0000"
+                  style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
+              </div>
+            </div>
+
+            <!-- Dirección -->
             <div>
-              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Dirección actualizada</div>
+              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Dirección</div>
               <input id="me-direccion" type="text" value="${m.direccion || padron.direccion || ''}" placeholder="Calle, número, sector..."
-                style="width:100%;padding:9px 12px;border:2px solid #dbeafe;border-radius:9px;font-size:14px;font-family:inherit;outline:none;background:white">
+                style="width:100%;padding:9px 12px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
             </div>
+
+            <!-- Fidelidad y transporte -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <div>
                 <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Fidelidad</div>
-                <select id="me-fidelidad" style="width:100%;padding:9px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
+                <select id="me-fidelidad"
+                  style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:12px;font-family:inherit;outline:none;background:white">
                   <option value="">Sin clasificar</option>
-                  <option value="DURO"     ${m.fidelidad==='DURO'    ?'selected':''}>💪 Voto Duro</option>
-                  <option value="BLANDO"   ${m.fidelidad==='BLANDO'  ?'selected':''}>🤔 Voto Blando</option>
+                  <option value="DURO"     ${m.fidelidad==='DURO'    ?'selected':''}>💪 Duro</option>
+                  <option value="BLANDO"   ${m.fidelidad==='BLANDO'  ?'selected':''}>🤔 Blando</option>
                   <option value="INDECISO" ${m.fidelidad==='INDECISO'?'selected':''}>❓ Indeciso</option>
                 </select>
               </div>
               <div>
                 <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Transporte</div>
-                <select id="me-transporte" style="width:100%;padding:9px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
+                <select id="me-transporte"
+                  style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:12px;font-family:inherit;outline:none;background:white">
                   <option value="">—</option>
                   <option value="SI"   ${m.transporte==='SI'  ?'selected':''}>🚗 Vehículo</option>
                   <option value="MOTO" ${m.transporte==='MOTO'?'selected':''}>🏍️ Moto</option>
@@ -1247,32 +1282,39 @@ async function editarMiembro(cedula) {
                 </select>
               </div>
             </div>
+
+            <!-- Nota estratégica -->
             <div>
               <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Nota estratégica</div>
               <textarea id="me-nota" rows="2" placeholder="Ej: Moviliza a su familia, disponible los domingos..."
                 style="width:100%;padding:9px 12px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white;resize:none">${m.nota || ''}</textarea>
             </div>
+
           </div>
         </div>
 
-        <!-- Ubicación en mapa -->
+        <!-- Ubicación -->
         <div style="background:#f0fdf4;border:2px solid #bbf7d0;border-radius:12px;padding:14px">
           <div style="font-size:10px;color:#166534;font-weight:800;text-transform:uppercase;margin-bottom:8px">📍 Ubicación</div>
           ${m.latitud && m.longitud
-            ? `<div style="font-size:12px;color:#16a34a;font-weight:700;margin-bottom:8px">✅ Ubicado en el mapa</div>
+            ? `<div style="font-size:12px;color:#16a34a;font-weight:700;margin-bottom:8px">✅ Ubicado · ${parseFloat(m.latitud).toFixed(5)}, ${parseFloat(m.longitud).toFixed(5)}</div>
                <a href="https://www.google.com/maps?q=${m.latitud},${m.longitud}" target="_blank"
                  style="display:block;background:#16a34a;color:white;padding:9px;border-radius:9px;text-align:center;font-size:12px;font-weight:800;text-decoration:none;margin-bottom:6px">
                  🗺️ Ver en Google Maps
                </a>`
-            : `<div style="font-size:12px;color:#94a3b8;margin-bottom:8px">Sin ubicación registrada</div>`
+            : `<div style="font-size:12px;color:#94a3b8;margin-bottom:8px">Sin ubicación GPS</div>`
           }
-          ${padron.direccion
-            ? `<a href="https://www.google.com/maps/search/${encodeURIComponent(padron.direccion + ' Mao Valverde RD')}" target="_blank"
+          ${(m.direccion || padron.direccion)
+            ? `<a href="https://www.google.com/maps/search/${encodeURIComponent((m.direccion || padron.direccion) + ' Mao Valverde RD')}" target="_blank"
                 style="display:block;background:#0ea5e9;color:white;padding:9px;border-radius:9px;text-align:center;font-size:12px;font-weight:800;text-decoration:none">
-                🔍 Buscar dirección del padrón
+                🔍 Buscar dirección en Maps
                </a>`
             : ''
           }
+          <button onclick="puntearMiembro('${cedula}')"
+            style="display:block;width:100%;margin-top:8px;background:#003087;color:white;padding:9px;border-radius:9px;text-align:center;font-size:12px;font-weight:800;border:none;cursor:pointer;touch-action:manipulation">
+            📌 Puntear en el mapa
+          </button>
         </div>
 
         <!-- Botón guardar -->
@@ -1287,13 +1329,124 @@ async function editarMiembro(cedula) {
   document.body.appendChild(modal);
 }
 
+function puntearMiembro(cedula) {
+  // Cerrar modal y abrir mapa para puntear este miembro
+  document.getElementById('modal-editar')?.remove();
+  
+  // Store which member we're locating
+  window._punteandoMiembro = cedula;
+  
+  // Create a mini map modal
+  const mapModal = document.createElement('div');
+  mapModal.id = 'modal-mapa-miembro';
+  mapModal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px';
+  mapModal.innerHTML = `
+    <div style="background:white;border-radius:16px;width:100%;max-width:500px;overflow:hidden">
+      <div style="background:#003087;color:white;padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
+        <div style="font-size:14px;font-weight:800">📌 Puntear ubicación del miembro</div>
+        <button onclick="document.getElementById('modal-mapa-miembro').remove()"
+          style="background:rgba(255,255,255,0.2);border:none;color:white;font-size:18px;cursor:pointer;border-radius:6px;width:28px;height:28px">✕</button>
+      </div>
+      <div style="padding:12px;font-size:12px;color:#64748b;background:#f8fafc">
+        Toca en el mapa para marcar la ubicación. Luego toca <strong>Guardar punto</strong>.
+      </div>
+      <div id="mapa-miembro-container" style="height:300px"></div>
+      <div style="padding:12px;display:flex;gap:8px">
+        <button onclick="guardarPuntoMiembro()" id="btn-guardar-punto"
+          style="flex:1;padding:12px;background:#003087;color:white;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">
+          💾 Guardar punto
+        </button>
+        <button onclick="document.getElementById('modal-mapa-miembro').remove()"
+          style="padding:12px 16px;background:#f1f5f9;color:#64748b;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(mapModal);
+  
+  // Init mini map
+  setTimeout(() => {
+    const m = (sesion.comite || []).find(x => x.cedula === cedula);
+    const centro = m?.latitud 
+      ? { lat: parseFloat(m.latitud), lng: parseFloat(m.longitud) }
+      : { lat: sesion.latitud || 19.5557, lng: sesion.longitud || -71.0831 };
+    
+    const miniMapa = new google.maps.Map(document.getElementById('mapa-miembro-container'), {
+      center: centro, zoom: 16,
+      mapTypeControl: true, fullscreenControl: false,
+      streetViewControl: false,
+      mapTypeControlOptions: {
+        mapTypeIds: ['roadmap','satellite','hybrid'],
+        style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
+        position: google.maps.ControlPosition.TOP_LEFT
+      }
+    });
+    
+    let marcadorMiembro = null;
+    if (m?.latitud) {
+      marcadorMiembro = new google.maps.Marker({ position: centro, map: miniMapa, draggable: true });
+      window._coordsMiembro = centro;
+    }
+    
+    miniMapa.addListener('click', (e) => {
+      const pos = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+      window._coordsMiembro = pos;
+      if (marcadorMiembro) {
+        marcadorMiembro.setPosition(pos);
+      } else {
+        marcadorMiembro = new google.maps.Marker({ position: pos, map: miniMapa, draggable: true, animation: google.maps.Animation.DROP });
+        marcadorMiembro.addListener('dragend', (ev) => {
+          window._coordsMiembro = { lat: ev.latLng.lat(), lng: ev.latLng.lng() };
+        });
+      }
+    });
+  }, 200);
+}
+
+async function guardarPuntoMiembro() {
+  if (!window._coordsMiembro) { alert('Toca en el mapa primero'); return; }
+  const cedula = window._punteandoMiembro;
+  const lat = window._coordsMiembro.lat;
+  const lng = window._coordsMiembro.lng;
+  
+  const cedLimpia = cedula.replace(/\D/g,'');
+  const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
+  const dirFmt = sesion.cedula.replace(/\D/g,'');
+  const dirCedFmt = dirFmt.slice(0,3)+'-'+dirFmt.slice(3,10)+'-'+dirFmt.slice(10);
+  
+  if (sb) {
+    const { error } = await sb.from('comite_miembros')
+      .update({ latitud: lat, longitud: lng })
+      .eq('dirigente_cedula', dirCedFmt)
+      .eq('cedula_miembro', cedFmt);
+    if (error) { alert('Error: ' + error.message); return; }
+  }
+  
+  const idx = (sesion.comite || []).findIndex(m => m.cedula === cedula);
+  if (idx > -1) { sesion.comite[idx].latitud = lat; sesion.comite[idx].longitud = lng; }
+  
+  document.getElementById('modal-mapa-miembro')?.remove();
+  alerta('✅ Ubicación del miembro guardada', 'ok');
+}
+
 async function guardarEdicionMiembro(cedula) {
   const telefono   = document.getElementById('me-telefono')?.value?.trim();
   const direccion  = document.getElementById('me-direccion')?.value?.trim();
   const nota       = document.getElementById('me-nota')?.value?.trim();
   const fidelidad  = document.getElementById('me-fidelidad')?.value;
   const transporte = document.getElementById('me-transporte')?.value;
-  const updates = { telefono, direccion, nota_estrategica: nota, fidelidad, transporte };
+  const mesa     = document.getElementById('me-mesa')?.value?.trim() || null;
+  const genero   = document.getElementById('me-genero')?.value || null;
+  const fnac     = document.getElementById('me-fnac')?.value || null;
+  const updates  = { 
+    telefono, direccion, 
+    nota_estrategica: nota, 
+    fidelidad, transporte,
+    mesa:             mesa  || null,
+    genero:           genero || null,
+    fecha_nacimiento: fnac  || null
+  };
 
   // Update in Supabase
   if (sb) {
@@ -1322,8 +1475,11 @@ async function guardarEdicionMiembro(cedula) {
     sesion.comite[idx] = { 
       ...sesion.comite[idx], 
       telefono, direccion, 
-      nota:       nota, 
-      fidelidad,  transporte 
+      nota:            nota, 
+      fidelidad,       transporte,
+      mesa:            document.getElementById('me-mesa')?.value || sesion.comite[idx].mesa,
+      genero:          document.getElementById('me-genero')?.value || sesion.comite[idx].genero,
+      fecha_nacimiento: document.getElementById('me-fnac')?.value || sesion.comite[idx].fecha_nacimiento
     };
   }
 
@@ -2053,6 +2209,8 @@ window.addEventListener('DOMContentLoaded', async function() {
   window.renderEstrategia     = renderEstrategia;
   window.actualizarPerfil     = actualizarPerfil;
   window.editarMiembro        = editarMiembro;
+  window.puntearMiembro       = puntearMiembro;
+  window.guardarPuntoMiembro  = guardarPuntoMiembro;
   window.guardarEdicionMiembro = guardarEdicionMiembro;
   window.usarUbicacionActual  = usarUbicacionActual;
   window.guardarUbicacion     = guardarUbicacion;
