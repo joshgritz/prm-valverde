@@ -180,6 +180,19 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 .mt8 { margin-top: 8px; }
 .mt16 { margin-top: 16px; }
 </style>
+<style>
+  #mapa-dirigente { height: 340px; border-radius: 14px; overflow: hidden; z-index: 1; }
+</style>
+<script>
+window.initGoogleMaps = function() {
+  window._gmapsLoaded = true;
+  if (window._mapaReadyCallback) {
+    window._mapaReadyCallback();
+    window._mapaReadyCallback = null;
+  }
+};
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDWNYxwnHf20oKwNSVTFlvhwVTxYJqIq90&callback=initGoogleMaps&loading=async" async defer></script>
 </head>
 <body>
 
@@ -1750,10 +1763,18 @@ function initMapaDirigente() {
     });
   };
 
-  if (window.google && window.google.maps) {
+  if (window._gmapsLoaded && window.google && window.google.maps) {
     doInit();
   } else {
     window._mapaReadyCallback = doInit;
+    // Also retry in case script already loaded
+    const retryTimer = setInterval(() => {
+      if (window.google && window.google.maps) {
+        clearInterval(retryTimer);
+        doInit();
+      }
+    }, 200);
+    setTimeout(() => clearInterval(retryTimer), 10000);
   }
 }
 
