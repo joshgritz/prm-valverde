@@ -349,7 +349,19 @@ async function processPDFs(files) {
     }
   }
   
-  setProgress(100, `¡Listo! ${allMilitantes.length} militantes procesados`);
+  // Summary of colegios/recintos detected
+  const colegiosDetectados = {};
+  for (const m of allMilitantes) {
+    const key = `${m.colegio} — ${m.recinto}`;
+    colegiosDetectados[key] = (colegiosDetectados[key] || 0) + 1;
+  }
+  const numColegios = Object.keys(colegiosDetectados).length;
+  log(`📊 Resumen: ${numColegios} colegio(s) detectado(s):`);
+  for (const [key, count] of Object.entries(colegiosDetectados)) {
+    log(`   • ${key} → ${count} militantes`);
+  }
+  
+  setProgress(100, `¡Listo! ${allMilitantes.length} militantes procesados en ${numColegios} colegio(s)`);
   
   setTimeout(() => {
     document.getElementById('progressBox').style.display = 'none';
@@ -389,20 +401,31 @@ async function processPDF(file) {
     
     await page.render({ canvasContext: ctx, viewport: scaledViewport }).promise;
     
-    // Extract colegio info from page 1
-    if (pageNum === 1) {
-      for (const item of items) {
-        if (item.transform && item.str) {
-          const y = viewport.height - item.transform[5];
-          const x = item.transform[4];
-          if (y < 55 && item.str.match(/^\d{4}$/) && x > 480) {
-            colegioNum = item.str;
-          }
-          if (y > 72 && y < 95 && x > 200 && item.str.length > 3) {
-            recitoName += item.str + ' ';
-          }
+    // Extract colegio/recinto from header on EVERY page
+    // (each page or section may have a different colegio)
+    let pageColegioNum = '';
+    let pageRecitoName = '';
+    for (const item of items) {
+      if (item.transform && item.str) {
+        const y = viewport.height - item.transform[5];
+        const x = item.transform[4];
+        // Colegio number: 4-digit number in top area, right side
+        if (y < 55 && item.str.match(/^\d{4}$/) && x > 480) {
+          pageColegioNum = item.str;
+        }
+        // Recinto name: text in header band
+        if (y > 40 && y < 100 && x > 100 && item.str.length > 3 &&
+            !item.str.match(/^\d+$/) && !item.str.match(/^(Prov|Mun|Colegio|Recinto|PRM|Padrón|PARTIDO):/i)) {
+          pageRecitoName += item.str + ' ';
         }
       }
+    }
+    // Use page header if found, otherwise keep previous values (multi-page colegio)
+    if (pageColegioNum) colegioNum = pageColegioNum;
+    if (pageRecitoName.trim()) recitoName = pageRecitoName;
+    
+    if (pageColegioNum) {
+      log(`📋 Pág ${pageNum}: Colegio ${colegioNum} — ${recitoName.trim().substring(0, 50)}`);
     }
     
     // Parse persons from this page — pass canvas and scale
