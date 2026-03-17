@@ -243,18 +243,21 @@ async function processPDF(file) {
       const txt = it.str.trim();
       if (!txt) continue;
 
-      // ── Pág 1: COLEGIO label + número (y≈360 en coords flipeadas) ──
+      // ── Pág 2+: COLEGIO número en tabla header ──
+      // pdfplumber: y=99.4, x=525 → flipeado en PDF.js: pageH-99.4 ≈ 692
+      // El label COLEGIO está en y=85 (pdfplumber) → flipeado ≈ 707
+      // Buscar 4-digit en la zona superior de la página (flipeado: y > pageH-120)
+      if (txt.match(/^\d{4}$/) && y > pageH - 120 && x > 500) {
+        pageColegio = txt;
+      }
+
+      // ── Pág 1: COLEGIO label + número (zona media-baja flipeada) ──
       if (txt === 'COLEGIO' && y > pageH * 0.35 && y < pageH * 0.65) {
         const nxt = items.slice(i+1, i+8).find(n =>
           n.str && n.str.trim().match(/^\d{4}$/) &&
           Math.abs((pageH - n.transform[5]) - y) < 15
         );
         if (nxt) pageColegio = nxt.str.trim();
-      }
-
-      // ── Pág 2+: COLEGIO número en tabla header (x>500, y<120) ──
-      if (txt.match(/^\d{4}$/) && y < 120 && x > 500) {
-        pageColegio = txt;
       }
 
       // ── Pág 1: nombre institución (y≈395-415 flipeado) ──
@@ -264,28 +267,26 @@ async function processPDF(file) {
         pageRecinto += txt + ' ';
       }
 
-      // ── Pág 2+: REC: label → nombre institución ──
-      if (txt === 'REC:' && y < 80) {
-        // Get all words on same y-line after REC:
+      // ── Pág 2+: REC: → nombre institución (flipeado: y > pageH-80) ──
+      if (txt === 'REC:' && y > pageH - 80) {
         const sameY = items.filter(n =>
           n.str && n.str.trim() && n.transform &&
           Math.abs((pageH - n.transform[5]) - y) < 8 &&
-          n.transform[4] > it.transform[4] + 5
+          n.transform[4] > it.transform[4] + 5 &&
+          !n.str.trim().match(/^\d{5}$/)
         ).sort((a,b) => a.transform[4] - b.transform[4]);
-        // Skip 5-digit recinto number, take the name
-        const nameParts = sameY.filter(n => !n.str.trim().match(/^\d{5}$/));
-        if (nameParts.length > 0) pageRecinto = nameParts.map(n => n.str.trim()).join(' ');
+        if (sameY.length > 0) pageRecinto = sameY.map(n => n.str.trim()).join(' ');
       }
 
-      // ── PROV: / MUN: (pág 2+, y < 80) ──
-      if (txt === 'PROV:' && y < 80) {
+      // ── PROV:/MUN: (pág 2+, flipeado: y > pageH-80) ──
+      if (txt === 'PROV:' && y > pageH - 80) {
         const nxt = items.slice(i+1, i+6).find(n =>
           n.str && n.str.trim().length > 2 &&
           Math.abs((pageH - n.transform[5]) - y) < 10
         );
         if (nxt) pageProv = nxt.str.trim().replace(/^\d+-/,'').trim();
       }
-      if (txt === 'MUN:' && y < 80) {
+      if (txt === 'MUN:' && y > pageH - 80) {
         const nxt = items.slice(i+1, i+4).find(n =>
           n.str && n.str.trim().length > 1 &&
           Math.abs((pageH - n.transform[5]) - y) < 10
@@ -293,15 +294,15 @@ async function processPDF(file) {
         if (nxt) pageMun = nxt.str.trim();
       }
 
-      // ── PROVINCIA / MUNICIPIO (pág 1, labels con cuadro) ──
-      if (txt === 'PROVINCIA' && y > 150 && y < pageH * 0.4) {
+      // ── PROVINCIA/MUNICIPIO (pág 1, flipeado: y > pageH*0.6) ──
+      if (txt === 'PROVINCIA' && y > pageH * 0.6) {
         const nxt = items.slice(i+1, i+8).find(n =>
           n.str && n.str.trim().length > 2 &&
           Math.abs((pageH - n.transform[5]) - y) < 12
         );
         if (nxt) pageProv = nxt.str.trim().replace(/^\d+-/,'').trim();
       }
-      if (txt === 'MUNICIPIO' && y > 150 && y < pageH * 0.4) {
+      if (txt === 'MUNICIPIO' && y > pageH * 0.6) {
         const nxt = items.slice(i+1, i+4).find(n =>
           n.str && n.str.trim().length > 1 &&
           Math.abs((pageH - n.transform[5]) - y) < 12
@@ -401,23 +402,28 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
     }
 
     // ── DIRECCIÓN ──
+    // DIR: aparece solo en su línea. El texto viene en la MISMA línea (x > DIR.x)
+    // EP, BN, MA son leyendas que aparecen en líneas separadas — ignorar
     let direccion = '';
     const dirLabel = block.find(w => w.text === 'DIR:' || w.text === 'Dir:');
     if (dirLabel) {
+      const LEYENDAS = new Set(['EP','BN','MA','PR','24M','24P','24','A','CONFIRMAR','RATIFICADO']);
       const after = block.filter(w =>
-        w.x > dirLabel.x + 2 && Math.abs(w.y - dirLabel.y) < 8 &&
-        w.text !== dirLabel.text && !NOISE.has(w.text)
+        w.x > dirLabel.x + 2 &&
+        Math.abs(w.y - dirLabel.y) < 5 &&  // misma línea exacta
+        w.text !== dirLabel.text &&
+        !LEYENDAS.has(w.text) &&
+        !NOISE.has(w.text)
       ).sort((a,b) => a.x - b.x);
       direccion = after.map(w => w.text).join(' ').trim();
     }
 
     // ── FOTO — coordenadas exactas PRACAF ──
-    // Izq: x0=9.6  Der: x0=309.5
-    // Tamaño: 62.2 × 71.4 PDF units
-    // Top = cédula_y - 27.6  (confirmado con pdfplumber)
+    // Confirmado con pdfplumber: photo.top = cedula_y - 106.3
+    // x izq=9.6, x der=309.5, tamaño 62.2×71.3 PDF units
     const photoX = isLeft ? 9.6   : 309.5;
-    const photoY = rowY - 27.6;
-    const foto   = cropPhoto(canvas, photoX, photoY, 62.2, 71.4, scale);
+    const photoY = rowY - 106.3;
+    const foto   = cropPhoto(canvas, photoX, photoY, 62.2, 71.3, scale);
 
     persons.push({ cedula, nombre, telefono, telefono2, direccion, foto_b64: foto, colegio, recinto, provincia, municipio });
   }
