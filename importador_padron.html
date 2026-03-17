@@ -262,18 +262,18 @@ async function processPDF(file) {
         if (nxt) pageColegio = nxt.str.trim();
       }
 
-      // ── Pág 1: nombre institución (y≈395-415 flipeado) ──
-      if (y > pageH * 0.47 && y < pageH * 0.57 && txt.length > 4 &&
+      // ── Pág 1 SOLAMENTE: nombre institución (y≈395-415 flipeado) ──
+      if (pageNum === 1 && y > pageH * 0.47 && y < pageH * 0.57 && txt.length > 4 &&
           !txt.match(/^\d+[\-\d]*$/) &&
           !['RECINTO','COLEGIO','MILITANTES','RATIFICADOS','CONFIRMAR','A','DIRECCION'].includes(txt)) {
         pageRecinto += txt + ' ';
       }
 
       // ── Pág 2+: REC: → nombre institución (flipeado: y > pageH-80) ──
-      if (txt === 'REC:' && y > pageH - 80) {
+      if (txt === 'REC:' && y > pageH - 80 && pageNum > 1) {
         const sameY = items.filter(n =>
           n.str && n.str.trim() && n.transform &&
-          Math.abs((pageH - n.transform[5]) - y) < 8 &&
+          Math.abs((pageH - n.transform[5]) - y) < 5 &&
           n.transform[4] > it.transform[4] + 5 &&
           !n.str.trim().match(/^\d{5}$/)
         ).sort((a,b) => a.transform[4] - b.transform[4]);
