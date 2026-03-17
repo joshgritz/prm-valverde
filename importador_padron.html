@@ -245,9 +245,11 @@ async function processPDF(file) {
       const txt = it.str.trim();
       if (!txt) continue;
 
-      // ── Pág 2+: COLEGIO número en tabla header (x>500, y>pageH-120) ──
-      // Puede ser 4 dígitos (0100) o alfanumérico (0035A)
-      if (txt.match(/^\d{3,4}[A-Z]?$/) && y > pageH - 120 && x > 500) {
+      // ── Pág 2+: COLEGIO número en tabla header ──
+      // En 0035A: x=518.5, y=99.4 (top) → flipeado y > pageH-120
+      // Evitar: 6336 (ID doc, x=575), 113/211 (conteos, x<480)
+      // El colegio siempre está después del label COLEGIO en x>500
+      if (txt.match(/^\d{3,4}[A-Z]?$/) && y > pageH - 120 && x > 500 && x < 560) {
         pageColegio = txt;
       }
 
@@ -539,7 +541,7 @@ function showModal(cedula) {
       </div>
     </div>
     <div class="prm-strip">
-      <span>🏫 ${(m.recinto||'—').substring(0,45)}</span>
+      <span>🏫 ${(m.recinto||'—').replace(/^(00\d{3}\s+)/,'').substring(0,45)}</span>
       <span>📋 Colegio: ${m.colegio||'—'}</span>
     </div>
     <div style="margin-top:12px;padding:10px;background:#f8f9fa;border-radius:8px;font-size:12px;color:#666">
