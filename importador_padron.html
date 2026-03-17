@@ -222,7 +222,9 @@ async function processPDF(file) {
     await page.render({ canvasContext: canvas.getContext('2d'), viewport: sv }).promise;
 
     const items = (await page.getTextContent()).items;
-    const pageH = viewport.height;
+    const pageH = viewport.height;  // should be 792
+
+    if (pageNum <= 2) log(`📐 Pág ${pageNum}: pageH=${pageH.toFixed(1)} pageW=${viewport.width.toFixed(1)}`);
 
     // ── HEADER PARSING (PRACAF) ───────────────────────────────────
     // Página 1:  RECINTO y≈432, COLEGIO y≈432 (coordenadas PDF invertidas)
@@ -415,14 +417,13 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
       direccion = after.map(w => w.text).join(' ').trim();
     }
 
-    // ── FOTO — coordenadas exactas en PDF.js (eje Y flipeado) ──
-    // pdfplumber: img.y0=112.03, img.y1=183.37, cedula.top=139.58
-    // PDF.js flipped: photoY = pageH - img.y1 = 792 - 183.37 = 608.63
-    //                 rowY   = pageH - cedula.top = 792 - 139.58 = 652.42
-    //                 photoY = rowY - 43.79  ✓ CONFIRMADO
-    // x izq=9.63, x der=309.54, tamaño=62.13×71.34
+    // ── FOTO — coordenadas exactas PRACAF ──
+    // Confirmado definitivamente: pdfplumber y PDF.js tienen el mismo sistema Y
+    // photo.top = cedula.top - 27.55  →  photoY = rowY - 27.55
+    // photo.bot = cedula.top + 43.79  →  height = 71.34
+    // x izq=9.63, x der=309.54
     const photoX = isLeft ? 9.63  : 309.54;
-    const photoY = rowY - 43.79;
+    const photoY = rowY - 27.55;
     const foto   = cropPhoto(canvas, photoX, photoY, 62.13, 71.34, scale);
 
     persons.push({ cedula, nombre, telefono, telefono2, direccion, foto_b64: foto, colegio, recinto, provincia, municipio });
