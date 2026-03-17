@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importador de Padrón PRM - Valverde</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root { --blue:#003087; --red:#C8102E; --gold:#F5A623; --gray:#f4f6f9; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI',sans-serif; background:var(--gray); color:#222; }
+  .header {
+    background:linear-gradient(135deg,var(--blue) 0%,#001a4d 100%);
+    color:white; padding:16px 24px; display:flex; align-items:center; gap:16px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.3);
+  }
+  .logo { width:52px;height:52px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:bold;color:var(--red);flex-shrink:0; }
+  .header h1 { font-size:20px; }
+  .header p  { font-size:12px;opacity:0.8;margin-top:2px; }
+  .container { max-width:1400px;margin:0 auto;padding:20px; }
+  .upload-zone { background:white;border:3px dashed #ccc;border-radius:16px;padding:40px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:20px; }
+  .upload-zone:hover,.upload-zone.drag { border-color:var(--blue);background:#eef3ff; }
+  .upload-zone .icon { font-size:48px;margin-bottom:12px; }
+  .upload-zone h2 { color:var(--blue);font-size:20px; }
+  .upload-zone p  { color:#666;margin-top:8px;font-size:13px; }
+  #fileInput { display:none; }
+  .progress-box { background:white;border-radius:12px;padding:20px;margin-bottom:20px;display:none;box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+  .progress-box h3 { margin-bottom:12px;color:var(--blue); }
+  .progress-bar  { height:12px;background:#e0e0e0;border-radius:6px;overflow:hidden; }
+  .progress-fill { height:100%;background:linear-gradient(90deg,var(--blue),var(--red));transition:width 0.3s; }
+  .progress-text { text-align:center;margin-top:8px;font-size:13px;color:#666; }
+  .log-area { margin-top:12px;font-size:12px;color:#444;max-height:120px;overflow-y:auto;background:#f9f9f9;padding:8px;border-radius:6px; }
+  .stats-bar { display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap; }
+  .stat-card { background:white;border-radius:10px;padding:14px 20px;flex:1;min-width:130px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.06);border-top:3px solid var(--blue); }
+  .stat-card .num { font-size:28px;font-weight:700;color:var(--blue); }
+  .stat-card .lbl { font-size:11px;color:#888;margin-top:2px; }
+  .search-box { background:white;border-radius:12px;padding:16px 20px;margin-bottom:20px;display:none;gap:12px;align-items:center;box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .search-box input { flex:1;padding:10px 16px;border:2px solid #ddd;border-radius:8px;font-size:15px;outline:none;transition:border 0.2s; }
+  .search-box input:focus { border-color:var(--blue); }
+  .btn { padding:10px 20px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:all 0.2s;white-space:nowrap; }
+  .btn-blue   { background:var(--blue);color:white; }
+  .btn-blue:hover { background:#002060; }
+  .btn-green  { background:#28a745;color:white; }
+  .btn-purple { background:#7c3aed;color:white; }
+  .grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px; }
+  .card { background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.08);transition:transform 0.2s,box-shadow 0.2s;cursor:pointer; }
+  .card:hover { transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.15); }
+  .card-header { background:linear-gradient(135deg,var(--blue),#1a3a6b);padding:7px 12px;display:flex;justify-content:space-between;align-items:center; }
+  .card-header .cedula { color:#aec6ff;font-size:11px;font-family:monospace; }
+  .card-header .col    { color:var(--gold);font-weight:700;font-size:12px; }
+  .card-body  { display:flex; }
+  .card-photo { width:100px;height:110px;background:#ddd;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+  .card-photo img { width:100px;height:110px;object-fit:cover;display:block; }
+  .card-photo .no-photo { font-size:36px;color:#aaa; }
+  .card-info  { padding:10px 12px;flex:1;min-width:0; }
+  .card-info .nombre { font-weight:700;font-size:12px;color:#1a1a1a;line-height:1.3;margin-bottom:5px; }
+  .card-info .dato   { font-size:11px;color:#555;margin-bottom:2px;display:flex;gap:4px;align-items:flex-start; }
+  .card-info .dato .ico { flex-shrink:0;width:14px; }
+  .modal-bg { display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center; }
+  .modal-bg.open { display:flex; }
+  .modal { background:white;border-radius:16px;width:480px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.4); }
+  .modal-header { background:linear-gradient(135deg,var(--blue),#1a3a6b);color:white;padding:16px 20px;border-radius:16px 16px 0 0;display:flex;justify-content:space-between;align-items:center; }
+  .modal-header h2 { font-size:15px; }
+  .modal-close { background:none;border:none;color:white;font-size:22px;cursor:pointer; }
+  .modal-body  { padding:20px; }
+  .ficha { display:flex;gap:16px;margin-bottom:16px; }
+  .ficha-photo { width:130px;height:140px;border-radius:8px;overflow:hidden;border:3px solid var(--blue);flex-shrink:0;background:#ddd;display:flex;align-items:center;justify-content:center; }
+  .ficha-photo img { width:100%;height:100%;object-fit:cover; }
+  .ficha-data h3 { color:var(--blue);font-size:15px;margin-bottom:10px;font-weight:700; }
+  .ficha-row { display:flex;font-size:13px;margin-bottom:6px;gap:8px; }
+  .ficha-row .label { font-weight:600;color:#666;min-width:85px; }
+  .ficha-row .value { color:#222; }
+  .prm-strip { background:linear-gradient(90deg,var(--red),#8b0d1f);color:white;padding:8px 14px;border-radius:8px;font-size:12px;margin-top:12px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap; }
+  .empty-state { text-align:center;padding:60px 20px;color:#aaa; }
+  .empty-state .icon { font-size:64px;margin-bottom:16px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">PRM</div>
+  <div>
+    <h1>Importador de Padrón Electoral — PRACAF 2024</h1>
+    <p>Partido Revolucionario Moderno — Provincia Valverde</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+    <div class="icon">📋</div>
+    <h2>Arrastra el PDF del padrón aquí</h2>
+    <p>O haz clic para seleccionar — Formato PRACAF 2024</p>
+    <p style="margin-top:8px;color:#999">Procesamiento 100% local · No se envía nada a internet</p>
+  </div>
+  <input type="file" id="fileInput" accept=".pdf" multiple>
+
+  <div class="progress-box" id="progressBox">
+    <h3>⚙️ Procesando padrón...</h3>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-text" id="progressText">Iniciando...</div>
+    <div class="log-area" id="logArea"></div>
+  </div>
+
+  <div class="stats-bar" id="statsBar" style="display:none">
+    <div class="stat-card" style="border-color:var(--blue)">
+      <div class="num" id="statTotal">0</div><div class="lbl">Total Militantes</div>
+    </div>
+    <div class="stat-card" style="border-color:#28a745">
+      <div class="num" id="statFoto">0</div><div class="lbl">Con Foto</div>
+    </div>
+    <div class="stat-card" style="border-color:var(--gold)">
+      <div class="num" id="statCel">0</div><div class="lbl">Con Celular</div>
+    </div>
+    <div class="stat-card" style="border-color:#17a2b8">
+      <div class="num" id="statDir">0</div><div class="lbl">Con Dirección</div>
+    </div>
+    <div class="stat-card" style="border-color:var(--red)">
+      <div class="num" id="statColegios">0</div><div class="lbl">Colegios</div>
+    </div>
+  </div>
+
+  <div class="search-box" id="searchBox">
+    <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o cédula..." oninput="filterCards()">
+    <button class="btn btn-blue"   onclick="exportJSON()">💾 Exportar JSON</button>
+    <button class="btn btn-green"  onclick="exportSQL()">🗄️ Exportar SQL</button>
+    <button class="btn btn-purple" onclick="subirASupabase()">☁️ Subir a Supabase</button>
+  </div>
+
+  <div id="gridContainer">
+    <div class="empty-state">
+      <div class="icon">📂</div>
+      <p>Sube un PDF del padrón PRACAF para ver las fichas</p>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <h2>Ficha del Militante</h2>
+      <button class="modal-close" onclick="closeModalBtn()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+const SB_URL = 'https://ilivjaiexfqpioqrozlf.supabase.co';
+const SB_KEY = 'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW';
+
+let allMilitantes      = [];
+let filteredMilitantes = [];
+
+// ── UPLOAD EVENTS ─────────────────────────────────────────────────
+const uploadZone = document.getElementById('uploadZone');
+const fileInput  = document.getElementById('fileInput');
+uploadZone.addEventListener('dragover',  e => { e.preventDefault(); uploadZone.classList.add('drag'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag'));
+uploadZone.addEventListener('drop', e => { e.preventDefault(); uploadZone.classList.remove('drag'); if (e.dataTransfer.files.length) processPDFs(e.dataTransfer.files); });
+fileInput.addEventListener('change', e => { if (e.target.files.length) processPDFs(e.target.files); });
+
+// ── PROCESS MULTIPLE PDFs ─────────────────────────────────────────
+async function processPDFs(files) {
+  document.getElementById('progressBox').style.display = 'block';
+  document.getElementById('statsBar').style.display    = 'none';
+  document.getElementById('searchBox').style.display   = 'none';
+  allMilitantes = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const file = files[i];
+    log(`📄 ${file.name}...`);
+    setProgress((i / files.length) * 100, `Procesando ${file.name}...`);
+    try {
+      const result = await processPDF(file);
+      allMilitantes = allMilitantes.concat(result);
+      log(`✅ ${file.name}: ${result.length} militantes`);
+    } catch(err) {
+      log(`❌ ${file.name}: ${err.message}`);
+    }
+  }
+
+  // Summary log
+  const cols = {};
+  for (const m of allMilitantes) {
+    const k = `${m.colegio||'?'} — ${(m.recinto||'').substring(0,40)}`;
+    cols[k] = (cols[k]||0) + 1;
+  }
+  log(`📊 ${Object.keys(cols).length} colegio(s) detectado(s):`);
+  for (const [k,v] of Object.entries(cols)) log(`   • ${k}: ${v}`);
+
+  setProgress(100, `✅ ${allMilitantes.length} militantes · ${Object.keys(cols).length} colegio(s)`);
+  setTimeout(() => { document.getElementById('progressBox').style.display = 'none'; showResults(); }, 800);
+}
+
+// ── PROCESS SINGLE PDF ────────────────────────────────────────────
+async function processPDF(file) {
+  const pdf      = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+  const numPages = pdf.numPages;
+  const militantes = [];
+
+  let colegioNum = '';
+  let recitoName = '';
+  let provincia  = '';
+  let municipio  = '';
+
+  for (let pageNum = 1; pageNum <= numPages; pageNum++) {
+    setProgress(((pageNum-1)/numPages)*100, `Página ${pageNum} de ${numPages}...`);
+
+    const page     = await pdf.getPage(pageNum);
+    const viewport = page.getViewport({ scale: 1.0 });
+
+    // Render at 3x scale for crisp photos
+    const SCALE = 3.0;
+    const sv    = page.getViewport({ scale: SCALE });
+    const canvas = document.createElement('canvas');
+    canvas.width  = sv.width;
+    canvas.height = sv.height;
+    await page.render({ canvasContext: canvas.getContext('2d'), viewport: sv }).promise;
+
+    const items = (await page.getTextContent()).items;
+    const pageH = viewport.height;
+
+    // ── HEADER PARSING ────────────────────────────────────────────
+    let pageColegio = '';
+    let pageRecinto = '';
+    let pageProv    = '';
+    let pageMun     = '';
+
+    for (let i = 0; i < items.length; i++) {
+      const it  = items[i];
+      if (!it.str || !it.transform) continue;
+      const y   = pageH - it.transform[5];
+      const txt = it.str.trim();
+      if (!txt) continue;
+
+      // COLEGIO 4-digit number
+      if (txt === 'COLEGIO' && y < 140) {
+        const nxt = items.slice(i+1, i+6).find(n =>
+          n.str && n.str.trim().match(/^\d{4}$/) &&
+          Math.abs((pageH - n.transform[5]) - y) < 12
+        );
+        if (nxt) pageColegio = nxt.str.trim();
+      }
+
+      // PROV: label
+      if (txt === 'PROV:' && y < 210) {
+        const nxt = items.slice(i+1, i+4).find(n =>
+          n.str && n.str.trim().length > 2 &&
+          Math.abs((pageH - n.transform[5]) - y) < 10
+        );
+        if (nxt) pageProv = nxt.str.trim().replace(/^\d+-/,'');
+      }
+
+      // MUN: label
+      if (txt === 'MUN:' && y < 210) {
+        const nxt = items.slice(i+1, i+4).find(n =>
+          n.str && n.str.trim().length > 1 &&
+          Math.abs((pageH - n.transform[5]) - y) < 10
+        );
+        if (nxt) pageMun = nxt.str.trim();
+      }
+
+      // Institution name — long text in header band
+      if (y > 85 && y < 180 && txt.length > 6 &&
+          !txt.match(/^\d[\d\-]*$/) &&
+          !txt.match(/^(PROV|MUN|CIRC|DIST|REC|RECINTO|COLEGIO|MILITANTES|RATIFICADOS|CONFIRMAR|DIRECCION|PRACAF|PARTIDO|COORDINACION|SECRETARIA|PADRON|REVOLUCIONARIO|MODERNO|NACIONAL|OPERACIONES|ELECTORALES|CNOE|SNTDI|RSLA|PRACAF-V001|Secretaria|Tranformaci|Innovaci)/) &&
+          !txt.match(/^A\s+CONFIRMAR/) &&
+          txt !== '-' && txt !== ':' && txt !== '|') {
+        pageRecinto += txt + ' ';
+      }
+    }
+
+    if (pageColegio) colegioNum = pageColegio;
+    if (pageRecinto.trim()) recitoName = pageRecinto.trim().replace(/\s{2,}/g,' ');
+    if (pageProv) provincia = pageProv;
+    if (pageMun)  municipio = pageMun;
+
+    if (pageColegio) log(`📋 Pág ${pageNum}: Colegio ${colegioNum} — ${recitoName.substring(0,50)}`);
+
+    // ── PARSE PERSONS ─────────────────────────────────────────────
+    const persons = parsePersons(items, viewport, canvas, SCALE, colegioNum, recitoName, provincia, municipio);
+    militantes.push(...persons);
+  }
+
+  return militantes;
+}
+
+// ── PARSE PERSONS FROM ONE PAGE ────────────────────────────────────
+function parsePersons(items, viewport, canvas, scale, colegio, recinto, provincia, municipio) {
+  const persons   = [];
+  const CEDULA_RE = /^\d{3}-\d{7}-\d$/;
+  const PHONE_RE  = /^[89]\d{2}-\d{3}-\d{4}$/;
+  const pageH     = viewport.height;
+  const pageW     = viewport.width;
+
+  // Build word list
+  const words = items
+    .filter(i => i.str && i.str.trim())
+    .map(i => ({ text: i.str.trim(), x: i.transform[4], y: pageH - i.transform[5], w: i.width||0 }));
+
+  const NOISE = new Set(['A','CONFIRMAR','RATIFICADO','RATIFICADOS','MILITANTE',
+    'Leyendas:','Leyendas','PR','MA','24M','24P','BN','|',',','-']);
+
+  for (const cw of words.filter(w => CEDULA_RE.test(w.text))) {
+    const cedula = cw.text;
+    const rowY   = cw.y;
+    const isLeft = cw.x < pageW / 2;
+    const xMin   = isLeft ? 0 : pageW / 2 - 15;
+    const xMax   = isLeft ? pageW / 2 + 15 : pageW;
+
+    // Person block: cédula row ± some pixels, down ~115px
+    const block = words.filter(w =>
+      w.x >= xMin && w.x <= xMax && w.y >= rowY - 10 && w.y <= rowY + 115
+    );
+
+    // ── NOMBRE ──
+    // Name is ~12-18px below cédula line in PRACAF
+    let nombre = '';
+    for (let delta = 10; delta <= 30; delta += 4) {
+      const nw = block.filter(w =>
+        Math.abs(w.y - (rowY + delta)) < 7 &&
+        !CEDULA_RE.test(w.text) && !w.text.match(/^\d+$/) &&
+        !NOISE.has(w.text) && w.text.length > 1
+      ).sort((a,b) => a.x - b.x);
+      const candidate = nw.map(w => w.text).join(' ').trim();
+      if (candidate.length > 3) { nombre = candidate; break; }
+    }
+
+    // ── CELULAR ──
+    let telefono = '';
+    const celLabel = block.find(w => w.text === 'Cel.:' || w.text === 'Cel:');
+    if (celLabel) {
+      const after = block.filter(w =>
+        w.x > celLabel.x + 2 && Math.abs(w.y - celLabel.y) < 8 && w.text !== celLabel.text
+      ).sort((a,b) => a.x - b.x);
+      const raw = after.map(w => w.text).join('').replace(/[^0-9]/g,'');
+      if (raw.length >= 10) telefono = `${raw.slice(0,3)}-${raw.slice(3,6)}-${raw.slice(6,10)}`;
+    }
+    if (!telefono) {
+      const pw = block.find(w => PHONE_RE.test(w.text));
+      if (pw) telefono = pw.text;
+    }
+    if (!telefono) {
+      const pw = block.find(w => {
+        const d = w.text.replace(/\D/g,'');
+        return d.length === 10 && /^[89]/.test(d);
+      });
+      if (pw) { const d = pw.text.replace(/\D/g,''); telefono = `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`; }
+    }
+
+    // ── TELÉFONO FIJO ──
+    let telefono2 = '';
+    const telLabel = block.find(w => w.text === 'Tel.:' || w.text === 'Tel:');
+    if (telLabel) {
+      const after = block.filter(w =>
+        w.x > telLabel.x + 2 && Math.abs(w.y - telLabel.y) < 8 && w.text !== telLabel.text
+      ).sort((a,b) => a.x - b.x);
+      const raw = after.map(w => w.text).join('').replace(/[^0-9]/g,'');
+      if (raw.length >= 10) telefono2 = `${raw.slice(0,3)}-${raw.slice(3,6)}-${raw.slice(6,10)}`;
+    }
+
+    // ── DIRECCIÓN ──
+    let direccion = '';
+    const dirLabel = block.find(w => w.text === 'DIR:' || w.text === 'Dir:');
+    if (dirLabel) {
+      const after = block.filter(w =>
+        w.x > dirLabel.x + 2 && Math.abs(w.y - dirLabel.y) < 8 &&
+        w.text !== dirLabel.text && !NOISE.has(w.text)
+      ).sort((a,b) => a.x - b.x);
+      direccion = after.map(w => w.text).join(' ').trim();
+    }
+
+    // ── FOTO — 3x render, larger output ──
+    // PRACAF photo: left of cédula, ~72×78 PDF units
+    // Left col: x≈8, right col: x≈305
+    const photoX = isLeft ? 8   : 305;
+    const photoY = rowY - 5;
+    const foto   = cropPhoto(canvas, photoX, photoY, 72, 78, scale);
+
+    persons.push({ cedula, nombre, telefono, telefono2, direccion, foto_b64: foto, colegio, recinto, provincia, municipio });
+  }
+
+  return persons;
+}
+
+// ── CROP PHOTO ─────────────────────────────────────────────────────
+function cropPhoto(srcCanvas, pdfX, pdfY, pdfW, pdfH, scale) {
+  try {
+    const sx = Math.round(pdfX * scale);
+    const sy = Math.round(pdfY * scale);
+    const sw = Math.round(pdfW * scale);
+    const sh = Math.round(pdfH * scale);
+    const out = document.createElement('canvas');
+    out.width  = 120;
+    out.height = 130;
+    out.getContext('2d').drawImage(srcCanvas, sx, sy, sw, sh, 0, 0, 120, 130);
+    return out.toDataURL('image/jpeg', 0.93).split(',')[1];
+  } catch(e) { return ''; }
+}
+
+// ── RESULTS ────────────────────────────────────────────────────────
+function showResults() {
+  filteredMilitantes = [...allMilitantes];
+  updateStats();
+  document.getElementById('statsBar').style.display  = 'flex';
+  document.getElementById('searchBox').style.display = 'flex';
+  renderGrid(filteredMilitantes);
+}
+
+function updateStats() {
+  const m = allMilitantes;
+  document.getElementById('statTotal').textContent    = m.length;
+  document.getElementById('statFoto').textContent     = m.filter(x => x.foto_b64).length;
+  document.getElementById('statCel').textContent      = m.filter(x => x.telefono).length;
+  document.getElementById('statDir').textContent      = m.filter(x => x.direccion).length;
+  document.getElementById('statColegios').textContent = new Set(m.map(x=>x.colegio).filter(Boolean)).size;
+}
+
+function filterCards() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  filteredMilitantes = !q ? [...allMilitantes] : allMilitantes.filter(m =>
+    m.nombre.toLowerCase().includes(q) || m.cedula.includes(q)
+  );
+  renderGrid(filteredMilitantes);
+}
+
+// ── RENDER GRID ────────────────────────────────────────────────────
+function renderGrid(militantes) {
+  const container = document.getElementById('gridContainer');
+  if (!militantes.length) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>Sin resultados</p></div>';
+    return;
+  }
+  const BATCH = 60;
+  container.innerHTML = `
+    <div style="margin-bottom:12px;font-size:13px;color:#666">
+      Mostrando ${Math.min(BATCH,militantes.length)} de ${militantes.length}
+      ${militantes.length > BATCH ? `<button class="btn btn-blue" style="margin-left:10px;padding:4px 12px;font-size:12px" onclick="renderAll()">Ver todos (${militantes.length})</button>` : ''}
+    </div>
+    <div class="grid" id="theGrid"></div>`;
+  renderCards(militantes.slice(0, BATCH), document.getElementById('theGrid'));
+}
+
+function renderAll() {
+  document.getElementById('gridContainer').innerHTML = `
+    <div style="margin-bottom:12px;font-size:13px;color:#666">Todos: ${filteredMilitantes.length}</div>
+    <div class="grid" id="theGrid"></div>`;
+  renderCards(filteredMilitantes, document.getElementById('theGrid'));
+}
+
+function renderCards(militantes, grid) {
+  grid.innerHTML = militantes.map(m => {
+    const photo = m.foto_b64
+      ? `<img src="data:image/jpeg;base64,${m.foto_b64}" alt="${m.nombre}" onerror="this.parentNode.innerHTML='<span class=no-photo>👤</span>'">`
+      : '<span class="no-photo">👤</span>';
+    return `
+      <div class="card" onclick="showModal('${m.cedula}')">
+        <div class="card-header">
+          <span class="cedula">${m.cedula}</span>
+          <span class="col">#${m.colegio||'?'}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-photo">${photo}</div>
+          <div class="card-info">
+            <div class="nombre">${m.nombre||'Sin nombre'}</div>
+            ${m.telefono  ? `<div class="dato"><span class="ico">📱</span><span>${m.telefono}</span></div>` : ''}
+            ${m.telefono2 ? `<div class="dato"><span class="ico">📞</span><span>${m.telefono2}</span></div>` : ''}
+            ${m.direccion ? `<div class="dato"><span class="ico">📍</span><span>${m.direccion.substring(0,38)}${m.direccion.length>38?'…':''}</span></div>` : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ── MODAL ──────────────────────────────────────────────────────────
+function showModal(cedula) {
+  const m = allMilitantes.find(x => x.cedula === cedula);
+  if (!m) return;
+  const photo = m.foto_b64
+    ? `<img src="data:image/jpeg;base64,${m.foto_b64}" alt="${m.nombre}">`
+    : '<span style="font-size:64px;color:#aaa">👤</span>';
+  document.getElementById('modalBody').innerHTML = `
+    <div class="ficha">
+      <div class="ficha-photo">${photo}</div>
+      <div class="ficha-data">
+        <h3>${m.nombre}</h3>
+        <div class="ficha-row"><span class="label">Cédula</span><span class="value" style="font-family:monospace">${m.cedula}</span></div>
+        ${m.telefono  ? `<div class="ficha-row"><span class="label">Celular</span><span class="value">📱 ${m.telefono}</span></div>` : ''}
+        ${m.telefono2 ? `<div class="ficha-row"><span class="label">Teléfono</span><span class="value">📞 ${m.telefono2}</span></div>` : ''}
+        ${m.direccion ? `<div class="ficha-row"><span class="label">Dirección</span><span class="value">📍 ${m.direccion}</span></div>` : ''}
+      </div>
+    </div>
+    <div class="prm-strip">
+      <span>🏫 ${m.recinto||'—'}</span>
+      <span>📋 Colegio: ${m.colegio||'—'}</span>
+    </div>
+    <div style="margin-top:12px;padding:10px;background:#f8f9fa;border-radius:8px;font-size:12px;color:#666">
+      <strong>PRACAF 2024</strong> · Prov: ${m.provincia||'VALVERDE'} · Mun: ${m.municipio||'MAO'}
+    </div>`;
+  document.getElementById('modalBg').classList.add('open');
+}
+function closeModal(e)   { if (e.target === document.getElementById('modalBg')) closeModalBtn(); }
+function closeModalBtn() { document.getElementById('modalBg').classList.remove('open'); }
+
+// ── EXPORT ─────────────────────────────────────────────────────────
+function exportJSON() {
+  downloadFile(
+    JSON.stringify({ total: allMilitantes.length, militantes: allMilitantes }, null, 2),
+    `padron_mao_${Date.now()}.json`, 'application/json'
+  );
+}
+
+function exportSQL() {
+  const esc = s => (s||'').replace(/'/g,"''");
+  const rows = allMilitantes.map(m =>
+    `('${esc(m.cedula)}','${esc(m.nombre)}','${esc(m.telefono)}','${esc(m.telefono2)}','${esc(m.direccion)}','${esc(m.colegio)}','${esc(m.recinto)}','${esc(m.municipio)}')`
+  ).join(',\n');
+  downloadFile(`-- Padrón PRACAF 2024 — ${new Date().toLocaleDateString()}
+-- Total: ${allMilitantes.length} militantes
+INSERT INTO padron_maestro (cedula,nombre_completo,telefono,telefono2,direccion,colegio_num,recinto_nombre,municipio)
+VALUES\n${rows}
+ON CONFLICT (cedula) DO UPDATE SET
+  nombre_completo=EXCLUDED.nombre_completo,
+  telefono=EXCLUDED.telefono,
+  telefono2=EXCLUDED.telefono2,
+  direccion=EXCLUDED.direccion,
+  colegio_num=EXCLUDED.colegio_num,
+  recinto_nombre=EXCLUDED.recinto_nombre;`,
+  `padron_sql_${Date.now()}.sql`, 'text/sql');
+}
+
+function downloadFile(content, filename, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = filename; a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ── SUPABASE ────────────────────────────────────────────────────────
+let sbClient = null;
+function initSB() {
+  if (!sbClient && window.supabase) sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+  return sbClient;
+}
+
+async function subirASupabase() {
+  if (!allMilitantes.length) { alert('Primero carga un PDF'); return; }
+  const sb = initSB();
+  if (!sb) { alert('Error conectando a Supabase'); return; }
+  const btn = document.querySelector('button[onclick="subirASupabase()"]');
+  btn.textContent = '⏳ Subiendo...'; btn.disabled = true;
+
+  const BATCH = 50;
+  let uploaded = 0, errors = 0;
+  for (let i = 0; i < allMilitantes.length; i += BATCH) {
+    const batch = allMilitantes.slice(i, i+BATCH).map(m => ({
+      cedula:          m.cedula,
+      nombre_completo: m.nombre,
+      telefono:        m.telefono   || null,
+      telefono2:       m.telefono2  || null,
+      direccion:       m.direccion  || null,
+      colegio_num:     m.colegio    || null,
+      recinto_nombre:  m.recinto    || null,
+      foto_base64:     m.foto_b64   || null,
+      municipio:       m.municipio  || 'MAO',
+      anio_padron:     2024
+    }));
+    const { error } = await sb.from('padron_maestro').upsert(batch, { onConflict:'cedula' });
+    if (error) errors += batch.length; else uploaded += batch.length;
+    btn.textContent = `⏳ ${uploaded}/${allMilitantes.length}...`;
+  }
+  btn.disabled = false;
+  if (errors === 0) { btn.textContent = `✅ ${uploaded} subidos`; btn.style.background = '#16a34a'; }
+  else { btn.textContent = `⚠️ ${uploaded} OK / ${errors} errores`; }
+}
+
+// ── UTILS ──────────────────────────────────────────────────────────
+function setProgress(pct, text) {
+  document.getElementById('progressFill').style.width  = pct + '%';
+  document.getElementById('progressText').textContent  = text;
+}
+function log(msg) {
+  const a = document.getElementById('logArea');
+  a.innerHTML += `<div>${msg}</div>`;
+  a.scrollTop  = a.scrollHeight;
+}
+</script>
+</body>
+</html>
