@@ -417,41 +417,12 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
       direccion = after.map(w => w.text).join(' ').trim();
     }
 
-    // ── FOTO — coordenadas correctas para PDF.js canvas ──
-    // PDF.js: rowY = pageH - transform[5] donde transform[5] es PDF nativo (0=abajo)
-    //         rowY ≈ pdfplumber.bottom del texto de la cédula = 147.48
-    // Canvas: image_top = (pageH - img.y1_native) = img.top_pdfplumber = 608.63
-    // Pero en PDF.js: canvas_y = (pageH - pdf_native_y) * scale
-    // Para imagen: canvas_sy = (pageH - img.y1_native) * scale = 608.63 * scale
-    // Para cédula: rowY = pageH - cedula_baseline_native ≈ pdfplumber.bottom = 147.48
-    // 
-    // La imagen está ARRIBA en la página → en canvas tiene Y MAYOR que la cédula
-    // photoY_canvas = pageH - img.y1  (en coordenadas sin escalar)
-    // pero necesitamos expresarlo en función de rowY:
-    // pageH - img.y1 = 608.63, rowY = 147.48
-    // No hay relación directa simple, así que usamos coordenadas absolutas:
-    // photoX_abs = 9.63 (izq) o 309.54 (der)  ← igual en ambos sistemas
-    // photoY_abs = 608.63 = pageH - 183.37  ← en coordenadas de canvas (0=top)
-    //
-    // En PDF.js: items tienen transform[5] = pdf_native_y
-    // La cédula: pdfplumber.bottom = 147.48 ≈ rowY
-    // La imagen top en canvas = 608.63
-    // Diferencia constante: 608.63 - 147.48 = 461.15... NO, esto no es constante
-    //
-    // SOLUCIÓN: usar pageH - img.y1 directamente como photoY absoluto
-    // Calculado: para cualquier cédula, la foto está a img.top_relative_in_canvas
-    // img.y0_pdfplumber = 112.03 (esta es la coord flipeada, 0=top de página)
-    // En PDF.js canvas: canvas_y = pdfplumber.top_of_image = img.y0_pdfplumber = 112.03
-    // Porque PDF.js y pdfplumber coinciden en el sistema flipeado para IMÁGENES
-    // PERO para TEXTO, PDF.js rowY = pdfplumber.bottom (no .top)
-    //
-    // La relación imagen<->cédula:
-    // img.y0_pdfplumber = 112.03
-    // ced.bottom_pdfplumber = 147.48
-    // offset = 112.03 - 147.48 = -35.45
-    // photoY = rowY - 35.45
+    // ── FOTO — coordenadas correctas ──
+    // Confirmado con pdfplumber: imagen flipeada top=136.13, cedula.bottom=147.48
+    // photoY = rowY - 8.39  (diferencia entre img.top_flipped y ced.bottom_flipped)
+    // x izq=9.63, x der=309.54, tamaño=62.13×71.34
     const photoX = isLeft ? 9.63  : 309.54;
-    const photoY = rowY - 35.45;
+    const photoY = rowY - 8.39;
     const foto   = cropPhoto(canvas, photoX, photoY, 62.13, 71.34, scale);
 
     persons.push({ cedula, nombre, telefono, telefono2, direccion, foto_b64: foto, colegio, recinto, provincia, municipio });
