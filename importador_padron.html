@@ -224,7 +224,12 @@ async function processPDF(file) {
     const items = (await page.getTextContent()).items;
     const pageH = viewport.height;
 
-    // ── HEADER PARSING ────────────────────────────────────────────
+    // ── HEADER PARSING (PRACAF) ───────────────────────────────────
+    // Página 1:  RECINTO y≈432, COLEGIO y≈432 (coordenadas PDF invertidas)
+    //            Nombre institución y≈394-379 (dos líneas)
+    //            PROVINCIA y≈581, MUNICIPIO y≈552
+    // Página 2+: PROV: y≈782, MUN: y≈769, REC: y≈732 + nombre
+    //            COLEGIO número y≈692 x≈525 (tabla header)
     let pageColegio = '';
     let pageRecinto = '';
     let pageProv    = '';
@@ -233,30 +238,54 @@ async function processPDF(file) {
     for (let i = 0; i < items.length; i++) {
       const it  = items[i];
       if (!it.str || !it.transform) continue;
-      const y   = pageH - it.transform[5];
+      const y   = pageH - it.transform[5];  // flipped: 0=top
+      const x   = it.transform[4];
       const txt = it.str.trim();
       if (!txt) continue;
 
-      // COLEGIO 4-digit number
-      if (txt === 'COLEGIO' && y < 140) {
-        const nxt = items.slice(i+1, i+6).find(n =>
+      // ── Pág 1: COLEGIO label + número (y≈360 en coords flipeadas) ──
+      if (txt === 'COLEGIO' && y > pageH * 0.35 && y < pageH * 0.65) {
+        const nxt = items.slice(i+1, i+8).find(n =>
           n.str && n.str.trim().match(/^\d{4}$/) &&
-          Math.abs((pageH - n.transform[5]) - y) < 12
+          Math.abs((pageH - n.transform[5]) - y) < 15
         );
         if (nxt) pageColegio = nxt.str.trim();
       }
 
-      // PROV: label
-      if (txt === 'PROV:' && y < 210) {
-        const nxt = items.slice(i+1, i+4).find(n =>
+      // ── Pág 2+: COLEGIO número en tabla header (x>500, y<120) ──
+      if (txt.match(/^\d{4}$/) && y < 120 && x > 500) {
+        pageColegio = txt;
+      }
+
+      // ── Pág 1: nombre institución (y≈395-415 flipeado) ──
+      if (y > pageH * 0.47 && y < pageH * 0.57 && txt.length > 4 &&
+          !txt.match(/^\d+[\-\d]*$/) &&
+          !['RECINTO','COLEGIO','MILITANTES','RATIFICADOS','CONFIRMAR','A','DIRECCION'].includes(txt)) {
+        pageRecinto += txt + ' ';
+      }
+
+      // ── Pág 2+: REC: label → nombre institución ──
+      if (txt === 'REC:' && y < 80) {
+        // Get all words on same y-line after REC:
+        const sameY = items.filter(n =>
+          n.str && n.str.trim() && n.transform &&
+          Math.abs((pageH - n.transform[5]) - y) < 8 &&
+          n.transform[4] > it.transform[4] + 5
+        ).sort((a,b) => a.transform[4] - b.transform[4]);
+        // Skip 5-digit recinto number, take the name
+        const nameParts = sameY.filter(n => !n.str.trim().match(/^\d{5}$/));
+        if (nameParts.length > 0) pageRecinto = nameParts.map(n => n.str.trim()).join(' ');
+      }
+
+      // ── PROV: / MUN: (pág 2+, y < 80) ──
+      if (txt === 'PROV:' && y < 80) {
+        const nxt = items.slice(i+1, i+6).find(n =>
           n.str && n.str.trim().length > 2 &&
           Math.abs((pageH - n.transform[5]) - y) < 10
         );
-        if (nxt) pageProv = nxt.str.trim().replace(/^\d+-/,'');
+        if (nxt) pageProv = nxt.str.trim().replace(/^\d+-/,'').trim();
       }
-
-      // MUN: label
-      if (txt === 'MUN:' && y < 210) {
+      if (txt === 'MUN:' && y < 80) {
         const nxt = items.slice(i+1, i+4).find(n =>
           n.str && n.str.trim().length > 1 &&
           Math.abs((pageH - n.transform[5]) - y) < 10
@@ -264,13 +293,20 @@ async function processPDF(file) {
         if (nxt) pageMun = nxt.str.trim();
       }
 
-      // Institution name — long text in header band
-      if (y > 85 && y < 180 && txt.length > 6 &&
-          !txt.match(/^\d[\d\-]*$/) &&
-          !txt.match(/^(PROV|MUN|CIRC|DIST|REC|RECINTO|COLEGIO|MILITANTES|RATIFICADOS|CONFIRMAR|DIRECCION|PRACAF|PARTIDO|COORDINACION|SECRETARIA|PADRON|REVOLUCIONARIO|MODERNO|NACIONAL|OPERACIONES|ELECTORALES|CNOE|SNTDI|RSLA|PRACAF-V001|Secretaria|Tranformaci|Innovaci)/) &&
-          !txt.match(/^A\s+CONFIRMAR/) &&
-          txt !== '-' && txt !== ':' && txt !== '|') {
-        pageRecinto += txt + ' ';
+      // ── PROVINCIA / MUNICIPIO (pág 1, labels con cuadro) ──
+      if (txt === 'PROVINCIA' && y > 150 && y < pageH * 0.4) {
+        const nxt = items.slice(i+1, i+8).find(n =>
+          n.str && n.str.trim().length > 2 &&
+          Math.abs((pageH - n.transform[5]) - y) < 12
+        );
+        if (nxt) pageProv = nxt.str.trim().replace(/^\d+-/,'').trim();
+      }
+      if (txt === 'MUNICIPIO' && y > 150 && y < pageH * 0.4) {
+        const nxt = items.slice(i+1, i+4).find(n =>
+          n.str && n.str.trim().length > 1 &&
+          Math.abs((pageH - n.transform[5]) - y) < 12
+        );
+        if (nxt) pageMun = nxt.str.trim();
       }
     }
 
@@ -312,9 +348,10 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
     const xMin   = isLeft ? 0 : pageW / 2 - 15;
     const xMax   = isLeft ? pageW / 2 + 15 : pageW;
 
-    // Person block: cédula row ± some pixels, down ~115px
+    // Person block: cédula row to ~75px below (next person starts ~78px later)
+    // Confirmed: cedula spacing = 78.7px in PDF
     const block = words.filter(w =>
-      w.x >= xMin && w.x <= xMax && w.y >= rowY - 10 && w.y <= rowY + 115
+      w.x >= xMin && w.x <= xMax && w.y >= rowY - 30 && w.y <= rowY + 55
     );
 
     // ── NOMBRE ──
@@ -374,12 +411,13 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
       direccion = after.map(w => w.text).join(' ').trim();
     }
 
-    // ── FOTO — 3x render, larger output ──
-    // PRACAF photo: left of cédula, ~72×78 PDF units
-    // Left col: x≈8, right col: x≈305
-    const photoX = isLeft ? 8   : 305;
-    const photoY = rowY - 5;
-    const foto   = cropPhoto(canvas, photoX, photoY, 72, 78, scale);
+    // ── FOTO — coordenadas exactas PRACAF ──
+    // Izq: x0=9.6  Der: x0=309.5
+    // Tamaño: 62.2 × 71.4 PDF units
+    // Top = cédula_y - 27.6  (confirmado con pdfplumber)
+    const photoX = isLeft ? 9.6   : 309.5;
+    const photoY = rowY - 27.6;
+    const foto   = cropPhoto(canvas, photoX, photoY, 62.2, 71.4, scale);
 
     persons.push({ cedula, nombre, telefono, telefono2, direccion, foto_b64: foto, colegio, recinto, provincia, municipio });
   }
@@ -495,7 +533,7 @@ function showModal(cedula) {
       </div>
     </div>
     <div class="prm-strip">
-      <span>🏫 ${m.recinto||'—'}</span>
+      <span>🏫 ${(m.recinto||'—').substring(0,45)}</span>
       <span>📋 Colegio: ${m.colegio||'—'}</span>
     </div>
     <div style="margin-top:12px;padding:10px;background:#f8f9fa;border-radius:8px;font-size:12px;color:#666">
