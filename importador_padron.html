@@ -334,33 +334,40 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
   const pageH     = viewport.height;
   const pageW     = viewport.width;
 
-  // Build word list
   const words = items
     .filter(i => i.str && i.str.trim())
     .map(i => ({ text: i.str.trim(), x: i.transform[4], y: pageH - i.transform[5], w: i.width||0 }));
 
+  // Build image list from PDF items (type=IMG or XObject)
+  // PDF.js items don't directly expose images — use fixed known offsets per column
+  // Left col photos: x0≈9.6, Right col photos: x0≈309.5 (600px page) or x0≈315 (612px)
+  // Photo height: 71.3 PDF units, top = cédula.y - 106.3
+  // STRATEGY: use the cedula y to compute photo top dynamically
+  // Confirmed: photo.top = cedula.top - 106.3 (pdfplumber coords = PDF.js flipped coords)
+
   const NOISE = new Set(['A','CONFIRMAR','RATIFICADO','RATIFICADOS','MILITANTE',
-    'Leyendas:','Leyendas','PR','MA','24M','24P','BN','|',',','-']);
+    'Leyendas:','Leyendas','PR','MA','24M','24P','BN','EP','|',',','-']);
+
+  // Find right-column x threshold based on page width
+  const MID = pageW / 2;
 
   for (const cw of words.filter(w => CEDULA_RE.test(w.text))) {
     const cedula = cw.text;
     const rowY   = cw.y;
-    const isLeft = cw.x < pageW / 2;
-    const xMin   = isLeft ? 0 : pageW / 2 - 15;
-    const xMax   = isLeft ? pageW / 2 + 15 : pageW;
+    const isLeft = cw.x < MID;
+    const xMin   = isLeft ? 0 : MID - 15;
+    const xMax   = isLeft ? MID + 15 : pageW;
 
-    // Person block: cédula row to ~75px below (next person starts ~78px later)
-    // Confirmed: cedula spacing = 78.7px in PDF
+    // Person block: limit to 55px below cedula to avoid next person
     const block = words.filter(w =>
       w.x >= xMin && w.x <= xMax && w.y >= rowY - 30 && w.y <= rowY + 55
     );
 
     // ── NOMBRE ──
-    // Name is ~12-18px below cédula line in PRACAF
     let nombre = '';
-    for (let delta = 10; delta <= 30; delta += 4) {
+    for (let delta = 8; delta <= 28; delta += 3) {
       const nw = block.filter(w =>
-        Math.abs(w.y - (rowY + delta)) < 7 &&
+        Math.abs(w.y - (rowY + delta)) < 6 &&
         !CEDULA_RE.test(w.text) && !w.text.match(/^\d+$/) &&
         !NOISE.has(w.text) && w.text.length > 1
       ).sort((a,b) => a.x - b.x);
@@ -373,7 +380,7 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
     const celLabel = block.find(w => w.text === 'Cel.:' || w.text === 'Cel:');
     if (celLabel) {
       const after = block.filter(w =>
-        w.x > celLabel.x + 2 && Math.abs(w.y - celLabel.y) < 8 && w.text !== celLabel.text
+        w.x > celLabel.x + 2 && Math.abs(w.y - celLabel.y) < 7 && w.text !== celLabel.text
       ).sort((a,b) => a.x - b.x);
       const raw = after.map(w => w.text).join('').replace(/[^0-9]/g,'');
       if (raw.length >= 10) telefono = `${raw.slice(0,3)}-${raw.slice(3,6)}-${raw.slice(6,10)}`;
@@ -383,11 +390,8 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
       if (pw) telefono = pw.text;
     }
     if (!telefono) {
-      const pw = block.find(w => {
-        const d = w.text.replace(/\D/g,'');
-        return d.length === 10 && /^[89]/.test(d);
-      });
-      if (pw) { const d = pw.text.replace(/\D/g,''); telefono = `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`; }
+      const pw = block.find(w => { const d=w.text.replace(/\D/g,''); return d.length===10 && /^[89]/.test(d); });
+      if (pw) { const d=pw.text.replace(/\D/g,''); telefono=`${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`; }
     }
 
     // ── TELÉFONO FIJO ──
@@ -395,35 +399,34 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
     const telLabel = block.find(w => w.text === 'Tel.:' || w.text === 'Tel:');
     if (telLabel) {
       const after = block.filter(w =>
-        w.x > telLabel.x + 2 && Math.abs(w.y - telLabel.y) < 8 && w.text !== telLabel.text
+        w.x > telLabel.x + 2 && Math.abs(w.y - telLabel.y) < 7 && w.text !== telLabel.text
       ).sort((a,b) => a.x - b.x);
       const raw = after.map(w => w.text).join('').replace(/[^0-9]/g,'');
       if (raw.length >= 10) telefono2 = `${raw.slice(0,3)}-${raw.slice(3,6)}-${raw.slice(6,10)}`;
     }
 
     // ── DIRECCIÓN ──
-    // DIR: aparece solo en su línea. El texto viene en la MISMA línea (x > DIR.x)
-    // EP, BN, MA son leyendas que aparecen en líneas separadas — ignorar
     let direccion = '';
     const dirLabel = block.find(w => w.text === 'DIR:' || w.text === 'Dir:');
     if (dirLabel) {
-      const LEYENDAS = new Set(['EP','BN','MA','PR','24M','24P','24','A','CONFIRMAR','RATIFICADO']);
+      const LEYENDAS = new Set(['EP','BN','MA','PR','24M','24P','A','CONFIRMAR','RATIFICADO']);
       const after = block.filter(w =>
-        w.x > dirLabel.x + 2 &&
-        Math.abs(w.y - dirLabel.y) < 5 &&  // misma línea exacta
-        w.text !== dirLabel.text &&
-        !LEYENDAS.has(w.text) &&
-        !NOISE.has(w.text)
+        w.x > dirLabel.x + 2 && Math.abs(w.y - dirLabel.y) < 5 &&
+        w.text !== dirLabel.text && !LEYENDAS.has(w.text) && !NOISE.has(w.text)
       ).sort((a,b) => a.x - b.x);
       direccion = after.map(w => w.text).join(' ').trim();
     }
 
-    // ── FOTO — coordenadas exactas PRACAF ──
-    // Confirmado con pdfplumber: photo.top = cedula_y - 106.3
-    // x izq=9.6, x der=309.5, tamaño 62.2×71.3 PDF units
-    const photoX = isLeft ? 9.6   : 309.5;
-    const photoY = rowY - 106.3;
-    const foto   = cropPhoto(canvas, photoX, photoY, 62.2, 71.3, scale);
+    // ── FOTO ──
+    // Photo is always directly above the cedula row.
+    // Exact measurement: photo.top = cedula.y - 106.3 (PDF units, same coord system as PDF.js)
+    // Photo size: 62.2 x 71.3 PDF units
+    // Left col: x0=9.6, Right col: x0 = pageW - 600 + 309.5 (adjust for page width)
+    const photoW   = 62.2;
+    const photoH   = 71.3;
+    const photoTop = rowY - 106.3;
+    const photoX   = isLeft ? 9.6 : (pageW - 600 + 309.5);
+    const foto     = cropPhoto(canvas, photoX, photoTop, photoW, photoH, scale);
 
     persons.push({ cedula, nombre, telefono, telefono2, direccion, foto_b64: foto, colegio, recinto, provincia, municipio });
   }
