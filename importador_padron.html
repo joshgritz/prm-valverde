@@ -243,18 +243,16 @@ async function processPDF(file) {
       const txt = it.str.trim();
       if (!txt) continue;
 
-      // ── Pág 2+: COLEGIO número en tabla header ──
-      // pdfplumber: y=99.4, x=525 → flipeado en PDF.js: pageH-99.4 ≈ 692
-      // El label COLEGIO está en y=85 (pdfplumber) → flipeado ≈ 707
-      // Buscar 4-digit en la zona superior de la página (flipeado: y > pageH-120)
-      if (txt.match(/^\d{4}$/) && y > pageH - 120 && x > 500) {
+      // ── Pág 2+: COLEGIO número en tabla header (x>500, y>pageH-120) ──
+      // Puede ser 4 dígitos (0100) o alfanumérico (0035A)
+      if (txt.match(/^\d{3,4}[A-Z]?$/) && y > pageH - 120 && x > 500) {
         pageColegio = txt;
       }
 
-      // ── Pág 1: COLEGIO label + número (zona media-baja flipeada) ──
+      // ── Pág 1: COLEGIO label + número ──
       if (txt === 'COLEGIO' && y > pageH * 0.35 && y < pageH * 0.65) {
         const nxt = items.slice(i+1, i+8).find(n =>
-          n.str && n.str.trim().match(/^\d{4}$/) &&
+          n.str && n.str.trim().match(/^\d{3,4}[A-Z]?$/) &&
           Math.abs((pageH - n.transform[5]) - y) < 15
         );
         if (nxt) pageColegio = nxt.str.trim();
@@ -417,16 +415,13 @@ function parsePersons(items, viewport, canvas, scale, colegio, recinto, provinci
       direccion = after.map(w => w.text).join(' ').trim();
     }
 
-    // ── FOTO ──
-    // Photo is always directly above the cedula row.
-    // Exact measurement: photo.top = cedula.y - 106.3 (PDF units, same coord system as PDF.js)
-    // Photo size: 62.2 x 71.3 PDF units
-    // Left col: x0=9.6, Right col: x0 = pageW - 600 + 309.5 (adjust for page width)
-    const photoW   = 62.2;
-    const photoH   = 71.3;
-    const photoTop = rowY - 106.3;
-    const photoX   = isLeft ? 9.6 : (pageW - 600 + 309.5);
-    const foto     = cropPhoto(canvas, photoX, photoTop, photoW, photoH, scale);
+    // ── FOTO — coordenadas exactas PRACAF (confirmado en 0100.PDF y 0035A.PDF) ──
+    // img.y0 = cedula.top - 27.55  (pdfplumber = PDF.js flipped coords)
+    // img.x0 izq = 9.63,  der = 309.54
+    // Tamaño: 62.13 × 71.34 PDF units
+    const photoX = isLeft ? 9.63  : 309.54;
+    const photoY = rowY - 27.55;
+    const foto   = cropPhoto(canvas, photoX, photoY, 62.13, 71.34, scale);
 
     persons.push({ cedula, nombre, telefono, telefono2, direccion, foto_b64: foto, colegio, recinto, provincia, municipio });
   }
