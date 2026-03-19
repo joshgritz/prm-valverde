@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#003087">
-<title>Portal Dirigentes PRM â Valverde</title>
+<title>Portal Dirigentes PRM Ã¢Â€Â” Valverde</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
@@ -23,11 +23,11 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); color: var(--texto); min-height: 100vh; }
 
-/* ââ PANTALLAS ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ PANTALLAS Ã¢Â”Â€Ã¢Â”Â€ */
 .pantalla { display: none; min-height: 100vh; }
 .pantalla.activa { display: block; }
 
-/* ââ HEADER ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ HEADER Ã¢Â”Â€Ã¢Â”Â€ */
 .header {
   background: linear-gradient(135deg, var(--azul), #001a4d);
   color: white; padding: 20px 20px 24px;
@@ -46,17 +46,17 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 .header h1 { font-size: 20px; font-weight: 900; position: relative; z-index:1; }
 .header p  { font-size: 12px; opacity: 0.7; margin-top: 3px; position: relative; z-index:1; }
 
-/* ââ CONTENEDOR ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ CONTENEDOR Ã¢Â”Â€Ã¢Â”Â€ */
 .wrap { padding: 20px 16px; max-width: 480px; margin: 0 auto; }
 
-/* ââ CARD ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ CARD Ã¢Â”Â€Ã¢Â”Â€ */
 .card {
   background: white; border-radius: 16px; padding: 20px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 16px;
 }
 .card-title { font-size: 13px; font-weight: 800; color: var(--azul); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px; }
 
-/* ââ INPUTS ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ INPUTS Ã¢Â”Â€Ã¢Â”Â€ */
 .campo { margin-bottom: 14px; }
 .campo label { display: block; font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
 .campo input, .campo select {
@@ -72,7 +72,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
   border-radius: 12px; padding: 0;
 }
 
-/* ââ BOTONES ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ BOTONES Ã¢Â”Â€Ã¢Â”Â€ */
 .btn {
   width: 100%; padding: 15px; border: none; border-radius: 14px;
   font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.15s;
@@ -90,7 +90,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
   border: none; cursor: pointer; font-weight: 700; touch-action: manipulation;
 }
 
-/* ââ PERFIL CARD ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ PERFIL CARD Ã¢Â”Â€Ã¢Â”Â€ */
 .perfil-card {
   background: linear-gradient(135deg, var(--azul), var(--azul2));
   border-radius: 16px; padding: 16px; color: white; margin-bottom: 16px;
@@ -105,7 +105,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 .perfil-cedula { font-size: 11px; opacity: 0.7; font-family: monospace; margin-top: 2px; }
 .perfil-zona   { font-size: 11px; background: rgba(255,255,255,0.2); padding: 2px 10px; border-radius: 20px; display: inline-block; margin-top: 5px; font-weight: 700; }
 
-/* ââ MENU TARJETAS ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ MENU TARJETAS Ã¢Â”Â€Ã¢Â”Â€ */
 .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
 .menu-card {
   background: white; border-radius: 16px; padding: 18px 14px; text-align: center;
@@ -121,7 +121,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 .menu-card .mc-label { font-size: 12px; font-weight: 800; color: var(--texto); line-height: 1.3; }
 .menu-card .mc-sub { font-size: 10px; color: #94a3b8; margin-top: 3px; }
 
-/* ââ MIEMBRO ITEM ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ MIEMBRO ITEM Ã¢Â”Â€Ã¢Â”Â€ */
 .miembro-item {
   display: flex; align-items: center; gap: 12px; padding: 12px;
   background: #f8fafc; border-radius: 12px; margin-bottom: 8px; border: 1px solid #e2e8f0;
@@ -132,11 +132,11 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 .miembro-cedula { font-size: 11px; color: #94a3b8; font-family: monospace; }
 .miembro-del { background: none; border: none; color: #ef4444; font-size: 18px; cursor: pointer; padding: 4px; touch-action: manipulation; }
 
-/* ââ BARRA PROGRESO ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ BARRA PROGRESO Ã¢Â”Â€Ã¢Â”Â€ */
 .barra-wrap { background: #e2e8f0; border-radius: 999px; height: 10px; margin: 8px 0; overflow: hidden; }
 .barra-fill { height: 100%; border-radius: 999px; background: var(--verde); transition: width 0.4s; }
 
-/* ââ BADGE ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ BADGE Ã¢Â”Â€Ã¢Â”Â€ */
 .badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; }
 .badge-verde { background: #dcfce7; color: #166534; }
 .badge-azul  { background: #dbeafe; color: #1e40af; }
@@ -144,7 +144,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 .badge-gris  { background: #f1f5f9; color: #475569; }
 .badge-oro   { background: #fef3c7; color: #92400e; }
 
-/* ââ ESTRUCTURA CARD ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ ESTRUCTURA CARD Ã¢Â”Â€Ã¢Â”Â€ */
 .estructura-item {
   background: #f8fafc; border-radius: 12px; padding: 14px; margin-bottom: 10px;
   border: 2px solid #e2e8f0; cursor: pointer; touch-action: manipulation; transition: all 0.15s;
@@ -155,7 +155,7 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 .ei-nombre { font-size: 14px; font-weight: 800; }
 .ei-cargo  { font-size: 11px; color: #64748b; margin-top: 2px; }
 
-/* ââ ALERTA ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ ALERTA Ã¢Â”Â€Ã¢Â”Â€ */
 .alerta {
   position: fixed; bottom: 20px; left: 16px; right: 16px; max-width: 440px; margin: 0 auto;
   padding: 14px 18px; border-radius: 14px; font-size: 14px; font-weight: 700;
@@ -166,14 +166,14 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 .alerta-error { background: #dc2626; color: white; }
 .alerta-info  { background: var(--azul); color: white; }
 
-/* ââ NAV BACK ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ NAV BACK Ã¢Â”Â€Ã¢Â”Â€ */
 .nav-back {
   display: flex; align-items: center; gap: 10px; padding: 14px 16px;
   background: rgba(0,0,0,0.15); cursor: pointer; touch-action: manipulation;
 }
 .nav-back span { font-size: 14px; font-weight: 700; color: white; }
 
-/* ââ SEPARADOR ââ */
+/* Ã¢Â”Â€Ã¢Â”Â€ SEPARADOR Ã¢Â”Â€Ã¢Â”Â€ */
 .sep { height: 1px; background: #e2e8f0; margin: 16px 0; }
 .texto-center { text-align: center; }
 .texto-muted  { color: #94a3b8; font-size: 13px; }
@@ -246,39 +246,39 @@ window.initGoogleMaps = function() {
 </head>
 <body>
 
-<!-- ââââââââââââââââââââââââââââââââââââââââ
+<!-- Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
      PANTALLA: DASHBOARD DIRIGENTE
-ââââââââââââââââââââââââââââââââââââââââ -->
+Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â -->
 <div id="p-dashboard" class="pantalla activa">
   <div class="header">
     <div style="display:flex; justify-content:space-between; align-items:center; position:relative; z-index:1">
       <span style="font-size:12px; opacity:0.6">Portal Dirigentes</span>
-      <button class="btn-sm btn-gris" style="background:rgba(255,255,255,0.2); color:white; font-size:11px" onclick="cerrarSesion()">Salir ð</button>
+      <button class="btn-sm btn-gris" style="background:rgba(255,255,255,0.2); color:white; font-size:11px" onclick="cerrarSesion()">Salir Ã°ÂŸÂ”Â’</button>
     </div>
     <div style="width:48px;height:48px;background:#003087;border-radius:50%;border:3px solid #C8102E;display:flex;align-items:center;justify-content:center;margin:8px auto 10px;box-shadow:0 2px 8px rgba(0,0,0,0.3)"><span style="font-family:Arial Black,sans-serif;font-weight:900;font-size:12px;color:white;letter-spacing:1px">PRM</span></div>
-    <h1 id="dash-bienvenida">Â¡Bienvenido!</h1>
-    <p id="dash-subtitulo">Valverde Â· PRM</p>
+    <h1 id="dash-bienvenida">Ã‚¡Bienvenido!</h1>
+    <p id="dash-subtitulo">Valverde Ã‚· PRM</p>
   </div>
   <div class="wrap">
 
     <!-- Tarjeta perfil -->
     <div class="perfil-card mt16">
-      <div class="perfil-foto">ð¤</div>
+      <div class="perfil-foto">Ã°ÂŸÂ‘Â¤</div>
       <div>
-        <div class="perfil-nombre" id="dash-nombre">â</div>
-        <div class="perfil-cedula" id="dash-cedula">â</div>
-        <div class="perfil-zona" id="dash-zona">â</div>
+        <div class="perfil-nombre" id="dash-nombre">Ã¢Â€Â”</div>
+        <div class="perfil-cedula" id="dash-cedula">Ã¢Â€Â”</div>
+        <div class="perfil-zona" id="dash-zona">Ã¢Â€Â”</div>
       </div>
     </div>
 
-    <!-- EstadÃ­sticas rÃ¡pidas -->
+    <!-- EstadÃƒÂ­sticas rÃƒ¡pidas -->
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:16px">
       <div class="card" style="padding:12px; text-align:center; margin:0">
         <div id="dash-comite-count" style="font-size:24px; font-weight:900; color:var(--azul)">0</div>
-        <div style="font-size:10px; color:#94a3b8; font-weight:700">COMITÃ</div>
+        <div style="font-size:10px; color:#94a3b8; font-weight:700">COMITÃƒÂ‰</div>
       </div>
       <div class="card" style="padding:12px; text-align:center; margin:0">
-        <div id="dash-estructura-badge" style="font-size:20px">â</div>
+        <div id="dash-estructura-badge" style="font-size:20px">Ã¢Â€Â”</div>
         <div style="font-size:10px; color:#94a3b8; font-weight:700">ESTRUCTURA</div>
       </div>
       <div class="card" style="padding:12px; text-align:center; margin:0">
@@ -287,54 +287,54 @@ window.initGoogleMaps = function() {
       </div>
     </div>
 
-    <!-- MenÃº principal -->
+    <!-- MenÃƒÂº principal -->
     <div class="menu-grid">
       <div class="menu-card azul" onclick="irA('p-comite')">
-        <div class="mc-icon">ð¥</div>
-        <div class="mc-label">Mi ComitÃ© de Base</div>
-        <div class="mc-sub" id="dash-comite-sub">10+1 mÃ­nimo</div>
+        <div class="mc-icon">Ã°ÂŸÂ‘Â¥</div>
+        <div class="mc-label">Mi ComitÃƒÂ© de Base</div>
+        <div class="mc-sub" id="dash-comite-sub">10+1 mÃƒÂ­nimo</div>
       </div>
       <div class="menu-card" style="border-color:#7c3aed;cursor:pointer" onclick="irA('p-estrategia')">
-        <div class="mc-icon">ðºï¸</div>
+        <div class="mc-icon">Ã°ÂŸÂ—ÂºÃ¯Â¸Â</div>
         <div class="mc-label">Estrategia Electoral</div>
-        <div class="mc-sub">Recintos Â· Colegios Â· Mesas</div>
+        <div class="mc-sub">Recintos Ã‚· Colegios Ã‚· Mesas</div>
       </div>
       <div class="menu-card rojo" onclick="irA('p-estructura')">
-        <div class="mc-icon">ðï¸</div>
+        <div class="mc-icon">Ã°ÂŸÂÂ›Ã¯Â¸Â</div>
         <div class="mc-label">Mi Estructura</div>
         <div class="mc-sub">Candidatos</div>
       </div>
       <div class="menu-card" style="border-color:#0ea5e9;cursor:pointer" onclick="irA('p-mapa')">
-        <div class="mc-icon">ð</div>
-        <div class="mc-label">Mi UbicaciÃ³n</div>
+        <div class="mc-icon">Ã°ÂŸÂ“ÂŒ</div>
+        <div class="mc-label">Mi UbicaciÃƒÂ³n</div>
         <div class="mc-sub">Puntear en el mapa</div>
       </div>
       <div class="menu-card oro" onclick="irA('p-perfil')">
-        <div class="mc-icon">âï¸</div>
+        <div class="mc-icon">Ã¢ÂšÂ™Ã¯Â¸Â</div>
         <div class="mc-label">Mi Perfil</div>
         <div class="mc-sub">Datos y PIN</div>
       </div>
     </div>
 
-    <!-- Alerta estatutaria si comitÃ© incompleto -->
+    <!-- Alerta estatutaria si comitÃƒÂ© incompleto -->
     <div id="dash-alerta-comite" style="display:none; background:#fef3c7; border:2px solid #fcd34d; border-radius:14px; padding:14px; margin-bottom:16px">
-      <div style="font-weight:800; font-size:13px; color:#92400e">â ï¸ ComitÃ© de Base Incompleto</div>
-      <div style="font-size:12px; color:#b45309; margin-top:4px">SegÃºn el Art. 89 de los Estatutos PRM necesitas mÃ­nimo 10 miembros en tu comitÃ© de base.</div>
-      <button class="btn btn-oro" style="margin-top:10px; margin-bottom:0" onclick="irA('p-comite')">Completar ahora â</button>
+      <div style="font-weight:800; font-size:13px; color:#92400e">Ã¢ÂšÂ Ã¯Â¸Â ComitÃƒÂ© de Base Incompleto</div>
+      <div style="font-size:12px; color:#b45309; margin-top:4px">SegÃƒÂºn el Art. 89 de los Estatutos PRM necesitas mÃƒÂ­nimo 10 miembros en tu comitÃƒÂ© de base.</div>
+      <button class="btn btn-oro" style="margin-top:10px; margin-bottom:0" onclick="irA('p-comite')">Completar ahora Ã¢Â†Â’</button>
     </div>
 
   </div>
 </div>
 
-<!-- ââââââââââââââââââââââââââââââââââââââââ
-     PANTALLA 4: COMITÃ DE BASE
-ââââââââââââââââââââââââââââââââââââââââ -->
+<!-- Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+     PANTALLA 4: COMITÃƒÂ‰ DE BASE
+Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â -->
 <div id="p-comite" class="pantalla">
   <div class="header">
-    <div class="nav-back" onclick="irA('p-dashboard')"><span>â Dashboard</span></div>
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>Ã¢Â†Â Dashboard</span></div>
     <div style="padding: 8px 20px 4px; position:relative; z-index:1">
-      <h1>ð¥ Mi ComitÃ© de Base</h1>
-      <p>Solo tÃº puedes ver esta informaciÃ³n</p>
+      <h1>Ã°ÂŸÂ‘Â¥ Mi ComitÃƒÂ© de Base</h1>
+      <p>Solo tÃƒÂº puedes ver esta informaciÃƒÂ³n</p>
     </div>
   </div>
   <div class="wrap">
@@ -342,18 +342,18 @@ window.initGoogleMaps = function() {
     <!-- Progreso -->
     <div class="card mt16">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
-        <span style="font-size:13px; font-weight:800">Progreso del ComitÃ©</span>
+        <span style="font-size:13px; font-weight:800">Progreso del ComitÃƒÂ©</span>
         <span id="comite-count-label" style="font-size:13px; font-weight:900; color:var(--azul)">0 / 10</span>
       </div>
       <div class="barra-wrap"><div class="barra-fill" id="comite-barra" style="width:0%"></div></div>
-      <div style="font-size:11px; color:#94a3b8; margin-top:4px">MÃ­nimo 10 miembros segÃºn Art. 89 Estatutos PRM</div>
+      <div style="font-size:11px; color:#94a3b8; margin-top:4px">MÃƒÂ­nimo 10 miembros segÃƒÂºn Art. 89 Estatutos PRM</div>
     </div>
 
-    <!-- AÃ±adir miembro -->
+    <!-- AÃƒÂ±adir miembro -->
     <div class="card">
-      <div class="card-title">â AÃ±adir Miembro</div>
+      <div class="card-title">Ã¢ÂžÂ• AÃƒÂ±adir Miembro</div>
       <div class="campo">
-        <label>CÃ©dula del Miembro</label>
+        <label>CÃƒÂ©dula del Miembro</label>
         <input type="tel" id="comite-cedula" class="cedula-input" placeholder="000-0000000-0" maxlength="13" oninput="formatCedula(this)" onkeyup="if(event.key==='Enter') buscarMiembro()">
       </div>
       <div id="comite-found-box" style="display:none; margin-bottom:12px">
@@ -364,35 +364,35 @@ window.initGoogleMaps = function() {
       </div>
       <div id="comite-notfound-box" style="display:none; margin-bottom:12px">
         <div style="background:#fef2f2; border:2px solid #fecaca; border-radius:12px; padding:12px 14px">
-          <div style="font-weight:800; color:#991b1b; font-size:13px">â CÃ©dula no encontrada en el padrÃ³n</div>
-          <div style="font-size:11px; color:#dc2626; margin-top:2px">Verifica el nÃºmero e intenta de nuevo</div>
+          <div style="font-weight:800; color:#991b1b; font-size:13px">Ã¢ÂÂŒ CÃƒÂ©dula no encontrada en el padrÃƒÂ³n</div>
+          <div style="font-size:11px; color:#dc2626; margin-top:2px">Verifica el nÃƒÂºmero e intenta de nuevo</div>
         </div>
       </div>
       <div style="display:flex; gap:10px">
-        <button class="btn btn-azul" style="flex:1; margin:0" onclick="buscarMiembro()">ð Verificar</button>
-        <button class="btn btn-verde" id="btn-agregar-miembro" style="flex:1; margin:0; display:none" onclick="agregarMiembro()">â AÃ±adir</button>
+        <button class="btn btn-azul" style="flex:1; margin:0" onclick="buscarMiembro()">Ã°ÂŸÂ”Â Verificar</button>
+        <button class="btn btn-verde" id="btn-agregar-miembro" style="flex:1; margin:0; display:none" onclick="agregarMiembro()">Ã¢ÂœÂ… AÃƒÂ±adir</button>
       </div>
     </div>
 
     <!-- Lista de miembros -->
     <div class="card">
-      <div class="card-title">ð Miembros Registrados</div>
+      <div class="card-title">Ã°ÂŸÂ“Â‹ Miembros Registrados</div>
       <div id="comite-lista">
-        <div class="texto-center texto-muted" style="padding:20px 0">AÃºn no has aÃ±adido miembros</div>
+        <div class="texto-center texto-muted" style="padding:20px 0">AÃƒÂºn no has aÃƒÂ±adido miembros</div>
       </div>
     </div>
 
   </div>
 </div>
 
-<!-- ââââââââââââââââââââââââââââââââââââââââ
+<!-- Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
      PANTALLA 5: MI ESTRUCTURA
-ââââââââââââââââââââââââââââââââââââââââ -->
+Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â -->
 <div id="p-estructura" class="pantalla">
   <div class="header">
-    <div class="nav-back" onclick="irA('p-dashboard')"><span>â Dashboard</span></div>
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>Ã¢Â†Â Dashboard</span></div>
     <div style="padding: 8px 20px 4px; position:relative; z-index:1">
-      <h1>ðï¸ Mi Estructura</h1>
+      <h1>Ã°ÂŸÂÂ›Ã¯Â¸Â Mi Estructura</h1>
       <p>Candidatos y organizaciones</p>
     </div>
   </div>
@@ -402,75 +402,75 @@ window.initGoogleMaps = function() {
     <div class="card mt16">
       <div class="card-title">Estructura Actual</div>
       <div id="estructura-actual-box">
-        <div class="texto-muted texto-center" style="padding:12px 0">No estÃ¡s en ninguna estructura actualmente</div>
+        <div class="texto-muted texto-center" style="padding:12px 0">No estÃƒ¡s en ninguna estructura actualmente</div>
       </div>
     </div>
 
     <!-- Candidatos disponibles -->
     <div class="card">
-      <div class="card-title">ð³ï¸ Candidatos Disponibles</div>
+      <div class="card-title">Ã°ÂŸÂ—Â³Ã¯Â¸Â Candidatos Disponibles</div>
       <p style="font-size:12px; color:#64748b; margin-bottom:14px">Puedes unirte a la estructura de un candidato. Puedes salir cuando quieras.</p>
       <div id="candidatos-lista"></div>
     </div>
 
     <!-- Pre-candidatos -->
     <div class="card">
-      <div class="card-title">â­ Pre-Candidatos</div>
+      <div class="card-title">Ã¢Â­Â Pre-Candidatos</div>
       <div id="precandidatos-lista"></div>
     </div>
 
   </div>
 </div>
 
-<!-- ââââââââââââââââââââââââââââââââââââââââ
+<!-- Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
      PANTALLA 6: MI ZONA
-ââââââââââââââââââââââââââââââââââââââââ -->
+Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â -->
 <div id="p-zona" class="pantalla">
   <div class="header">
-    <div class="nav-back" onclick="irA('p-dashboard')"><span>â Dashboard</span></div>
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>Ã¢Â†Â Dashboard</span></div>
     <div style="padding: 8px 20px 4px; position:relative; z-index:1">
-      <h1>ð Mi Zona</h1>
-      <p id="zona-header-sub">Valverde Â· PRM</p>
+      <h1>Ã°ÂŸÂ“Â Mi Zona</h1>
+      <p id="zona-header-sub">Valverde Ã‚· PRM</p>
     </div>
   </div>
   <div class="wrap">
     <div class="card mt16">
-      <div class="card-title">InformaciÃ³n de tu Zona</div>
+      <div class="card-title">InformaciÃƒÂ³n de tu Zona</div>
       <div id="zona-info"></div>
     </div>
     <div class="card">
-      <div class="card-title">ð¥ Dirigentes en tu Zona</div>
+      <div class="card-title">Ã°ÂŸÂ‘Â¥ Dirigentes en tu Zona</div>
       <div id="zona-dirigentes"></div>
     </div>
   </div>
 </div>
 
-<!-- ââââââââââââââââââââââââââââââââââââââââ
-     PANTALLA: MI UBICACIÃN
-ââââââââââââââââââââââââââââââââââââââââ -->
+<!-- Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+     PANTALLA: MI UBICACIÃƒÂ“N
+Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â -->
 <div id="p-mapa" class="pantalla">
   <div class="header">
-    <div class="nav-back" onclick="irA('p-dashboard')"><span>â Dashboard</span></div>
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>Ã¢Â†Â Dashboard</span></div>
     <div style="padding:8px 20px 4px; position:relative; z-index:1">
-      <h1>ð Mi UbicaciÃ³n</h1>
-      <p>El presidente verÃ¡ este punto en su mapa</p>
+      <h1>Ã°ÂŸÂ“ÂŒ Mi UbicaciÃƒÂ³n</h1>
+      <p>El presidente verÃƒ¡ este punto en su mapa</p>
     </div>
   </div>
   <div class="wrap">
 
-    <!-- InstrucciÃ³n -->
+    <!-- InstrucciÃƒÂ³n -->
     <div style="background:#eff6ff; border:2px solid #bfdbfe; border-radius:14px; padding:14px; margin-top:16px; margin-bottom:16px">
-      <div style="font-weight:800; font-size:13px; color:#1d4ed8; margin-bottom:4px">ð Â¿CÃ³mo puntear tu ubicaciÃ³n?</div>
+      <div style="font-weight:800; font-size:13px; color:#1d4ed8; margin-bottom:4px">Ã°ÂŸÂ“Â Ã‚¿CÃƒÂ³mo puntear tu ubicaciÃƒÂ³n?</div>
       <div style="font-size:12px; color:#3b82f6; line-height:1.5">
-        1. Toca el botÃ³n <strong>"Usar mi ubicaciÃ³n actual"</strong><br>
+        1. Toca el botÃƒÂ³n <strong>"Usar mi ubicaciÃƒÂ³n actual"</strong><br>
         2. O toca directamente en el mapa donde vives<br>
-        3. Confirma con <strong>"Guardar ubicaciÃ³n"</strong>
+        3. Confirma con <strong>"Guardar ubicaciÃƒÂ³n"</strong>
       </div>
     </div>
 
     <!-- Estado actual -->
     <div id="mapa-estado-actual" style="display:none; background:#f0fdf4; border:2px solid #bbf7d0; border-radius:14px; padding:12px 14px; margin-bottom:16px">
-      <div style="font-size:10px; color:#166534; font-weight:800; text-transform:uppercase; margin-bottom:4px">â UbicaciÃ³n guardada</div>
+      <div style="font-size:10px; color:#166534; font-weight:800; text-transform:uppercase; margin-bottom:4px">Ã¢ÂœÂ… UbicaciÃƒÂ³n guardada</div>
       <div id="mapa-ubi-nombre" style="font-size:13px; font-weight:700; color:#15803d"></div>
       <div id="mapa-ubi-coords" style="font-size:11px; color:#16a34a; font-family:monospace; margin-top:2px"></div>
     </div>
@@ -480,42 +480,42 @@ window.initGoogleMaps = function() {
       <div id="mapa-dirigente"></div>
     </div>
 
-    <!-- DescripciÃ³n -->
+    <!-- DescripciÃƒÂ³n -->
     <div class="card">
-      <div class="card-title">ð DescripciÃ³n del punto</div>
+      <div class="card-title">Ã°ÂŸÂ“Â DescripciÃƒÂ³n del punto</div>
       <div class="campo">
-        <label>Â¿DÃ³nde es? (opcional)</label>
+        <label>Ã‚¿DÃƒÂ³nde es? (opcional)</label>
         <input type="text" id="mapa-descripcion" placeholder="Ej: Mi casa, Calle Duarte #15, Los Multis"
           style="width:100%;padding:13px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:15px;outline:none;font-family:inherit">
       </div>
       <button class="btn btn-azul" onclick="usarUbicacionActual()" style="margin-bottom:10px">
-        ð Usar mi ubicaciÃ³n actual (GPS)
+        Ã°ÂŸÂ“Â Usar mi ubicaciÃƒÂ³n actual (GPS)
       </button>
       <button id="btn-guardar-ubi" class="btn btn-verde" onclick="guardarUbicacion()" style="display:none">
-        ð¾ Guardar este punto
+        Ã°ÂŸÂ’Â¾ Guardar este punto
       </button>
-      <button class="btn btn-gris" onclick="irA('p-dashboard')">â Volver</button>
+      <button class="btn btn-gris" onclick="irA('p-dashboard')">Ã¢Â†Â Volver</button>
     </div>
 
   </div>
 </div>
 
-<!-- ââââââââââââââââââââââââââââââââââââââââ
+<!-- Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
      PANTALLA: ESTRATEGIA ELECTORAL
-ââââââââââââââââââââââââââââââââââââââââ -->
+Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â -->
 <div id="p-estrategia" class="pantalla">
   <div class="header">
-    <div class="nav-back" onclick="irA('p-dashboard')"><span>â Dashboard</span></div>
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>Ã¢Â†Â Dashboard</span></div>
     <div style="padding: 8px 20px 4px; position:relative; z-index:1">
-      <h1>ðºï¸ Estrategia Electoral</h1>
-      <p id="est-subtitulo">Mi ComitÃ© Â· DistribuciÃ³n</p>
+      <h1>Ã°ÂŸÂ—ÂºÃ¯Â¸Â Estrategia Electoral</h1>
+      <p id="est-subtitulo">Mi ComitÃƒÂ© Ã‚· DistribuciÃƒÂ³n</p>
     </div>
   </div>
   <div class="wrap">
 
     <!-- Resumen general -->
     <div class="card mt16">
-      <div class="card-title">ð Resumen de mi ComitÃ©</div>
+      <div class="card-title">Ã°ÂŸÂ“ÂŠ Resumen de mi ComitÃƒÂ©</div>
       <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:4px">
         <div style="text-align:center; padding:12px; background:#f0f7ff; border-radius:10px">
           <div id="est-total" style="font-size:28px; font-weight:900; color:var(--azul)">0</div>
@@ -532,15 +532,15 @@ window.initGoogleMaps = function() {
       </div>
     </div>
 
-    <!-- Fidelidad y gÃ©nero -->
+    <!-- Fidelidad y gÃƒÂ©nero -->
     <div class="card">
-      <div class="card-title">ð ClasificaciÃ³n EstratÃ©gica</div>
+      <div class="card-title">Ã°ÂŸÂ“ÂŠ ClasificaciÃƒÂ³n EstratÃƒÂ©gica</div>
       <div id="est-fidelidad"></div>
     </div>
 
     <!-- Por recinto -->
     <div class="card">
-      <div class="card-title">ð« Por Recinto Electoral</div>
+      <div class="card-title">Ã°ÂŸÂÂ« Por Recinto Electoral</div>
       <div id="est-por-recinto">
         <div class="texto-muted texto-center" style="padding:16px 0">Cargando...</div>
       </div>
@@ -548,22 +548,22 @@ window.initGoogleMaps = function() {
 
     <!-- Lista completa con mapa -->
     <div class="card">
-      <div class="card-title">ð Miembros con DirecciÃ³n / GPS</div>
+      <div class="card-title">Ã°ÂŸÂ“Â Miembros con DirecciÃƒÂ³n / GPS</div>
       <div id="est-lista-mapa"></div>
     </div>
 
   </div>
 </div>
 
-<!-- ââââââââââââââââââââââââââââââââââââââââ
+<!-- Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
      PANTALLA 7: MI PERFIL
-ââââââââââââââââââââââââââââââââââââââââ -->
+Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â -->
 <div id="p-perfil" class="pantalla">
   <div class="header">
-    <div class="nav-back" onclick="irA('p-dashboard')"><span>â Dashboard</span></div>
+    <div class="nav-back" onclick="irA('p-dashboard')"><span>Ã¢Â†Â Dashboard</span></div>
     <div style="padding: 8px 20px 4px; position:relative; z-index:1">
-      <h1>âï¸ Mi Perfil</h1>
-      <p>ConfiguraciÃ³n de tu cuenta</p>
+      <h1>Ã¢ÂšÂ™Ã¯Â¸Â Mi Perfil</h1>
+      <p>ConfiguraciÃƒÂ³n de tu cuenta</p>
     </div>
   </div>
   <div class="wrap">
@@ -572,7 +572,7 @@ window.initGoogleMaps = function() {
       <div id="perfil-datos"></div>
     </div>
     <div class="card">
-      <div class="card-title">ð Cambiar PIN</div>
+      <div class="card-title">Ã°ÂŸÂ”Â Cambiar PIN</div>
       <div class="campo">
         <label>PIN Actual</label>
         <div class="campo pin-wrap">
@@ -593,7 +593,7 @@ window.initGoogleMaps = function() {
       </div>
       <button class="btn btn-azul" onclick="cambiarPin()">Actualizar PIN</button>
     </div>
-    <button class="btn btn-rojo" onclick="cerrarSesion()">ð Cerrar SesiÃ³n</button>
+    <button class="btn btn-rojo" onclick="cerrarSesion()">Ã°ÂŸÂ”Â’ Cerrar SesiÃƒÂ³n</button>
   </div>
 </div>
 
@@ -601,9 +601,9 @@ window.initGoogleMaps = function() {
 <div id="alertas-box"></div>
 
 <script>
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // SUPABASE CONFIG
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 const SUPA_URL = 'https://ilivjaiexfqpioqrozlf.supabase.co';
 const SUPA_KEY = 'sb_publishable_eB0cnaHRLh4tjAavfiwIjg_DreuwecW';
 let sb = null;
@@ -612,48 +612,48 @@ function initSupabase() {
   try {
     if (window.supabase) {
       sb = window.supabase.createClient(SUPA_URL, SUPA_KEY);
-      console.log('â Supabase conectado');
+      console.log('Ã¢ÂœÂ… Supabase conectado');
     }
   } catch(e) {
-    console.warn('Supabase no disponible â modo offline');
+    console.warn('Supabase no disponible Ã¢Â€Â” modo offline');
   }
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // DATOS DEL SISTEMA
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 const ZONAS = {
   MAO:          ['Zona A','Zona B','Zona C','Zona D','Zona E','Zona F'],
   ESPERANZA:    ['Zona 1','Zona 2','Zona 3'],
-  LAGUNA_SALADA:['Zona Ãnica'],
-  AMINA:        ['Zona Ãnica'],
-  GUATAPANAL:   ['Zona Ãnica'],
-  JAIBON:       ['Zona Ãnica'],
-  POTRERO:      ['Zona Ãnica'],
+  LAGUNA_SALADA:['Zona ÃƒÂšnica'],
+  AMINA:        ['Zona ÃƒÂšnica'],
+  GUATAPANAL:   ['Zona ÃƒÂšnica'],
+  JAIBON:       ['Zona ÃƒÂšnica'],
+  POTRERO:      ['Zona ÃƒÂšnica'],
 };
 
-// Candidatos demo â luego se reemplazan con datos reales
+// Candidatos demo Ã¢Â€Â” luego se reemplazan con datos reales
 const CANDIDATOS_DEMO = [
-  { id:'c1', nombre:'JosÃ© RamÃ­rez PeÃ±a',    cargo:'Candidato a Senador',   tipo:'candidato',     activo:true },
-  { id:'c2', nombre:'MarÃ­a Santos Cruz',    cargo:'Candidata a Diputada',  tipo:'candidato',     activo:true },
-  { id:'c3', nombre:'Carlos Mena BÃ¡ez',     cargo:'Candidato a Alcalde',   tipo:'candidato',     activo:true },
-  { id:'p1', nombre:'Ana LÃ³pez DomÃ­nguez',  cargo:'Pre-candidata Senadora', tipo:'precandidato', activo:true },
+  { id:'c1', nombre:'JosÃƒÂ© RamÃƒÂ­rez PeÃƒÂ±a',    cargo:'Candidato a Senador',   tipo:'candidato',     activo:true },
+  { id:'c2', nombre:'MarÃƒÂ­a Santos Cruz',    cargo:'Candidata a Diputada',  tipo:'candidato',     activo:true },
+  { id:'c3', nombre:'Carlos Mena BÃƒ¡ez',     cargo:'Candidato a Alcalde',   tipo:'candidato',     activo:true },
+  { id:'p1', nombre:'Ana LÃƒÂ³pez DomÃƒÂ­nguez',  cargo:'Pre-candidata Senadora', tipo:'precandidato', activo:true },
   { id:'p2', nombre:'Pedro Vargas Reyes',   cargo:'Pre-candidato Alcalde',  tipo:'precandidato', activo:true },
 ];
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// SESIÃN ACTIVA
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+// SESIÃƒÂ“N ACTIVA
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 let sesion = null;  // { cedula, nombre, zona, municipio, sector, telefono, pin_hash, estructuras:[], comite:[] }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// STORAGE â cada dirigente tiene su propio espacio
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+// STORAGE Ã¢Â€Â” cada dirigente tiene su propio espacio
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// STORAGE â Supabase + localStorage como fallback
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+// STORAGE Ã¢Â€Â” Supabase + localStorage como fallback
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 function hashPin(pin) {
   let h = 0;
@@ -661,9 +661,9 @@ function hashPin(pin) {
   return h.toString(36);
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // CARGAR DATOS COMPLETOS DEL DIRIGENTE DESDE SUPABASE
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 async function cargarDatosCompletos() {
   if (!sesion || !sb) return;
   try {
@@ -685,7 +685,7 @@ async function cargarDatosCompletos() {
       sesion.email            = dir.email;
     }
 
-    // Cargar foto del padrÃ³n
+    // Cargar foto del padrÃƒÂ³n
     const { data: pad } = await sb.from('padron_maestro')
       .select('foto_base64')
       .eq('cedula', cedFmtLoad).maybeSingle();
@@ -701,7 +701,7 @@ async function cargarDatosCompletos() {
       sesion.sexo             = dirExtra.sexo;
       sesion.fecha_nacimiento = dirExtra.fecha_nacimiento;
     }
-    // Cargar comitÃ©
+    // Cargar comitÃƒÂ©
     const { data: comite } = await sb
       .from('comite_miembros')
       .select('cedula_miembro, nombre_miembro, recinto_nombre, colegio_num, direccion, telefono, nota_estrategica, fidelidad, transporte, genero, latitud, longitud, mesa, fecha_nacimiento, fecha_ingreso')
@@ -738,7 +738,7 @@ async function cargarDatosCompletos() {
   } catch(e) { console.warn('Error cargando datos:', e); }
 }
 
-// Guardar token de sesiÃ³n localmente
+// Guardar token de sesiÃƒÂ³n localmente
 function guardarSesionLocal(datos) {
   localStorage.setItem('prm_sesion', JSON.stringify({
     cedula:  datos.cedula,
@@ -762,9 +762,9 @@ function cargarSesionLocal() {
   } catch(e) { return null; }
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// PADRÃN â busca en el JSON cargado o simula
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+// PADRÃƒÂ“N Ã¢Â€Â” busca en el JSON cargado o simula
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 async function buscarEnPadron(cedula) {
   const cedLimpia = cedula.replace(/\D/g,'');
@@ -792,16 +792,16 @@ async function buscarEnPadron(cedula) {
     }
   }
 
-  // Si tiene 11 dÃ­gitos pero no estÃ¡ en el padrÃ³n
+  // Si tiene 11 dÃƒÂ­gitos pero no estÃƒ¡ en el padrÃƒÂ³n
   if (cedLimpia.length === 11) {
     return { nombre: null, cedula: cedFmt, noEncontrado: true };
   }
   return null;
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// NAVEGACIÃN
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+// NAVEGACIÃƒÂ“N
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 function irA(pantalla) {
   document.querySelectorAll('.pantalla').forEach(p => p.classList.remove('activa'));
@@ -824,9 +824,9 @@ function irARegistro() {
   if (cedula) document.getElementById('reg-cedula').value = cedula;
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // LOGIN
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 let loginNombreTemporal = '';
 let loginEstadoBusqueda = 'inicial'; // inicial | encontrado | nuevo
@@ -835,21 +835,21 @@ function buscarDirigente() {
   const cedula = document.getElementById('login-cedula').value;
   const cedLimpia = cedula.replace(/\D/g,'');
 
-  if (cedLimpia.length < 11) { alerta('Ingresa tu cÃ©dula completa (11 dÃ­gitos)', 'error'); return; }
+  if (cedLimpia.length < 11) { alerta('Ingresa tu cÃƒÂ©dula completa (11 dÃƒÂ­gitos)', 'error'); return; }
 
   const dirigente = cargarDirigente(cedula);
 
   if (dirigente) {
-    // Dirigente registrado â pedir PIN
+    // Dirigente registrado Ã¢Â€Â” pedir PIN
     loginNombreTemporal = dirigente.nombre;
     document.getElementById('login-nombre').textContent = dirigente.nombre;
     document.getElementById('login-nombre-box').style.display = 'block';
     document.getElementById('login-pin-box').style.display = 'block';
     loginEstadoBusqueda = 'encontrado';
     document.getElementById('pin0').focus();
-    alerta('Â¡Hola ' + dirigente.nombre.split(',')[1]?.trim().split(' ')[0] + '! Ingresa tu PIN', 'info');
+    alerta('Ã‚¡Hola ' + dirigente.nombre.split(',')[1]?.trim().split(' ')[0] + '! Ingresa tu PIN', 'info');
   } else {
-    // No registrado aÃºn
+    // No registrado aÃƒÂºn
     irARegistro();
   }
 }
@@ -857,13 +857,13 @@ function buscarDirigente() {
 async function entrarConPin() {
   if (loginEstadoBusqueda !== 'encontrado') return;
   const pin = ['pin0','pin1','pin2','pin3'].map(id => document.getElementById(id).value).join('');
-  if (pin.length < 4) { alerta('Ingresa los 4 dÃ­gitos del PIN', 'error'); return; }
+  if (pin.length < 4) { alerta('Ingresa los 4 dÃƒÂ­gitos del PIN', 'error'); return; }
 
   const cedula = document.getElementById('login-cedula').value;
   alerta('Verificando PIN...', 'info');
 
   if (sb) {
-    // Llamar funciÃ³n RPC de login seguro
+    // Llamar funciÃƒÂ³n RPC de login seguro
     const { data, error } = await sb.rpc('login_dirigente', {
       p_cedula:   cedula,
       p_pin_hash: hashPin(pin)
@@ -882,10 +882,10 @@ async function entrarConPin() {
         estructuras: []
       };
       guardarSesionLocal(sesion);
-      // Cargar comitÃ© y estructuras del dirigente
+      // Cargar comitÃƒÂ© y estructuras del dirigente
       await cargarDatosCompletos();
       irA('p-dashboard');
-      alerta('Â¡Bienvenido ' + getNombreCorto(sesion.nombre) + '!', 'ok');
+      alerta('Ã‚¡Bienvenido ' + getNombreCorto(sesion.nombre) + '!', 'ok');
       return;
     }
   }
@@ -895,26 +895,26 @@ async function entrarConPin() {
   document.getElementById('pin0').focus();
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // REGISTRO
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 let regDatos = {};
 
 async function verificarCedulaReg() {
   const cedula = document.getElementById('reg-cedula').value;
   const cedLimpia = cedula.replace(/\D/g,'');
-  if (cedLimpia.length < 11) { alerta('Ingresa tu cÃ©dula completa', 'error'); return; }
+  if (cedLimpia.length < 11) { alerta('Ingresa tu cÃƒÂ©dula completa', 'error'); return; }
 
-  // Verificar que no estÃ© ya registrado
+  // Verificar que no estÃƒÂ© ya registrado
   const existe = cargarDirigente(cedula);
   if (existe) {
-    alerta('Esta cÃ©dula ya estÃ¡ registrada. Ve al login.', 'error');
+    alerta('Esta cÃƒÂ©dula ya estÃƒ¡ registrada. Ve al login.', 'error');
     irA('p-login');
     return;
   }
 
-  alerta('Verificando en el padrÃ³n...', 'info');
+  alerta('Verificando en el padrÃƒÂ³n...', 'info');
   const result = await buscarEnPadron(cedula);
   const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
 
@@ -924,14 +924,14 @@ async function verificarCedulaReg() {
     document.getElementById('reg-nombre-display').textContent = result.nombre;
     document.getElementById('reg-nombre-box').style.display = 'block';
     document.getElementById('reg-paso2').style.display = 'block';
-    alerta('â Encontrado en el padrÃ³n PRM', 'ok');
+    alerta('Ã¢ÂœÂ… Encontrado en el padrÃƒÂ³n PRM', 'ok');
   } else {
     regDatos.cedula = cedFmt;
     regDatos.nombre = null;
-    document.getElementById('reg-nombre-display').textContent = 'Militante PRM Â· ' + cedFmt;
+    document.getElementById('reg-nombre-display').textContent = 'Militante PRM Ã‚· ' + cedFmt;
     document.getElementById('reg-nombre-box').style.display = 'block';
     document.getElementById('reg-paso2').style.display = 'block';
-    alerta('CÃ©dula aceptada. No estÃ¡ en el padrÃ³n cargado.', 'info');
+    alerta('CÃƒÂ©dula aceptada. No estÃƒ¡ en el padrÃƒÂ³n cargado.', 'info');
   }
 }
 
@@ -955,7 +955,7 @@ function irPaso3() {
   const telefono  = document.getElementById('reg-telefono').value.trim();
 
   if (!municipio) { alerta('Selecciona tu municipio', 'error'); return; }
-  if (!zona)      { alerta('Selecciona tu zona polÃ­tica', 'error'); return; }
+  if (!zona)      { alerta('Selecciona tu zona polÃƒÂ­tica', 'error'); return; }
 
   regDatos.municipio = municipio;
   regDatos.zona      = zona;
@@ -970,13 +970,13 @@ async function completarRegistro() {
   const pin1 = ['rpin0','rpin1','rpin2','rpin3'].map(id => document.getElementById(id).value).join('');
   const pin2 = ['rpin4','rpin5','rpin6','rpin7'].map(id => document.getElementById(id).value).join('');
 
-  if (pin1.length < 4) { alerta('Ingresa tu PIN de 4 dÃ­gitos', 'error'); return; }
+  if (pin1.length < 4) { alerta('Ingresa tu PIN de 4 dÃƒÂ­gitos', 'error'); return; }
   if (pin1 !== pin2)   { alerta('Los PINs no coinciden. Intenta de nuevo.', 'error'); return; }
-  if (!/^\d{4}$/.test(pin1)) { alerta('El PIN solo puede tener nÃºmeros', 'error'); return; }
+  if (!/^\d{4}$/.test(pin1)) { alerta('El PIN solo puede tener nÃƒÂºmeros', 'error'); return; }
 
   const nuevoDirigente = {
     cedula:    regDatos.cedula,
-    nombre:    regDatos.nombre || 'Dirigente Â· ' + regDatos.cedula,
+    nombre:    regDatos.nombre || 'Dirigente Ã‚· ' + regDatos.cedula,
     municipio: regDatos.municipio,
     zona:      regDatos.zona,
     sector:    regDatos.sector,
@@ -989,14 +989,14 @@ async function completarRegistro() {
     const { error } = await sb.from('dirigentes').insert(nuevoDirigente);
     if (error) {
       if (error.code === '23505') {
-        alerta('Esta cÃ©dula ya estÃ¡ registrada. Ve al login.', 'error');
+        alerta('Esta cÃƒÂ©dula ya estÃƒ¡ registrada. Ve al login.', 'error');
         irA('p-login'); return;
       }
       alerta('Error al registrar: ' + error.message, 'error'); return;
     }
   }
 
-  // Login automÃ¡tico tras registro
+  // Login automÃƒ¡tico tras registro
   if (sb) {
     const { data } = await sb.rpc('login_dirigente', {
       p_cedula: nuevoDirigente.cedula, p_pin_hash: hashPin(pin1)
@@ -1009,31 +1009,31 @@ async function completarRegistro() {
     sesion = { ...nuevoDirigente, comite: [], estructuras: [] };
   }
 
-  alerta('Â¡Registro completado! Bienvenido al sistema.', 'ok');
+  alerta('Ã‚¡Registro completado! Bienvenido al sistema.', 'ok');
   setTimeout(() => irA('p-dashboard'), 800);
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // DASHBOARD
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 function actualizarDashboard() {
   if (!sesion) return;
 
   const nombre = getNombreCorto(sesion.nombre);
-  document.getElementById('dash-bienvenida').textContent = 'Â¡Bienvenido, ' + nombre + '!';
-  document.getElementById('dash-subtitulo').textContent = sesion.zona + ' Â· ' + sesion.municipio;
+  document.getElementById('dash-bienvenida').textContent = 'Ã‚¡Bienvenido, ' + nombre + '!';
+  document.getElementById('dash-subtitulo').textContent = sesion.zona + ' Ã‚· ' + sesion.municipio;
   document.getElementById('dash-nombre').textContent = sesion.nombre;
   document.getElementById('dash-cedula').textContent = sesion.cedula;
-  document.getElementById('dash-zona').textContent = sesion.zona + ' â ' + sesion.municipio;
+  document.getElementById('dash-zona').textContent = sesion.zona + ' Ã¢Â€Â” ' + sesion.municipio;
 
   const comiteCount = (sesion.comite || []).length;
   document.getElementById('dash-comite-count').textContent = comiteCount;
 
   const estructuraActiva = (sesion.estructuras || []).length > 0;
-  document.getElementById('dash-estructura-badge').textContent = estructuraActiva ? 'â' : 'â';
+  document.getElementById('dash-estructura-badge').textContent = estructuraActiva ? 'Ã¢ÂœÂ…' : 'Ã¢Â€Â”';
 
-  // Mostrar alerta si comitÃ© incompleto
+  // Mostrar alerta si comitÃƒÂ© incompleto
   const alertaComite = document.getElementById('dash-alerta-comite');
   if (comiteCount < 10) {
     alertaComite.style.display = 'block';
@@ -1042,27 +1042,27 @@ function actualizarDashboard() {
   }
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// COMITÃ DE BASE
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+// COMITÃƒÂ‰ DE BASE
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 let miembroTemporal = null;
 
 async function buscarMiembro() {
   const cedula = document.getElementById('comite-cedula').value;
   const cedLimpia = cedula.replace(/\D/g,'');
-  if (cedLimpia.length < 11) { alerta('Ingresa la cÃ©dula completa', 'error'); return; }
+  if (cedLimpia.length < 11) { alerta('Ingresa la cÃƒÂ©dula completa', 'error'); return; }
 
   const cedFmt = cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10);
 
-  // No puede aÃ±adirse a sÃ­ mismo
+  // No puede aÃƒÂ±adirse a sÃƒÂ­ mismo
   if (cedLimpia === sesion.cedula.replace(/\D/g,'')) {
-    alerta('No puedes aÃ±adirte a ti mismo', 'error'); return;
+    alerta('No puedes aÃƒÂ±adirte a ti mismo', 'error'); return;
   }
 
-  // Ya estÃ¡ en este comitÃ©
+  // Ya estÃƒ¡ en este comitÃƒÂ©
   const yaEsta = (sesion.comite || []).some(m => m.cedula.replace(/\D/g,'') === cedLimpia);
-  if (yaEsta) { alerta('Esta persona ya estÃ¡ en tu comitÃ©', 'error'); return; }
+  if (yaEsta) { alerta('Esta persona ya estÃƒ¡ en tu comitÃƒÂ©', 'error'); return; }
 
   alerta('Verificando...', 'info');
 
@@ -1070,7 +1070,7 @@ async function buscarMiembro() {
   document.getElementById('comite-notfound-box').style.display = 'none';
   document.getElementById('btn-agregar-miembro').style.display = 'none';
 
-  // PASO 1: Verificar disponibilidad en Supabase (Â¿estÃ¡ en otro comitÃ©?)
+  // PASO 1: Verificar disponibilidad en Supabase (Ã‚¿estÃƒ¡ en otro comitÃƒÂ©?)
   let disponible = true;
   let mensajeDisp = '';
   let esDirigente = false;
@@ -1087,11 +1087,11 @@ async function buscarMiembro() {
       esDirigente  = dispData.razon === 'ES_DIRIGENTE';
 
       if (!disponible) {
-        // Bloqueado â estÃ¡ en otro comitÃ©
+        // Bloqueado Ã¢Â€Â” estÃƒ¡ en otro comitÃƒÂ©
         document.getElementById('comite-notfound-box').style.display = 'block';
         document.getElementById('comite-notfound-box').innerHTML = `
           <div style="background:#fef2f2; border:2px solid #fecaca; border-radius:12px; padding:12px 14px">
-            <div style="font-weight:800; color:#991b1b; font-size:13px">ð« No disponible</div>
+            <div style="font-weight:800; color:#991b1b; font-size:13px">Ã°ÂŸÂšÂ« No disponible</div>
             <div style="font-size:12px; color:#dc2626; margin-top:4px">${mensajeDisp}</div>
           </div>`;
         return;
@@ -1099,7 +1099,7 @@ async function buscarMiembro() {
     }
   }
 
-  // PASO 2: Buscar en el padrÃ³n
+  // PASO 2: Buscar en el padrÃƒÂ³n
   const result = await buscarEnPadron(cedula);
 
   if (result && result.enPadron) {
@@ -1112,18 +1112,18 @@ async function buscarMiembro() {
       sexo:      result.sexo || '',
       fecha_nacimiento: result.fecha_nacimiento || ''
     };
-    let infoExtra = 'â En padrÃ³n PRM';
-    if (esDirigente) infoExtra += ' Â· ' + mensajeDisp;
+    let infoExtra = 'Ã¢ÂœÂ… En padrÃƒÂ³n PRM';
+    if (esDirigente) infoExtra += ' Ã‚· ' + mensajeDisp;
 
     document.getElementById('comite-found-nombre').textContent = result.nombre;
-    document.getElementById('comite-found-cedula').textContent = result.cedula + ' â ' + infoExtra;
+    document.getElementById('comite-found-cedula').textContent = result.cedula + ' Ã¢Â€Â” ' + infoExtra;
     document.getElementById('comite-found-box').style.display = 'block';
     document.getElementById('btn-agregar-miembro').style.display = 'flex';
   } else {
-    // No en padrÃ³n pero disponible â permitir con advertencia
-    miembroTemporal = { cedula: cedFmt, nombre: 'Militante Â· ' + cedFmt };
-    document.getElementById('comite-found-nombre').textContent = 'Militante Â· ' + cedFmt;
-    document.getElementById('comite-found-cedula').textContent = 'â ï¸ No encontrado en el padrÃ³n â verifica la cÃ©dula';
+    // No en padrÃƒÂ³n pero disponible Ã¢Â€Â” permitir con advertencia
+    miembroTemporal = { cedula: cedFmt, nombre: 'Militante Ã‚· ' + cedFmt };
+    document.getElementById('comite-found-nombre').textContent = 'Militante Ã‚· ' + cedFmt;
+    document.getElementById('comite-found-cedula').textContent = 'Ã¢ÂšÂ Ã¯Â¸Â No encontrado en el padrÃƒÂ³n Ã¢Â€Â” verifica la cÃƒÂ©dula';
     document.getElementById('comite-found-box').style.display = 'block';
     document.getElementById('btn-agregar-miembro').style.display = 'flex';
   }
@@ -1142,7 +1142,7 @@ async function agregarMiembro() {
       direccion:        miembroTemporal.direccion || null
     });
     if (error) {
-      if (error.code === '23505') { alerta('Esta persona ya estÃ¡ en tu comitÃ©', 'error'); return; }
+      if (error.code === '23505') { alerta('Esta persona ya estÃƒ¡ en tu comitÃƒÂ©', 'error'); return; }
       alerta('Error al guardar: ' + error.message, 'error'); return;
     }
   }
@@ -1167,17 +1167,17 @@ async function agregarMiembro() {
 
   renderComite();
   actualizarDashboard();
-  alerta('Miembro aÃ±adido al comitÃ© â', 'ok');
+  alerta('Miembro aÃƒÂ±adido al comitÃƒÂ© Ã¢ÂœÂ…', 'ok');
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// EDITAR MIEMBRO DEL COMITÃ
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+// EDITAR MIEMBRO DEL COMITÃƒÂ‰
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 async function editarMiembro(cedula) {
   const m = (sesion.comite || []).find(x => x.cedula === cedula);
   if (!m) return;
 
-  // Buscar datos completos del padrÃ³n
+  // Buscar datos completos del padrÃƒÂ³n
   let padron = {};
   if (sb) {
     const cedLimpia = cedula.replace(/\D/g,'');
@@ -1189,22 +1189,22 @@ async function editarMiembro(cedula) {
   }
 
   // Calcular edad
-  let edadStr = 'â';
+  let edadStr = 'Ã¢Â€Â”';
   const fnacMiembro = m.fecha_nacimiento || padron.fecha_nacimiento;
   if (fnacMiembro) {
     const hoy = new Date();
     const nac = new Date(fnacMiembro);
     const edad = hoy.getFullYear() - nac.getFullYear() -
       (hoy < new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate()) ? 1 : 0);
-    edadStr = edad + ' aÃ±os';
+    edadStr = edad + ' aÃƒÂ±os';
   }
 
-  const generoStr = padron.sexo === 'F' ? 'â Femenino' : padron.sexo === 'M' ? 'â Masculino' : (m.genero === 'F' ? 'â Femenino' : m.genero === 'M' ? 'â Masculino' : 'â');
+  const generoStr = padron.sexo === 'F' ? 'Ã¢Â™Â€ Femenino' : padron.sexo === 'M' ? 'Ã¢Â™Â‚ Masculino' : (m.genero === 'F' ? 'Ã¢Â™Â€ Femenino' : m.genero === 'M' ? 'Ã¢Â™Â‚ Masculino' : 'Ã¢Â€Â”');
   const fotoHtml = padron.foto_base64
     ? `<img src="data:image/jpeg;base64,${padron.foto_base64}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
     : `<span style="font-size:28px">${(padron.nombre_completo||'?')[0]}</span>`;
 
-  const chk = (v) => v ? 'â' : 'â';
+  const chk = (v) => v ? 'Ã¢ÂœÂ…' : 'Ã¢ÂÂŒ';
 
   document.getElementById('modal-editar')?.remove();
   const modal = document.createElement('div');
@@ -1216,16 +1216,16 @@ async function editarMiembro(cedula) {
       <!-- Header -->
       <div style="background:linear-gradient(135deg,#003087,#1a4fa8);color:white;padding:16px 20px;display:flex;justify-content:space-between;align-items:center">
         <div>
-          <div style="font-size:15px;font-weight:800">ð¤ Ficha del Miembro</div>
+          <div style="font-size:15px;font-weight:800">Ã°ÂŸÂ‘Â¤ Ficha del Miembro</div>
           <div style="font-size:11px;opacity:0.7;margin-top:2px">${padron.nombre_completo || m.nombre}</div>
         </div>
         <button onclick="document.getElementById('modal-editar').remove()"
-          style="background:rgba(255,255,255,0.2);border:none;color:white;font-size:20px;cursor:pointer;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center">â</button>
+          style="background:rgba(255,255,255,0.2);border:none;color:white;font-size:20px;cursor:pointer;border-radius:8px;width:32px;height:32px;display:flex;align-items:center;justify-content:center">Ã¢ÂœÂ•</button>
       </div>
 
       <div style="padding:18px;display:grid;gap:12px">
 
-        <!-- Foto y datos bÃ¡sicos -->
+        <!-- Foto y datos bÃƒ¡sicos -->
         <div style="display:flex;gap:14px;align-items:center;background:#f8fafc;border-radius:14px;padding:14px">
           <div style="width:72px;height:72px;border-radius:50%;background:#003087;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:3px solid #C8102E;overflow:hidden">
             ${fotoHtml}
@@ -1242,22 +1242,22 @@ async function editarMiembro(cedula) {
 
         <!-- Datos electorales (solo lectura) -->
         <div style="background:#f8fafc;border-radius:12px;padding:14px">
-          <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:10px">ð Datos Electorales</div>
+          <div style="font-size:10px;color:#94a3b8;font-weight:800;text-transform:uppercase;margin-bottom:10px">Ã°ÂŸÂ“Â‹ Datos Electorales</div>
           <div style="display:grid;gap:6px">
             <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
               <span style="color:#64748b;font-weight:600">Recinto</span>
-              <span style="font-weight:700;text-align:right;max-width:65%;font-size:11px">${(padron.recinto_nombre||'â').replace(/^\d+\s+Rec:\s+\d+\s+-\s+/,'')}</span>
+              <span style="font-weight:700;text-align:right;max-width:65%;font-size:11px">${(padron.recinto_nombre||'Ã¢Â€Â”').replace(/^\d+\s+Rec:\s+\d+\s+-\s+/,'')}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
               <span style="color:#64748b;font-weight:600">Colegio</span>
-              <span style="font-weight:700">${padron.colegio_num || 'â'}</span>
+              <span style="font-weight:700">${padron.colegio_num || 'Ã¢Â€Â”'}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
               <span style="color:#64748b;font-weight:600">Mesa</span>
-              <span style="font-weight:700">${m.mesa || 'â'}</span>
+              <span style="font-weight:700">${m.mesa || 'Ã¢Â€Â”'}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
-              <span style="color:#64748b;font-weight:600">VotÃ³ primaria</span>
+              <span style="color:#64748b;font-weight:600">VotÃƒÂ³ primaria</span>
               <span style="font-weight:700">${chk(padron.voto_primaria)}</span>
             </div>
             <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #f1f5f9">
@@ -1273,10 +1273,10 @@ async function editarMiembro(cedula) {
 
         <!-- Datos editables -->
         <div style="background:#eff6ff;border:2px solid #bfdbfe;border-radius:12px;padding:14px">
-          <div style="font-size:10px;color:#1d4ed8;font-weight:800;text-transform:uppercase;margin-bottom:10px">âï¸ InformaciÃ³n Personal</div>
+          <div style="font-size:10px;color:#1d4ed8;font-weight:800;text-transform:uppercase;margin-bottom:10px">Ã¢ÂœÂÃ¯Â¸Â InformaciÃƒÂ³n Personal</div>
           <div style="display:grid;gap:10px">
             
-            <!-- Fecha nacimiento y gÃ©nero -->
+            <!-- Fecha nacimiento y gÃƒÂ©nero -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <div>
                 <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Fecha nacimiento</div>
@@ -1284,17 +1284,17 @@ async function editarMiembro(cedula) {
                   style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:12px;font-family:inherit;outline:none;background:white">
               </div>
               <div>
-                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">GÃ©nero</div>
+                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">GÃƒÂ©nero</div>
                 <select id="me-genero"
                   style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:12px;font-family:inherit;outline:none;background:white">
-                  <option value="">â</option>
-                  <option value="M" ${m.genero==='M'?'selected':''}>â Masc.</option>
-                  <option value="F" ${m.genero==='F'?'selected':''}>â Fem.</option>
+                  <option value="">Ã¢Â€Â”</option>
+                  <option value="M" ${m.genero==='M'?'selected':''}>Ã¢Â™Â‚ Masc.</option>
+                  <option value="F" ${m.genero==='F'?'selected':''}>Ã¢Â™Â€ Fem.</option>
                 </select>
               </div>
             </div>
 
-            <!-- Mesa y telÃ©fono -->
+            <!-- Mesa y telÃƒÂ©fono -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
               <div>
                 <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Mesa</div>
@@ -1302,16 +1302,16 @@ async function editarMiembro(cedula) {
                   style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
               </div>
               <div>
-                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">TelÃ©fono</div>
+                <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">TelÃƒÂ©fono</div>
                 <input id="me-telefono" type="tel" value="${m.telefono || ''}" placeholder="809-000-0000"
                   style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
               </div>
             </div>
 
-            <!-- DirecciÃ³n -->
+            <!-- DirecciÃƒÂ³n -->
             <div>
-              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">DirecciÃ³n</div>
-              <input id="me-direccion" type="text" value="${m.direccion || padron.direccion || ''}" placeholder="Calle, nÃºmero, sector..."
+              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">DirecciÃƒÂ³n</div>
+              <input id="me-direccion" type="text" value="${m.direccion || padron.direccion || ''}" placeholder="Calle, nÃƒÂºmero, sector..."
                 style="width:100%;padding:9px 12px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white">
             </div>
 
@@ -1322,26 +1322,26 @@ async function editarMiembro(cedula) {
                 <select id="me-fidelidad"
                   style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:12px;font-family:inherit;outline:none;background:white">
                   <option value="">Sin clasificar</option>
-                  <option value="DURO"     ${m.fidelidad==='DURO'    ?'selected':''}>ðª Duro</option>
-                  <option value="BLANDO"   ${m.fidelidad==='BLANDO'  ?'selected':''}>ð¤ Blando</option>
-                  <option value="INDECISO" ${m.fidelidad==='INDECISO'?'selected':''}>â Indeciso</option>
+                  <option value="DURO"     ${m.fidelidad==='DURO'    ?'selected':''}>Ã°ÂŸÂ’Âª Duro</option>
+                  <option value="BLANDO"   ${m.fidelidad==='BLANDO'  ?'selected':''}>Ã°ÂŸÂ¤Â” Blando</option>
+                  <option value="INDECISO" ${m.fidelidad==='INDECISO'?'selected':''}>Ã¢ÂÂ“ Indeciso</option>
                 </select>
               </div>
               <div>
                 <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Transporte</div>
                 <select id="me-transporte"
                   style="width:100%;padding:8px 10px;border:2px solid #dbeafe;border-radius:9px;font-size:12px;font-family:inherit;outline:none;background:white">
-                  <option value="">â</option>
-                  <option value="SI"   ${m.transporte==='SI'  ?'selected':''}>ð VehÃ­culo</option>
-                  <option value="MOTO" ${m.transporte==='MOTO'?'selected':''}>ðï¸ Moto</option>
-                  <option value="NO"   ${m.transporte==='NO'  ?'selected':''}>ð¶ No tiene</option>
+                  <option value="">Ã¢Â€Â”</option>
+                  <option value="SI"   ${m.transporte==='SI'  ?'selected':''}>Ã°ÂŸÂšÂ— VehÃƒÂ­culo</option>
+                  <option value="MOTO" ${m.transporte==='MOTO'?'selected':''}>Ã°ÂŸÂÂÃ¯Â¸Â Moto</option>
+                  <option value="NO"   ${m.transporte==='NO'  ?'selected':''}>Ã°ÂŸÂšÂ¶ No tiene</option>
                 </select>
               </div>
             </div>
 
-            <!-- Nota estratÃ©gica -->
+            <!-- Nota estratÃƒÂ©gica -->
             <div>
-              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Nota estratÃ©gica</div>
+              <div style="font-size:10px;color:#64748b;font-weight:700;margin-bottom:4px">Nota estratÃƒÂ©gica</div>
               <textarea id="me-nota" rows="2" placeholder="Ej: Moviliza a su familia, disponible los domingos..."
                 style="width:100%;padding:9px 12px;border:2px solid #dbeafe;border-radius:9px;font-size:13px;font-family:inherit;outline:none;background:white;resize:none">${m.nota || ''}</textarea>
             </div>
@@ -1349,34 +1349,34 @@ async function editarMiembro(cedula) {
           </div>
         </div>
 
-        <!-- UbicaciÃ³n -->
+        <!-- UbicaciÃƒÂ³n -->
         <div style="background:#f0fdf4;border:2px solid #bbf7d0;border-radius:12px;padding:14px">
-          <div style="font-size:10px;color:#166534;font-weight:800;text-transform:uppercase;margin-bottom:8px">ð UbicaciÃ³n</div>
+          <div style="font-size:10px;color:#166534;font-weight:800;text-transform:uppercase;margin-bottom:8px">Ã°ÂŸÂ“Â UbicaciÃƒÂ³n</div>
           ${m.latitud && m.longitud
-            ? `<div style="font-size:12px;color:#16a34a;font-weight:700;margin-bottom:8px">â Ubicado Â· ${parseFloat(m.latitud).toFixed(5)}, ${parseFloat(m.longitud).toFixed(5)}</div>
+            ? `<div style="font-size:12px;color:#16a34a;font-weight:700;margin-bottom:8px">Ã¢ÂœÂ… Ubicado Ã‚· ${parseFloat(m.latitud).toFixed(5)}, ${parseFloat(m.longitud).toFixed(5)}</div>
                <a href="https://www.google.com/maps?q=${m.latitud},${m.longitud}" target="_blank"
                  style="display:block;background:#16a34a;color:white;padding:9px;border-radius:9px;text-align:center;font-size:12px;font-weight:800;text-decoration:none;margin-bottom:6px">
-                 ðºï¸ Ver en Google Maps
+                 Ã°ÂŸÂ—ÂºÃ¯Â¸Â Ver en Google Maps
                </a>`
-            : `<div style="font-size:12px;color:#94a3b8;margin-bottom:8px">Sin ubicaciÃ³n GPS</div>`
+            : `<div style="font-size:12px;color:#94a3b8;margin-bottom:8px">Sin ubicaciÃƒÂ³n GPS</div>`
           }
           ${(m.direccion || padron.direccion)
             ? `<a href="https://www.google.com/maps/search/${encodeURIComponent((m.direccion || padron.direccion) + ' Mao Valverde RD')}" target="_blank"
                 style="display:block;background:#0ea5e9;color:white;padding:9px;border-radius:9px;text-align:center;font-size:12px;font-weight:800;text-decoration:none">
-                ð Buscar direcciÃ³n en Maps
+                Ã°ÂŸÂ”Â Buscar direcciÃƒÂ³n en Maps
                </a>`
             : ''
           }
           <button onclick="puntearMiembro('${cedula}')"
             style="display:block;width:100%;margin-top:8px;background:#003087;color:white;padding:9px;border-radius:9px;text-align:center;font-size:12px;font-weight:800;border:none;cursor:pointer;touch-action:manipulation">
-            ð Puntear en el mapa
+            Ã°ÂŸÂ“ÂŒ Puntear en el mapa
           </button>
         </div>
 
-        <!-- BotÃ³n guardar -->
+        <!-- BotÃƒÂ³n guardar -->
         <button onclick="guardarEdicionMiembro('${cedula}')"
           style="padding:14px;background:#003087;color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;touch-action:manipulation;width:100%">
-          ð¾ Guardar cambios
+          Ã°ÂŸÂ’Â¾ Guardar cambios
         </button>
 
       </div>
@@ -1399,18 +1399,18 @@ function puntearMiembro(cedula) {
   mapModal.innerHTML = `
     <div style="background:white;border-radius:16px;width:100%;max-width:500px;overflow:hidden">
       <div style="background:#003087;color:white;padding:14px 18px;display:flex;justify-content:space-between;align-items:center">
-        <div style="font-size:14px;font-weight:800">ð Puntear ubicaciÃ³n del miembro</div>
+        <div style="font-size:14px;font-weight:800">Ã°ÂŸÂ“ÂŒ Puntear ubicaciÃƒÂ³n del miembro</div>
         <button onclick="document.getElementById('modal-mapa-miembro').remove()"
-          style="background:rgba(255,255,255,0.2);border:none;color:white;font-size:18px;cursor:pointer;border-radius:6px;width:28px;height:28px">â</button>
+          style="background:rgba(255,255,255,0.2);border:none;color:white;font-size:18px;cursor:pointer;border-radius:6px;width:28px;height:28px">Ã¢ÂœÂ•</button>
       </div>
       <div style="padding:12px;font-size:12px;color:#64748b;background:#f8fafc">
-        Toca en el mapa para marcar la ubicaciÃ³n. Luego toca <strong>Guardar punto</strong>.
+        Toca en el mapa para marcar la ubicaciÃƒÂ³n. Luego toca <strong>Guardar punto</strong>.
       </div>
       <div id="mapa-miembro-container" style="height:300px"></div>
       <div style="padding:12px;display:flex;gap:8px">
         <button onclick="guardarPuntoMiembro()" id="btn-guardar-punto"
           style="flex:1;padding:12px;background:#003087;color:white;border:none;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer">
-          ð¾ Guardar punto
+          Ã°ÂŸÂ’Â¾ Guardar punto
         </button>
         <button onclick="document.getElementById('modal-mapa-miembro').remove()"
           style="padding:12px 16px;background:#f1f5f9;color:#64748b;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer">
@@ -1483,7 +1483,7 @@ async function guardarPuntoMiembro() {
   if (idx > -1) { sesion.comite[idx].latitud = lat; sesion.comite[idx].longitud = lng; }
   
   document.getElementById('modal-mapa-miembro')?.remove();
-  alerta('â UbicaciÃ³n del miembro guardada', 'ok');
+  alerta('Ã¢ÂœÂ… UbicaciÃƒÂ³n del miembro guardada', 'ok');
 }
 
 async function guardarEdicionMiembro(cedula) {
@@ -1506,7 +1506,7 @@ async function guardarEdicionMiembro(cedula) {
 
   // Update in Supabase
   if (sb) {
-    // Formato correcto de cÃ©dulas
+    // Formato correcto de cÃƒÂ©dulas
     const cedLimpia = sesion.cedula.replace(/\D/g,'');
     const cedFmt = cedLimpia.length === 11
       ? cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10)
@@ -1542,12 +1542,12 @@ async function guardarEdicionMiembro(cedula) {
   }
 
   document.getElementById('modal-editar')?.remove();
-  alerta('â Datos del miembro actualizados', 'ok');
+  alerta('Ã¢ÂœÂ… Datos del miembro actualizados', 'ok');
   renderComite();
 }
 
 async function eliminarMiembro(cedula) {
-  if (!confirm('Â¿Eliminar este miembro del comitÃ©?')) return;
+  if (!confirm('Ã‚¿Eliminar este miembro del comitÃƒÂ©?')) return;
   if (sb) {
     await sb.from('comite_miembros')
       .delete()
@@ -1696,9 +1696,9 @@ function filtrarComite(q) {
 }
 
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // ESTRUCTURA DE CANDIDATOS
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 async function renderEstructura() {
   if (!sesion) return;
@@ -1715,7 +1715,7 @@ async function renderEstructura() {
   const estructuras = sesion.estructuras || [];
 
   if (estructuras.length === 0) {
-    box.innerHTML = '<div class="texto-muted texto-center" style="padding:12px 0">No estÃ¡s en ninguna estructura actualmente</div>';
+    box.innerHTML = '<div class="texto-muted texto-center" style="padding:12px 0">No estÃƒ¡s en ninguna estructura actualmente</div>';
   } else {
     box.innerHTML = estructuras.map(e => `
       <div class="estructura-item activa">
@@ -1726,7 +1726,7 @@ async function renderEstructura() {
           </div>
           <button class="btn-sm btn-rojo" onclick="salirEstructura('${e.candidato_id}')">Salir</button>
         </div>
-        <div style="margin-top:6px"><span class="badge badge-verde">â ACTIVO</span></div>
+        <div style="margin-top:6px"><span class="badge badge-verde">Ã¢ÂœÂ… ACTIVO</span></div>
       </div>
     `).join('');
   }
@@ -1742,7 +1742,7 @@ async function renderEstructura() {
 function renderListaCandidatos(containerId, lista) {
   const el = document.getElementById(containerId);
   if (lista.length === 0) {
-    el.innerHTML = '<div class="texto-muted texto-center" style="padding:12px 0">No hay registrados aÃºn</div>';
+    el.innerHTML = '<div class="texto-muted texto-center" style="padding:12px 0">No hay registrados aÃƒÂºn</div>';
     return;
   }
 
@@ -1760,7 +1760,7 @@ function renderListaCandidatos(containerId, lista) {
             : `<button class="btn-sm btn-verde" onclick="unirseEstructura('${c.id}','${c.nombre}','${c.cargo}')">Unirse</button>`
           }
         </div>
-        ${enEstructura ? '<div style="margin-top:4px"><span class="badge badge-verde">â En tu estructura</span></div>' : ''}
+        ${enEstructura ? '<div style="margin-top:4px"><span class="badge badge-verde">Ã¢ÂœÂ… En tu estructura</span></div>' : ''}
       </div>
     `;
   }).join('');
@@ -1769,7 +1769,7 @@ function renderListaCandidatos(containerId, lista) {
 async function unirseEstructura(id, nombre, cargo) {
   if (!sesion.estructuras) sesion.estructuras = [];
   const yaEsta = sesion.estructuras.some(e => e.candidato_id === id);
-  if (yaEsta) { alerta('Ya estÃ¡s en esta estructura', 'info'); return; }
+  if (yaEsta) { alerta('Ya estÃƒ¡s en esta estructura', 'info'); return; }
 
   if (sb) {
     const { error } = await sb.from('estructuras_dirigente').upsert({
@@ -1789,7 +1789,7 @@ async function unirseEstructura(id, nombre, cargo) {
 }
 
 async function salirEstructura(id) {
-  if (!confirm('Â¿Salir de esta estructura?')) return;
+  if (!confirm('Ã‚¿Salir de esta estructura?')) return;
   if (sb) {
     await sb.from('estructuras_dirigente')
       .update({ activo: false })
@@ -1802,16 +1802,16 @@ async function salirEstructura(id) {
   alerta('Saliste de la estructura', 'info');
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // ESTRATEGIA ELECTORAL
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 function renderEstrategia() {
   if (!sesion) return;
   const comite = sesion.comite || [];
 
-  // Actualizar subtÃ­tulo
+  // Actualizar subtÃƒÂ­tulo
   const subEl = document.getElementById('est-subtitulo');
-  if (subEl) subEl.textContent = (sesion.zona || '') + ' Â· ' + comite.length + ' miembros';
+  if (subEl) subEl.textContent = (sesion.zona || '') + ' Ã‚· ' + comite.length + ' miembros';
 
   // Totales
   document.getElementById('est-total').textContent    = comite.length;
@@ -1833,13 +1833,13 @@ function renderEstrategia() {
   document.getElementById('est-recintos').textContent = numRecintos;
   document.getElementById('est-colegios').textContent = numColegios;
 
-  // EstadÃ­sticas de fidelidad
+  // EstadÃƒÂ­sticas de fidelidad
   const duros     = comite.filter(m => m.fidelidad === 'DURO').length;
   const blandos   = comite.filter(m => m.fidelidad === 'BLANDO').length;
   const indecisos = comite.filter(m => m.fidelidad === 'INDECISO').length;
   const sinClasif = comite.length - duros - blandos - indecisos;
 
-  // EstadÃ­sticas de gÃ©nero
+  // EstadÃƒÂ­sticas de gÃƒÂ©nero
   const hombres = comite.filter(m => m.genero === 'M').length;
   const mujeres = comite.filter(m => m.genero === 'F').length;
 
@@ -1850,29 +1850,29 @@ function renderEstrategia() {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         <div style="background:#dcfce7;border-radius:10px;padding:10px;text-align:center">
           <div style="font-size:22px;font-weight:900;color:#166534">${duros}</div>
-          <div style="font-size:10px;color:#166534;font-weight:700">ðª VOTO DURO</div>
+          <div style="font-size:10px;color:#166534;font-weight:700">Ã°ÂŸÂ’Âª VOTO DURO</div>
         </div>
         <div style="background:#fef3c7;border-radius:10px;padding:10px;text-align:center">
           <div style="font-size:22px;font-weight:900;color:#92400e">${blandos}</div>
-          <div style="font-size:10px;color:#92400e;font-weight:700">ð¤ VOTO BLANDO</div>
+          <div style="font-size:10px;color:#92400e;font-weight:700">Ã°ÂŸÂ¤Â” VOTO BLANDO</div>
         </div>
         <div style="background:#fee2e2;border-radius:10px;padding:10px;text-align:center">
           <div style="font-size:22px;font-weight:900;color:#991b1b">${indecisos}</div>
-          <div style="font-size:10px;color:#991b1b;font-weight:700">â INDECISO</div>
+          <div style="font-size:10px;color:#991b1b;font-weight:700">Ã¢ÂÂ“ INDECISO</div>
         </div>
         <div style="background:#f1f5f9;border-radius:10px;padding:10px;text-align:center">
           <div style="font-size:22px;font-weight:900;color:#64748b">${sinClasif}</div>
-          <div style="font-size:10px;color:#64748b;font-weight:700">â SIN CLASIFICAR</div>
+          <div style="font-size:10px;color:#64748b;font-weight:700">Ã¢Â€Â” SIN CLASIFICAR</div>
         </div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
         <div style="background:#eff6ff;border-radius:10px;padding:10px;text-align:center">
           <div style="font-size:22px;font-weight:900;color:#1d4ed8">${hombres}</div>
-          <div style="font-size:10px;color:#1d4ed8;font-weight:700">â HOMBRES</div>
+          <div style="font-size:10px;color:#1d4ed8;font-weight:700">Ã¢Â™Â‚ HOMBRES</div>
         </div>
         <div style="background:#fdf2f8;border-radius:10px;padding:10px;text-align:center">
           <div style="font-size:22px;font-weight:900;color:#9d174d">${mujeres}</div>
-          <div style="font-size:10px;color:#9d174d;font-weight:700">â MUJERES</div>
+          <div style="font-size:10px;color:#9d174d;font-weight:700">Ã¢Â™Â€ MUJERES</div>
         </div>
       </div>`;
   }
@@ -1881,7 +1881,7 @@ function renderEstrategia() {
   const recEl = document.getElementById('est-por-recinto');
   if (recEl) {
     if (comite.length === 0) {
-      recEl.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:16px">Tu comitÃ© no tiene miembros aÃºn</div>';
+      recEl.innerHTML = '<div style="text-align:center;color:#94a3b8;padding:16px">Tu comitÃƒÂ© no tiene miembros aÃƒÂºn</div>';
     } else {
       recEl.innerHTML = Object.entries(porRecinto).map(([rec, data]) => `
         <div style="margin-bottom:12px;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden">
@@ -1911,7 +1911,7 @@ function renderEstrategia() {
   if (listaEl) {
     const conInfo = comite.filter(m => m.direccion || m.latitud);
     if (conInfo.length === 0) {
-      listaEl.innerHTML = '<div style="color:#94a3b8;font-size:12px;padding:8px 0">NingÃºn miembro tiene direcciÃ³n o GPS registrado</div>';
+      listaEl.innerHTML = '<div style="color:#94a3b8;font-size:12px;padding:8px 0">NingÃƒÂºn miembro tiene direcciÃƒÂ³n o GPS registrado</div>';
     } else {
       listaEl.innerHTML = conInfo.map(m => {
         const mapsUrl = m.latitud
@@ -1923,8 +1923,8 @@ function renderEstrategia() {
               <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${m.nombre}</div>
               <div style="font-size:11px;color:#64748b">
                 ${m.colegio ? 'Col. ' + m.colegio : ''} 
-                ${m.mesa ? 'Â· Mesa ' + m.mesa : ''}
-                ${m.fidelidad ? 'Â· ' + (m.fidelidad==='DURO'?'ðª':m.fidelidad==='BLANDO'?'ð¤':'â') + ' ' + m.fidelidad : ''}
+                ${m.mesa ? 'Ã‚· Mesa ' + m.mesa : ''}
+                ${m.fidelidad ? 'Ã‚· ' + (m.fidelidad==='DURO'?'Ã°ÂŸÂ’Âª':m.fidelidad==='BLANDO'?'Ã°ÂŸÂ¤Â”':'Ã¢ÂÂ“') + ' ' + m.fidelidad : ''}
               </div>
             </div>
             <a href="${mapsUrl}" target="_blank"
@@ -1937,14 +1937,14 @@ function renderEstrategia() {
   }
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // MI ZONA
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 function renderZona() {
   if (!sesion) return;
 
-  document.getElementById('zona-header-sub').textContent = sesion.zona + ' Â· ' + sesion.municipio;
+  document.getElementById('zona-header-sub').textContent = sesion.zona + ' Ã‚· ' + sesion.municipio;
 
   document.getElementById('zona-info').innerHTML = `
     <div style="display:grid; gap:10px">
@@ -1953,12 +1953,12 @@ function renderZona() {
         <span style="font-size:13px; font-weight:800">${sesion.municipio}</span>
       </div>
       <div style="display:flex; justify-content:space-between; padding:10px; background:#f8fafc; border-radius:10px">
-        <span style="font-size:12px; color:#64748b; font-weight:700">Zona PolÃ­tica</span>
+        <span style="font-size:12px; color:#64748b; font-weight:700">Zona PolÃƒÂ­tica</span>
         <span style="font-size:13px; font-weight:800">${sesion.zona}</span>
       </div>
       <div style="display:flex; justify-content:space-between; padding:10px; background:#f8fafc; border-radius:10px">
         <span style="font-size:12px; color:#64748b; font-weight:700">Sector</span>
-        <span style="font-size:13px; font-weight:800">${sesion.sector || 'â'}</span>
+        <span style="font-size:13px; font-weight:800">${sesion.sector || 'Ã¢Â€Â”'}</span>
       </div>
     </div>
   `;
@@ -1983,27 +1983,27 @@ function renderZona() {
   } else {
     zd.innerHTML = mismaZona.map(d => `
       <div class="miembro-item">
-        <div class="miembro-num">ð¤</div>
+        <div class="miembro-num">Ã°ÂŸÂ‘Â¤</div>
         <div class="miembro-data">
           <div class="miembro-nombre">${getNombreCorto(d.nombre)}</div>
-          <div class="miembro-cedula">${d.zona} Â· ${d.sector || 'Sin sector'}</div>
+          <div class="miembro-cedula">${d.zona} Ã‚· ${d.sector || 'Sin sector'}</div>
         </div>
       </div>
     `).join('');
   }
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // PERFIL
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 async function actualizarPerfil() {
   const tel    = document.getElementById('edit-telefono')?.value?.trim();
   const sector = document.getElementById('edit-sector')?.value?.trim();
 
-  if (!sesion?.cedula) { alerta('Error: sesiÃ³n no vÃ¡lida', 'error'); return; }
+  if (!sesion?.cedula) { alerta('Error: sesiÃƒÂ³n no vÃƒ¡lida', 'error'); return; }
 
-  // Asegurar formato correcto de cÃ©dula (con guiones)
+  // Asegurar formato correcto de cÃƒÂ©dula (con guiones)
   const cedLimpia = sesion.cedula.replace(/\D/g,'');
   const cedFmt = cedLimpia.length === 11
     ? cedLimpia.slice(0,3)+'-'+cedLimpia.slice(3,10)+'-'+cedLimpia.slice(10)
@@ -2031,7 +2031,7 @@ async function actualizarPerfil() {
       return;
     }
     if (!data || data.length === 0) {
-      alerta('No se encontrÃ³ tu registro. CÃ©dula: ' + cedFmt, 'error');
+      alerta('No se encontrÃƒÂ³ tu registro. CÃƒÂ©dula: ' + cedFmt, 'error');
       return;
     }
   }
@@ -2041,7 +2041,7 @@ async function actualizarPerfil() {
   sesion.sexo             = document.getElementById('edit-sexo')?.value  || sesion.sexo;
   sesion.email            = document.getElementById('edit-email')?.value || sesion.email;
   guardarSesionLocal(sesion);
-  alerta('â Datos actualizados', 'ok');
+  alerta('Ã¢ÂœÂ… Datos actualizados', 'ok');
   renderPerfil();
 }
 
@@ -2049,19 +2049,19 @@ function renderPerfil() {
   if (!sesion) return;
 
   // Calcular edad
-  let edadStr = 'â';
+  let edadStr = 'Ã¢Â€Â”';
   if (sesion.fecha_nacimiento) {
     const hoy = new Date();
     const nac = new Date(sesion.fecha_nacimiento);
     const edad = hoy.getFullYear() - nac.getFullYear() -
       (hoy < new Date(hoy.getFullYear(), nac.getMonth(), nac.getDate()) ? 1 : 0);
-    edadStr = edad + ' aÃ±os';
+    edadStr = edad + ' aÃƒÂ±os';
   }
 
-  const generoStr = sesion.sexo === 'F' ? 'â Femenino' : sesion.sexo === 'M' ? 'â Masculino' : 'â';
+  const generoStr = sesion.sexo === 'F' ? 'Ã¢Â™Â€ Femenino' : sesion.sexo === 'M' ? 'Ã¢Â™Â‚ Masculino' : 'Ã¢Â€Â”';
   const desde = sesion.fecha_registro
     ? new Date(sesion.fecha_registro).toLocaleDateString('es-DO', {day:'2-digit',month:'long',year:'numeric'})
-    : 'â';
+    : 'Ã¢Â€Â”';
 
   // Foto
   const fotoHtml = sesion.foto_base64
@@ -2078,8 +2078,8 @@ function renderPerfil() {
 
   // Plancha
   const planchaHtml = sesion.plancha_nombre
-    ? `<span style="background:#dcfce7;color:#166534;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800">â ${sesion.plancha_nombre}</span>`
-    : `<span style="background:#f1f5f9;color:#94a3b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">No participÃ³ en plancha</span>`;
+    ? `<span style="background:#dcfce7;color:#166534;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800">Ã¢ÂœÂ… ${sesion.plancha_nombre}</span>`
+    : `<span style="background:#f1f5f9;color:#94a3b8;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700">No participÃƒÂ³ en plancha</span>`;
 
   document.getElementById('perfil-datos').innerHTML = `
     <div style="display:grid; gap:12px">
@@ -2092,19 +2092,19 @@ function renderPerfil() {
         </div>
       </div>
 
-      <!-- Nombre y cÃ©dula (solo lectura) -->
+      <!-- Nombre y cÃƒÂ©dula (solo lectura) -->
       <div style="padding:12px; background:#f8fafc; border-radius:10px">
         <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Nombre completo</div>
         <div style="font-size:15px; font-weight:800; margin-top:4px">${sesion.nombre}</div>
       </div>
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
         <div style="padding:12px; background:#f8fafc; border-radius:10px">
-          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">CÃ©dula</div>
+          <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">CÃƒÂ©dula</div>
           <div style="font-size:13px; font-family:monospace; font-weight:700; margin-top:4px">${sesion.cedula}</div>
         </div>
         <div style="padding:12px; background:#f8fafc; border-radius:10px">
           <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Edad</div>
-          <div style="font-size:15px; font-weight:800; margin-top:4px; color:${edadStr==='â'?'#94a3b8':'#1e293b'}">${edadStr}</div>
+          <div style="font-size:15px; font-weight:800; margin-top:4px; color:${edadStr==='Ã¢Â€Â”'?'#94a3b8':'#1e293b'}">${edadStr}</div>
         </div>
       </div>
 
@@ -2112,11 +2112,11 @@ function renderPerfil() {
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
         <div style="padding:12px; background:#f8fafc; border-radius:10px">
           <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Zona</div>
-          <div style="font-size:14px; font-weight:800; margin-top:4px">${sesion.zona || 'â'}</div>
+          <div style="font-size:14px; font-weight:800; margin-top:4px">${sesion.zona || 'Ã¢Â€Â”'}</div>
         </div>
         <div style="padding:12px; background:#f8fafc; border-radius:10px">
           <div style="font-size:10px; color:#94a3b8; font-weight:800; text-transform:uppercase">Municipio</div>
-          <div style="font-size:14px; font-weight:800; margin-top:4px">${sesion.municipio || 'â'}</div>
+          <div style="font-size:14px; font-weight:800; margin-top:4px">${sesion.municipio || 'Ã¢Â€Â”'}</div>
         </div>
       </div>
 
@@ -2127,41 +2127,41 @@ function renderPerfil() {
       </div>
 
       <!-- EDITABLES -->
-      <!-- Fecha nacimiento y gÃ©nero -->
+      <!-- Fecha nacimiento y gÃƒÂ©nero -->
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
         <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
-          <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">âï¸ Fecha Nacimiento</div>
+          <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">Ã¢ÂœÂÃ¯Â¸Â Fecha Nacimiento</div>
           <input id="edit-fnac" type="date" value="${sesion.fecha_nacimiento || ''}"
             style="width:100%;border:2px solid #dbeafe;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;background:white">
         </div>
         <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
-          <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">âï¸ GÃ©nero</div>
+          <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">Ã¢ÂœÂÃ¯Â¸Â GÃƒÂ©nero</div>
           <select id="edit-sexo"
             style="width:100%;border:2px solid #dbeafe;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;outline:none;background:white">
-            <option value="">â</option>
-            <option value="M" ${sesion.sexo==='M'?'selected':''}>â Masculino</option>
-            <option value="F" ${sesion.sexo==='F'?'selected':''}>â Femenino</option>
+            <option value="">Ã¢Â€Â”</option>
+            <option value="M" ${sesion.sexo==='M'?'selected':''}>Ã¢Â™Â‚ Masculino</option>
+            <option value="F" ${sesion.sexo==='F'?'selected':''}>Ã¢Â™Â€ Femenino</option>
           </select>
         </div>
       </div>
 
-      <!-- TelÃ©fono -->
+      <!-- TelÃƒÂ©fono -->
       <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
-        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">âï¸ TelÃ©fono</div>
+        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">Ã¢ÂœÂÃ¯Â¸Â TelÃƒÂ©fono</div>
         <input id="edit-telefono" type="tel" value="${sesion.telefono || ''}" placeholder="809-000-0000"
           style="width:100%;padding:10px 14px;border:2px solid #dbeafe;border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:white">
       </div>
 
       <!-- Email -->
       <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
-        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">âï¸ Email</div>
+        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">Ã¢ÂœÂÃ¯Â¸Â Email</div>
         <input id="edit-email" type="email" value="${sesion.email || ''}" placeholder="tucorreo@email.com"
           style="width:100%;padding:10px 14px;border:2px solid #dbeafe;border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:white">
       </div>
 
       <!-- Sector -->
       <div style="padding:12px; background:#eff6ff; border-radius:10px; border:2px solid #bfdbfe">
-        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">âï¸ Sector / Barrio</div>
+        <div style="font-size:10px; color:#1d4ed8; font-weight:800; text-transform:uppercase; margin-bottom:6px">Ã¢ÂœÂÃ¯Â¸Â Sector / Barrio</div>
         <input id="edit-sector" type="text" value="${sesion.sector || ''}" placeholder="Ej: Los Multis, El Centro..."
           style="width:100%;padding:10px 14px;border:2px solid #dbeafe;border-radius:10px;font-size:15px;font-family:inherit;outline:none;background:white">
       </div>
@@ -2172,16 +2172,16 @@ function renderPerfil() {
         <div style="font-size:13px; font-weight:700; margin-top:4px">${desde}</div>
       </div>
 
-      <!-- BotÃ³n guardar -->
+      <!-- BotÃƒÂ³n guardar -->
       <button onclick="actualizarPerfil()"
         style="padding:14px;background:#003087;color:white;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;touch-action:manipulation;width:100%">
-        ð¾ Guardar cambios
+        Ã°ÂŸÂ’Â¾ Guardar cambios
       </button>
 
-      <!-- BotÃ³n ver ubicaciÃ³n -->
+      <!-- BotÃƒÂ³n ver ubicaciÃƒÂ³n -->
       <button onclick="irA('p-mapa')"
         style="padding:12px;background:#0ea5e9;color:white;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;touch-action:manipulation;width:100%">
-        ð Ver / Editar mi ubicaciÃ³n en el mapa
+        Ã°ÂŸÂ“ÂŒ Ver / Editar mi ubicaciÃƒÂ³n en el mapa
       </button>
 
     </div>
@@ -2195,7 +2195,7 @@ async function cambiarPin() {
   if (pinActual.length < 4) { alerta('Ingresa tu PIN actual', 'error'); return; }
   if (pinNuevo.length < 4)  { alerta('Ingresa el nuevo PIN', 'error'); return; }
   if (sesion.pin_hash !== hashPin(pinActual)) { alerta('PIN actual incorrecto', 'error'); return; }
-  if (!/^\d{4}$/.test(pinNuevo)) { alerta('El PIN solo puede tener nÃºmeros', 'error'); return; }
+  if (!/^\d{4}$/.test(pinNuevo)) { alerta('El PIN solo puede tener nÃƒÂºmeros', 'error'); return; }
 
   const nuevoHash = hashPin(pinNuevo);
   if (sb) {
@@ -2207,7 +2207,7 @@ async function cambiarPin() {
   sesion.pin_hash = nuevoHash;
   guardarSesionLocal(sesion);
   ['cpin0','cpin1','cpin2','cpin3','npin0','npin1','npin2','npin3'].forEach(id => document.getElementById(id).value = '');
-  alerta('PIN actualizado correctamente â', 'ok');
+  alerta('PIN actualizado correctamente Ã¢ÂœÂ…', 'ok');
 }
 
 async function cerrarSesion() {
@@ -2218,13 +2218,13 @@ async function cerrarSesion() {
   }
   localStorage.removeItem('prm_sesion');
   sesion = null;
-  // Recargar la pÃ¡gina para limpiar todo el estado
+  // Recargar la pÃƒ¡gina para limpiar todo el estado
   window.location.href = 'login.html';
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// HELPERS â PIN INPUTS
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+// HELPERS Ã¢Â€Â” PIN INPUTS
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 function moverPin(el, siguiente) {
   if (el.value.length === 1) {
@@ -2264,9 +2264,9 @@ function getNombreCorto(nombre) {
   return nombre.split(' ')[0];
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // ALERTAS
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 let alertaTimer = null;
 
@@ -2278,9 +2278,9 @@ function alerta(msg, tipo) {
   alertaTimer = setTimeout(() => { box.innerHTML = ''; }, 3000);
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// MAPA DE UBICACIÃN DEL DIRIGENTE
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
+// MAPA DE UBICACIÃƒÂ“N DEL DIRIGENTE
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 let mapaDirigente = null;
 let marcadorTemp  = null;
 let coordsSeleccionadas = null;
@@ -2320,7 +2320,7 @@ function initMapaDirigente() {
       tilt: 45
     });
 
-    // Si ya tiene ubicaciÃ³n guardada, mostrar marcador
+    // Si ya tiene ubicaciÃƒÂ³n guardada, mostrar marcador
     if (sesion.latitud && sesion.longitud) {
       coordsSeleccionadas = { lat, lng };
       colocarMarcador(lat, lng);
@@ -2358,7 +2358,7 @@ function mostrarEstadoUbicacion() {
   const descEl   = document.getElementById('mapa-descripcion');
 
   if (estadoEl) estadoEl.style.display = 'block';
-  if (nombreEl) nombreEl.textContent = sesion.ubicacion_nombre || 'Sin descripciÃ³n';
+  if (nombreEl) nombreEl.textContent = sesion.ubicacion_nombre || 'Sin descripciÃƒÂ³n';
   if (coordsEl && sesion.latitud) coordsEl.textContent =
     parseFloat(sesion.latitud).toFixed(6) + ', ' + parseFloat(sesion.longitud).toFixed(6);
   if (btnEl) btnEl.style.display = 'block';
@@ -2396,7 +2396,7 @@ async function usarUbicacionActual() {
   if (!navigator.geolocation) {
     alerta('Tu dispositivo no soporta GPS', 'error'); return;
   }
-  alerta('Obteniendo tu ubicaciÃ³n...', 'info');
+  alerta('Obteniendo tu ubicaciÃƒÂ³n...', 'info');
   navigator.geolocation.getCurrentPosition(
     function(pos) {
       const lat = pos.coords.latitude;
@@ -2405,10 +2405,10 @@ async function usarUbicacionActual() {
       colocarMarcador(lat, lng);
       mapaDirigente.panTo({ lat: lat, lng: lng });
       document.getElementById('btn-guardar-ubi').style.display = 'block';
-      alerta('â UbicaciÃ³n encontrada. Toca Guardar.', 'ok');
+      alerta('Ã¢ÂœÂ… UbicaciÃƒÂ³n encontrada. Toca Guardar.', 'ok');
     },
     function(err) {
-      alerta('No se pudo obtener la ubicaciÃ³n. Toca el mapa manualmente.', 'error');
+      alerta('No se pudo obtener la ubicaciÃƒÂ³n. Toca el mapa manualmente.', 'error');
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
@@ -2440,12 +2440,12 @@ async function guardarUbicacion() {
   colocarMarcador(lat, lng);
   mostrarEstadoUbicacion();
 
-  alerta('â UbicaciÃ³n guardada correctamente', 'ok');
+  alerta('Ã¢ÂœÂ… UbicaciÃƒÂ³n guardada correctamente', 'ok');
 }
 
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 // ARRANQUE
-// ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// Ã¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•ÂÃ¢Â•Â
 
 function mostrarListaBusqueda(resultados) {
   // Remove existing list
@@ -2483,14 +2483,14 @@ window.addEventListener('DOMContentLoaded', async function() {
   // Init Supabase
   initSupabase();
 
-  // Restaurar sesiÃ³n guardada
+  // Restaurar sesiÃƒÂ³n guardada
   const sesionGuardada = cargarSesionLocal();
   if (sesionGuardada) {
     sesion = { ...sesionGuardada, comite: [], estructuras: [] };
     await cargarDatosCompletos();
     irA('p-dashboard');
   } else {
-    // Sin sesiÃ³n â ir al login
+    // Sin sesiÃƒÂ³n Ã¢Â†Â’ ir al login
     window.location.href = 'login.html';
     return;
   }
