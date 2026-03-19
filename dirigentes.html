@@ -1587,6 +1587,19 @@ async function cargarDatosPadron(cedulas) {
   } catch(e) { console.warn(e); }
 }
 
+async 
+const _pc = {};
+async function _loadPadron(cedulas) {
+  const miss = cedulas.filter(c => !_pc[c]);
+  if (!miss.length || !sb) return;
+  try {
+    const { data } = await sb.from('padron_maestro')
+      .select('cedula,nombre_completo,foto_base64,telefono,telefono2,direccion,recinto_nombre,colegio_num')
+      .in('cedula', miss);
+    if (data) data.forEach(d => { _pc[d.cedula] = d; });
+  } catch(e) {}
+}
+
 async function renderComite() {
   if (!sesion) return;
   const comite = sesion.comite || [];
@@ -1599,79 +1612,69 @@ async function renderComite() {
   const lista = document.getElementById('comite-lista');
   if (!lista) return;
   if (!comite.length) {
-    lista.innerHTML='<div class="texto-center texto-muted" style="padding:30px 0"><div style="font-size:40px;margin-bottom:12px">&#128101;</div><div>Aun no has anadido miembros</div></div>';
+    lista.innerHTML = '<div class="texto-center texto-muted" style="padding:30px 0"><div style="font-size:40px;margin-bottom:8px">&#128101;</div>Aun no has anadido miembros</div>';
     return;
   }
-  lista.innerHTML='<div style="text-align:center;padding:30px;color:#94a3b8">Cargando fichas del padron...</div>';
-  await cargarDatosPadron(comite.map(m=>m.cedula));
-  const miembros = comite.map((m,i) => {
-    const p = _padronCache[m.cedula]||{};
+  lista.innerHTML = '<div style="text-align:center;padding:20px;color:#94a3b8">Cargando fichas...</div>';
+  await _loadPadron(comite.map(m=>m.cedula));
+  const mbs = comite.map((m,i) => {
+    const p = _pc[m.cedula]||{};
     return { num:i+1, cedula:m.cedula,
-      nombre: p.nombre_completo||m.nombre||'Sin nombre',
+      nombre: p.nombre_completo||m.nombre||m.cedula,
       foto:   p.foto_base64||null,
-      telefono:  m.telefono||p.telefono||'',
-      telefono2: p.telefono2||'',
-      direccion: m.direccion||p.direccion||'',
-      recinto:   m.recinto||p.recinto_nombre||'',
-      colegio:   m.colegio||p.colegio_num||'',
-      fidelidad: m.fidelidad||'',
-      genero:    m.genero||'',
-      mesa:      m.mesa||''
-    };
+      tel:    m.telefono||p.telefono||'',
+      tel2:   p.telefono2||'',
+      dir:    m.direccion||p.direccion||'',
+      rec:    (m.recinto||p.recinto_nombre||'').replace(/^\d{5}\s+/,'').substring(0,36),
+      col:    m.colegio||p.colegio_num||'',
+      fid:    m.fidelidad||'',
+      gen:    m.genero||'',
+      mesa:   m.mesa||'' };
   });
-  const conFoto = miembros.filter(m=>m.foto).length;
-  const conCel  = miembros.filter(m=>m.telefono).length;
-  const conRec  = miembros.filter(m=>m.recinto).length;
-
-  let html = '<div class="pracaf-search"><input type="text" id="comite-buscar" placeholder="Buscar por nombre o cedula..." oninput="filtrarComite(this.value)"></div>';
-  html += '<div class="pracaf-stats">';
-  html += '<div class="pracaf-stat"><div class="psnum">'+total+'</div><div class="pslbl">Total</div></div>';
-  html += '<div class="pracaf-stat" style="border-color:#28a745"><div class="psnum" style="color:#28a745">'+conFoto+'</div><div class="pslbl">Con Foto</div></div>';
-  html += '<div class="pracaf-stat" style="border-color:#F5A623"><div class="psnum" style="color:#F5A623">'+conCel+'</div><div class="pslbl">Celular</div></div>';
-  html += '<div class="pracaf-stat" style="border-color:#7c3aed"><div class="psnum" style="color:#7c3aed">'+conRec+'</div><div class="pslbl">Recinto</div></div>';
-  html += '</div>';
-  html += '<div class="pracaf-grid" id="comite-grid">';
-
-  miembros.forEach(m => {
+  const cF=mbs.filter(m=>m.foto).length, cC=mbs.filter(m=>m.tel).length, cR=mbs.filter(m=>m.rec).length;
+  let h = '<div class="pracaf-search"><input type="text" placeholder="Buscar nombre o cedula..." oninput="_fComite(this.value)"></div>';
+  h += '<div class="pracaf-stats">';
+  h += '<div class="pracaf-stat"><div class="psnum">'+total+'</div><div class="pslbl">Total</div></div>';
+  h += '<div class="pracaf-stat" style="border-color:#16a34a"><div class="psnum" style="color:#16a34a">'+cF+'</div><div class="pslbl">Fotos</div></div>';
+  h += '<div class="pracaf-stat" style="border-color:#0ea5e9"><div class="psnum" style="color:#0ea5e9">'+cC+'</div><div class="pslbl">Celular</div></div>';
+  h += '<div class="pracaf-stat" style="border-color:#8b5cf6"><div class="psnum" style="color:#8b5cf6">'+cR+'</div><div class="pslbl">Recinto</div></div>';
+  h += '</div><div class="pracaf-grid" id="_cg">';
+  mbs.forEach(m => {
     const foto = m.foto
-      ? '<img src="data:image/jpeg;base64,'+m.foto+'" alt="foto">'
-      : '<span class="no-photo" style="font-size:36px;color:#94a3b8">&#128100;</span>';
-    const rec = (m.recinto||'').replace(/^\d{5}\s+/,'').substring(0,40);
-    const fidColor = m.fidelidad==='DURO' ? '#166534' : m.fidelidad==='BLANDO' ? '#92400e' : '#991b1b';
-    const fidBg    = m.fidelidad==='DURO' ? '#dcfce7' : m.fidelidad==='BLANDO' ? '#fef3c7' : '#fee2e2';
-    const fid = m.fidelidad
-      ? '<span style="background:'+fidBg+';color:'+fidColor+';padding:1px 7px;border-radius:8px;font-size:9px;font-weight:800">'+m.fidelidad+'</span>'
-      : '';
-
-    html += '<div class="pracaf-card" onclick="editarMiembro(''+m.cedula+'')" data-nombre="'+(m.nombre||'').toLowerCase()+'" data-cedula="'+m.cedula+'">';
-    html += '<div class="pracaf-card-header"><span class="pracaf-ced">'+m.cedula+'</span><span class="pracaf-num">#'+m.num+'</span></div>';
-    html += '<div class="pracaf-body">';
-    html += '<div class="pracaf-photo">'+foto+'</div>';
-    html += '<div class="pracaf-info">';
-    html += '<div class="pracaf-nombre">'+m.nombre+'</div>';
-    if (m.telefono)  html += '<div class="pracaf-dato"><span class="ico">&#128241;</span><span>'+m.telefono+'</span></div>';
-    if (m.telefono2) html += '<div class="pracaf-dato"><span class="ico">&#128222;</span><span>'+m.telefono2+'</span></div>';
-    if (m.direccion) html += '<div class="pracaf-dato"><span class="ico">&#128205;</span><span style="font-size:10px">'+m.direccion.substring(0,36)+(m.direccion.length>36?'...':'')+'</span></div>';
-    if (!m.telefono && !m.direccion) html += '<div class="pracaf-dato" style="color:#cbd5e1">Sin datos de contacto</div>';
-    if (fid) {
-      let extra = fid;
-      if (m.mesa) extra += ' &middot; <span style="font-size:9px;color:#64748b">Mesa '+m.mesa+'</span>';
-      if (m.genero) extra += ' &middot; <span style="font-size:10px">'+(m.genero==='F'?'&#9792;':'&#9794;')+'</span>';
-      html += '<div style="margin-top:5px">'+extra+'</div>';
-    }
-    html += '</div></div>';
-    html += '<div class="pracaf-strip"><span>&#127979; '+(rec||'&mdash;')+'</span><span>Col: '+(m.colegio||'&mdash;')+'</span></div>';
-    html += '</div>';
+      ? '<img src="data:image/jpeg;base64,'+m.foto+'" alt="foto" loading="lazy">'
+      : '<span class="no-photo">&#128100;</span>';
+    const fidC = m.fid==='DURO'?'#166534':m.fid==='BLANDO'?'#92400e':'#991b1b';
+    const fidB = m.fid==='DURO'?'#dcfce7':m.fid==='BLANDO'?'#fef9c3':'#fee2e2';
+    const fid = m.fid ? '<span style="background:'+fidB+';color:'+fidC+';padding:1px 7px;border-radius:6px;font-size:9px;font-weight:800">'+m.fid+'</span>' : '';
+    h += '<div class="pracaf-card" onclick="editarMiembro(''+m.cedula+'')" data-n="'+(m.nombre||'').toLowerCase()+'" data-c="'+m.cedula+'">';
+    h += '<div class="pracaf-card-header"><span class="pracaf-ced">'+m.cedula+'</span><span class="pracaf-num">#'+m.num+'</span></div>';
+    h += '<div class="pracaf-body"><div class="pracaf-photo">'+foto+'</div><div class="pracaf-info">';
+    h += '<div class="pracaf-nombre">'+m.nombre+'</div>';
+    if (m.tel)  h += '<div class="pracaf-dato">&#128241; '+m.tel+'</div>';
+    if (m.tel2) h += '<div class="pracaf-dato">&#128222; '+m.tel2+'</div>';
+    if (m.dir)  h += '<div class="pracaf-dato" style="font-size:10px">&#128205; '+m.dir.substring(0,35)+(m.dir.length>35?'...':'')+'</div>';
+    if (!m.tel && !m.dir) h += '<div class="pracaf-dato" style="color:#cbd5e1;font-style:italic">Sin datos de contacto</div>';
+    if (fid) h += '<div style="margin-top:4px">'+fid+(m.mesa?' &middot; Mesa '+m.mesa:'')+(m.gen?' &middot; '+(m.gen==='F'?'&#9792;':'&#9794;'):'')+'</div>';
+    h += '</div></div>';
+    h += '<div class="pracaf-strip"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">&#127979; '+(m.rec||'&mdash;')+'</span><span style="flex-shrink:0">Col. '+(m.col||'&mdash;')+'</span></div>';
+    h += '</div>';
   });
-
-  html += '</div>';
-  if (total >= minimo) {
-    html += '<div style="text-align:center;padding:14px;background:#f0fdf4;border-radius:12px;margin-top:14px;font-weight:800;color:#166534;font-size:13px">Comite completo &mdash; cumple Art. 89 Estatutos PRM</div>';
-  } else {
-    html += '<div style="text-align:center;padding:10px;color:#94a3b8;font-size:12px;margin-top:10px">Faltan '+(minimo-total)+' miembro'+(minimo-total!==1?'s':'')+' para el minimo</div>';
-  }
-  lista.innerHTML = html;
+  h += '</div>';
+  h += total>=minimo
+    ? '<div style="margin-top:14px;padding:12px;background:#f0fdf4;border-radius:10px;text-align:center;font-weight:800;color:#166534">Comite completo &mdash; Art. 89 Estatutos PRM</div>'
+    : '<div style="margin-top:10px;text-align:center;color:#94a3b8;font-size:12px">Faltan '+(minimo-total)+' miembro'+(minimo-total!==1?'s':'')+' para el minimo</div>';
+  lista.innerHTML = h;
 }
+
+function _fComite(q) {
+  const g = document.getElementById('_cg');
+  if (!g) return;
+  const t = (q||'').toLowerCase().trim();
+  g.querySelectorAll('.pracaf-card').forEach(c => {
+    c.style.display = !t||(c.dataset.n||'').includes(t)||(c.dataset.c||'').includes(t) ? '' : 'none';
+  });
+}
+
 
 function filtrarComite(q) {
   const grid = document.getElementById('comite-grid');
