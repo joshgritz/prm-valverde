@@ -2418,6 +2418,20 @@ async function _loadPC(cedulas) {
   } catch(e) {}
 }
 
+
+const _PC = {};
+async function _loadPC(cedulas) {
+  if (!sb) return;
+  const miss = cedulas.filter(c => !_PC[c]);
+  if (!miss.length) return;
+  try {
+    const { data } = await sb.from('padron_maestro')
+      .select('cedula,nombre_completo,foto_base64,telefono,telefono2,direccion,recinto_nombre,colegio_num')
+      .in('cedula', miss);
+    if (data) data.forEach(d => { _PC[d.cedula] = d; });
+  } catch(e) {}
+}
+
 async function renderComite() {
   if (!sesion) return;
   const comite = sesion.comite || [];
@@ -2518,6 +2532,16 @@ async function renderComite() {
 
   lista.innerHTML = h;
 }
+
+function _filtroPC(q) {
+  var g = document.getElementById('_pcg');
+  if (!g) return;
+  var t = (q || '').toLowerCase().trim();
+  g.querySelectorAll('.pc-card').forEach(function(c) {
+    c.style.display = (!t || (c.dataset.n || '').includes(t) || (c.dataset.c || '').includes(t)) ? '' : 'none';
+  });
+}
+
 
 function _filtroPC(q) {
   var g = document.getElementById('_pcg');
