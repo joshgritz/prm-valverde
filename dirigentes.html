@@ -207,6 +207,31 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 .pracaf-search{display:flex;gap:10px;margin-bottom:14px;align-items:center}
 .pracaf-search input{flex:1;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none}
 .pracaf-search input:focus{border-color:#003087}
+
+/* == PRACAF COMITE == */
+.pracaf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.pracaf-card{background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.09);transition:transform .15s,box-shadow .15s;cursor:pointer;touch-action:manipulation;border:2px solid transparent}
+.pracaf-card:active{transform:scale(.97)}
+.pracaf-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.18);border-color:#003087}
+.pracaf-card-header{background:linear-gradient(135deg,#003087,#1a3a6b);padding:6px 12px;display:flex;justify-content:space-between;align-items:center}
+.pracaf-ced{color:#aec6ff;font-size:11px;font-family:monospace}
+.pracaf-num{color:rgba(255,255,255,.35);font-size:11px;font-weight:700}
+.pracaf-body{display:flex}
+.pracaf-photo{width:100px;height:110px;background:#dde3ec;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pracaf-photo img{width:100px;height:110px;object-fit:cover;display:block}
+.pracaf-photo .no-photo{font-size:42px;color:#a0aec0}
+.pracaf-info{padding:10px 12px;flex:1;min-width:0}
+.pracaf-nombre{font-weight:800;font-size:12px;color:#1a1a1a;line-height:1.3;margin-bottom:6px}
+.pracaf-dato{font-size:11px;color:#555;margin-bottom:3px;display:flex;gap:5px;align-items:flex-start;line-height:1.4}
+.pracaf-dato .ico{flex-shrink:0;width:14px}
+.pracaf-strip{background:linear-gradient(90deg,#C8102E,#8b0d1f);color:white;padding:6px 12px;font-size:10px;font-weight:700;display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px;align-items:center}
+.pracaf-stats{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.pracaf-stat{background:white;border-radius:10px;padding:10px 12px;text-align:center;flex:1;min-width:65px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-top:3px solid #003087}
+.pracaf-stat .psnum{font-size:22px;font-weight:900;color:#003087}
+.pracaf-stat .pslbl{font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-top:2px}
+.pracaf-search{display:flex;gap:10px;margin-bottom:14px;align-items:center}
+.pracaf-search input{flex:1;padding:10px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none}
+.pracaf-search input:focus{border-color:#003087}
 </style>
 <script>
 window.initGoogleMaps = function() {
@@ -1548,6 +1573,20 @@ async function cargarDatosPadron(cedulas) {
   } catch(e) { console.warn(e); }
 }
 
+async 
+const _padronCache = {};
+async function cargarDatosPadron(cedulas) {
+  const faltantes = cedulas.filter(c => !_padronCache[c]);
+  if (!faltantes.length) return;
+  if (!sb) return;
+  try {
+    const { data } = await sb.from('padron_maestro')
+      .select('cedula,nombre_completo,foto_base64,telefono,telefono2,direccion,recinto_nombre,colegio_num')
+      .in('cedula', faltantes);
+    if (data) data.forEach(d => { _padronCache[d.cedula] = d; });
+  } catch(e) { console.warn(e); }
+}
+
 async function renderComite() {
   if (!sesion) return;
   const comite = sesion.comite || [];
@@ -1556,56 +1595,93 @@ async function renderComite() {
   const barraEl = document.getElementById('comite-barra');
   const labelEl = document.getElementById('comite-count-label');
   if (barraEl) { barraEl.style.width=pct+'%'; barraEl.style.background=total>=minimo?'#16a34a':pct>=50?'#f59e0b':'#dc2626'; }
-  if (labelEl) labelEl.textContent = total+' / '+minimo+(total>=minimo?' ✅':'');
+  if (labelEl) labelEl.textContent = total+' / '+minimo+(total>=minimo?' OK':'');
   const lista = document.getElementById('comite-lista');
   if (!lista) return;
   if (!comite.length) {
-    lista.innerHTML='<div class="texto-center texto-muted" style="padding:30px 0"><div style="font-size:48px;margin-bottom:12px">👥</div><div>Aún no has añadido miembros</div></div>';
+    lista.innerHTML='<div class="texto-center texto-muted" style="padding:30px 0"><div style="font-size:40px;margin-bottom:12px">&#128101;</div><div>Aun no has anadido miembros</div></div>';
     return;
   }
-  lista.innerHTML='<div style="text-align:center;padding:30px;color:#94a3b8">⏳ Cargando fichas...</div>';
+  lista.innerHTML='<div style="text-align:center;padding:30px;color:#94a3b8">Cargando fichas del padron...</div>';
   await cargarDatosPadron(comite.map(m=>m.cedula));
   const miembros = comite.map((m,i) => {
     const p = _padronCache[m.cedula]||{};
-    return { num:i+1, cedula:m.cedula, nombre:p.nombre_completo||m.nombre||'Sin nombre',
-      foto:p.foto_base64||null, telefono:m.telefono||p.telefono||'',
-      telefono2:p.telefono2||'', direccion:m.direccion||p.direccion||'',
-      recinto:m.recinto||p.recinto_nombre||'', colegio:m.colegio||p.colegio_num||'',
-      fidelidad:m.fidelidad||'', genero:m.genero||'', mesa:m.mesa||'' };
+    return { num:i+1, cedula:m.cedula,
+      nombre: p.nombre_completo||m.nombre||'Sin nombre',
+      foto:   p.foto_base64||null,
+      telefono:  m.telefono||p.telefono||'',
+      telefono2: p.telefono2||'',
+      direccion: m.direccion||p.direccion||'',
+      recinto:   m.recinto||p.recinto_nombre||'',
+      colegio:   m.colegio||p.colegio_num||'',
+      fidelidad: m.fidelidad||'',
+      genero:    m.genero||'',
+      mesa:      m.mesa||''
+    };
   });
-  const conFoto=miembros.filter(m=>m.foto).length;
-  const conCel=miembros.filter(m=>m.telefono).length;
-  const conRec=miembros.filter(m=>m.recinto).length;
-  let html = '<div class="pracaf-search"><input type="text" id="comite-buscar" placeholder="🔍 Buscar por nombre o cédula..." oninput="filtrarComite(this.value)"></div>';
+  const conFoto = miembros.filter(m=>m.foto).length;
+  const conCel  = miembros.filter(m=>m.telefono).length;
+  const conRec  = miembros.filter(m=>m.recinto).length;
+
+  let html = '<div class="pracaf-search"><input type="text" id="comite-buscar" placeholder="Buscar por nombre o cedula..." oninput="filtrarComite(this.value)"></div>';
   html += '<div class="pracaf-stats">';
   html += '<div class="pracaf-stat"><div class="psnum">'+total+'</div><div class="pslbl">Total</div></div>';
   html += '<div class="pracaf-stat" style="border-color:#28a745"><div class="psnum" style="color:#28a745">'+conFoto+'</div><div class="pslbl">Con Foto</div></div>';
-  html += '<div class="pracaf-stat" style="border-color:#F5A623"><div class="psnum" style="color:#F5A623">'+conCel+'</div><div class="pslbl">Con Cel.</div></div>';
+  html += '<div class="pracaf-stat" style="border-color:#F5A623"><div class="psnum" style="color:#F5A623">'+conCel+'</div><div class="pslbl">Celular</div></div>';
   html += '<div class="pracaf-stat" style="border-color:#7c3aed"><div class="psnum" style="color:#7c3aed">'+conRec+'</div><div class="pslbl">Recinto</div></div>';
-  html += '</div><div class="pracaf-grid" id="comite-grid">';
+  html += '</div>';
+  html += '<div class="pracaf-grid" id="comite-grid">';
+
   miembros.forEach(m => {
-    const foto = m.foto ? '<img src="data:image/jpeg;base64,'+m.foto+'" alt="foto">' : '<span class="no-photo">👤</span>';
-    const rec = (m.recinto||'').replace(/^\d{5}\s+/,'').substring(0,38);
-    const fid = m.fidelidad ? '<span style="background:'+(m.fidelidad==='DURO'?'#dcfce7':m.fidelidad==='BLANDO'?'#fef3c7':'#fee2e2')+';color:'+(m.fidelidad==='DURO'?'#166534':m.fidelidad==='BLANDO'?'#92400e':'#991b1b')+';padding:1px 6px;border-radius:8px;font-size:9px;font-weight:800">'+m.fidelidad+'</span>' : '';
-    html += '<div class="pracaf-card" onclick="editarMiembro(''+m.cedula+'')" data-nombre="'+m.nombre.toLowerCase()+'" data-cedula="'+m.cedula+'">';
+    const foto = m.foto
+      ? '<img src="data:image/jpeg;base64,'+m.foto+'" alt="foto">'
+      : '<span class="no-photo" style="font-size:36px;color:#94a3b8">&#128100;</span>';
+    const rec = (m.recinto||'').replace(/^\d{5}\s+/,'').substring(0,40);
+    const fidColor = m.fidelidad==='DURO' ? '#166534' : m.fidelidad==='BLANDO' ? '#92400e' : '#991b1b';
+    const fidBg    = m.fidelidad==='DURO' ? '#dcfce7' : m.fidelidad==='BLANDO' ? '#fef3c7' : '#fee2e2';
+    const fid = m.fidelidad
+      ? '<span style="background:'+fidBg+';color:'+fidColor+';padding:1px 7px;border-radius:8px;font-size:9px;font-weight:800">'+m.fidelidad+'</span>'
+      : '';
+
+    html += '<div class="pracaf-card" onclick="editarMiembro(''+m.cedula+'')" data-nombre="'+(m.nombre||'').toLowerCase()+'" data-cedula="'+m.cedula+'">';
     html += '<div class="pracaf-card-header"><span class="pracaf-ced">'+m.cedula+'</span><span class="pracaf-num">#'+m.num+'</span></div>';
-    html += '<div class="pracaf-body"><div class="pracaf-photo">'+foto+'</div><div class="pracaf-info">';
+    html += '<div class="pracaf-body">';
+    html += '<div class="pracaf-photo">'+foto+'</div>';
+    html += '<div class="pracaf-info">';
     html += '<div class="pracaf-nombre">'+m.nombre+'</div>';
-    if (m.telefono) html += '<div class="pracaf-dato"><span class="ico">📱</span><span>'+m.telefono+'</span></div>';
-    if (m.telefono2) html += '<div class="pracaf-dato"><span class="ico">📞</span><span>'+m.telefono2+'</span></div>';
-    if (m.direccion) html += '<div class="pracaf-dato"><span class="ico">📍</span><span style="font-size:10px">'+m.direccion.substring(0,34)+(m.direccion.length>34?'…':'')+'</span></div>';
-    if (!m.telefono && !m.direccion) html += '<div class="pracaf-dato" style="color:#cbd5e1"><span>Sin datos de contacto</span></div>';
-    if (fid) html += '<div style="margin-top:5px">'+fid+(m.mesa?' · <span style="font-size:9px;color:#64748b">Mesa '+m.mesa+'</span>':'')+(m.genero?' · <span style="font-size:9px">'+(m.genero==='F'?'♀':'♂')+'</span>':'')+'</div>';
+    if (m.telefono)  html += '<div class="pracaf-dato"><span class="ico">&#128241;</span><span>'+m.telefono+'</span></div>';
+    if (m.telefono2) html += '<div class="pracaf-dato"><span class="ico">&#128222;</span><span>'+m.telefono2+'</span></div>';
+    if (m.direccion) html += '<div class="pracaf-dato"><span class="ico">&#128205;</span><span style="font-size:10px">'+m.direccion.substring(0,36)+(m.direccion.length>36?'...':'')+'</span></div>';
+    if (!m.telefono && !m.direccion) html += '<div class="pracaf-dato" style="color:#cbd5e1">Sin datos de contacto</div>';
+    if (fid) {
+      let extra = fid;
+      if (m.mesa) extra += ' &middot; <span style="font-size:9px;color:#64748b">Mesa '+m.mesa+'</span>';
+      if (m.genero) extra += ' &middot; <span style="font-size:10px">'+(m.genero==='F'?'&#9792;':'&#9794;')+'</span>';
+      html += '<div style="margin-top:5px">'+extra+'</div>';
+    }
     html += '</div></div>';
-    html += '<div class="pracaf-strip"><span>🏫 '+(rec||'—')+'</span><span>📋 Col: '+(m.colegio||'—')+'</span></div>';
+    html += '<div class="pracaf-strip"><span>&#127979; '+(rec||'&mdash;')+'</span><span>Col: '+(m.colegio||'&mdash;')+'</span></div>';
     html += '</div>';
   });
+
   html += '</div>';
-  html += total>=minimo
-    ? '<div style="text-align:center;padding:14px;background:#f0fdf4;border-radius:12px;margin-top:14px;font-weight:800;color:#166534;font-size:13px">✅ Comité completo — cumple Art. 89 Estatutos PRM</div>'
-    : '<div style="text-align:center;padding:10px;color:#94a3b8;font-size:12px;margin-top:10px">Faltan '+(minimo-total)+' miembro'+(minimo-total!==1?'s':'')+' para el mínimo</div>';
+  if (total >= minimo) {
+    html += '<div style="text-align:center;padding:14px;background:#f0fdf4;border-radius:12px;margin-top:14px;font-weight:800;color:#166534;font-size:13px">Comite completo &mdash; cumple Art. 89 Estatutos PRM</div>';
+  } else {
+    html += '<div style="text-align:center;padding:10px;color:#94a3b8;font-size:12px;margin-top:10px">Faltan '+(minimo-total)+' miembro'+(minimo-total!==1?'s':'')+' para el minimo</div>';
+  }
   lista.innerHTML = html;
 }
+
+function filtrarComite(q) {
+  const grid = document.getElementById('comite-grid');
+  if (!grid) return;
+  const term = (q||'').toLowerCase().trim();
+  grid.querySelectorAll('.pracaf-card').forEach(card => {
+    card.style.display = !term||(card.dataset.nombre||'').includes(term)||(card.dataset.cedula||'').includes(term) ? '' : 'none';
+  });
+}
+
 
 function filtrarComite(q) {
   const grid = document.getElementById('comite-grid');
