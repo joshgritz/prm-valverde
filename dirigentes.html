@@ -182,6 +182,32 @@ body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); 
 </style>
 <style>
   #mapa-dirigente { height: 340px; border-radius: 14px; overflow: hidden; z-index: 1; }
+
+/* ═══ PRACAF COMITE ═══ */
+.pc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.pc-card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.09);border:2px solid #e8edf5;cursor:pointer;transition:all .15s;touch-action:manipulation}
+.pc-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.16);border-color:#003087;transform:translateY(-1px)}
+.pc-card:active{transform:scale(.97)}
+.pc-head{background:linear-gradient(135deg,#003087,#1a3a6b);padding:5px 12px;display:flex;justify-content:space-between;align-items:center}
+.pc-ced{color:#aec6ff;font-size:11px;font-family:monospace;letter-spacing:.3px}
+.pc-num{color:rgba(255,255,255,.35);font-size:11px;font-weight:800}
+.pc-body{display:flex;min-height:108px}
+.pc-foto{width:88px;flex-shrink:0;background:#dde3ec;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.pc-foto img{width:88px;min-height:108px;object-fit:cover;display:block}
+.pc-foto .pc-noimg{font-size:36px;color:#94a3b8}
+.pc-info{padding:9px 11px;flex:1;min-width:0}
+.pc-nombre{font-weight:800;font-size:12px;color:#1e3a8a;line-height:1.35;margin-bottom:5px}
+.pc-dato{font-size:11px;color:#475569;margin-bottom:2px;display:flex;gap:4px;align-items:flex-start;word-break:break-word}
+.pc-fid{padding:1px 7px;border-radius:6px;font-size:9px;font-weight:800;display:inline-block}
+.pc-strip{background:linear-gradient(90deg,#C8102E,#9b1221);color:#fff;padding:5px 11px;font-size:10px;font-weight:700;display:flex;justify-content:space-between;gap:6px;align-items:center}
+.pc-strip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pc-stats{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.pc-stat{background:#fff;border-radius:10px;padding:10px 12px;text-align:center;flex:1;min-width:62px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-top:3px solid #003087}
+.pc-stat .psn{font-size:22px;font-weight:900;color:#003087;line-height:1}
+.pc-stat .psl{font-size:9px;color:#94a3b8;font-weight:700;text-transform:uppercase;margin-top:3px}
+.pc-search{margin-bottom:14px}
+.pc-search input{width:100%;padding:11px 14px;border:2px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box}
+.pc-search input:focus{border-color:#003087}
 </style>
 <script>
 window.initGoogleMaps = function() {
@@ -2378,6 +2404,130 @@ window.addEventListener('DOMContentLoaded', async function() {
   window.moverPinCambio       = moverPinCambio;
   window.formatCedula         = formatCedula;
 });
+
+const _PC = {};
+async function _loadPC(cedulas) {
+  if (!sb) return;
+  const miss = cedulas.filter(c => !_PC[c]);
+  if (!miss.length) return;
+  try {
+    const { data } = await sb.from('padron_maestro')
+      .select('cedula,nombre_completo,foto_base64,telefono,telefono2,direccion,recinto_nombre,colegio_num')
+      .in('cedula', miss);
+    if (data) data.forEach(d => { _PC[d.cedula] = d; });
+  } catch(e) {}
+}
+
+async function renderComite() {
+  if (!sesion) return;
+  const comite = sesion.comite || [];
+  const total = comite.length, MIN = 10;
+  const pct = Math.min(100, Math.round(total / MIN * 100));
+
+  const barEl  = document.getElementById('comite-barra');
+  const lblEl  = document.getElementById('comite-count-label');
+  if (barEl) { barEl.style.width = pct + '%'; barEl.style.background = total >= MIN ? '#16a34a' : pct >= 50 ? '#f59e0b' : '#dc2626'; }
+  if (lblEl) lblEl.textContent = total + ' / ' + MIN + (total >= MIN ? ' ✅' : '');
+
+  const lista = document.getElementById('comite-lista');
+  if (!lista) return;
+
+  if (!comite.length) {
+    lista.innerHTML = '<div class="texto-center texto-muted" style="padding:30px 0">&#128101; Aún no has añadido miembros</div>';
+    return;
+  }
+
+  lista.innerHTML = '<div style="text-align:center;padding:18px;color:#94a3b8">Cargando fichas del padrón...</div>';
+  await _loadPC(comite.map(m => m.cedula));
+
+  const mbs = comite.map((m, i) => {
+    const p = _PC[m.cedula] || {};
+    return {
+      num:     i + 1,
+      cedula:  m.cedula,
+      nombre:  p.nombre_completo || m.nombre || m.cedula,
+      foto:    p.foto_base64 || null,
+      tel:     m.telefono  || p.telefono  || '',
+      tel2:    p.telefono2 || '',
+      dir:     m.direccion || p.direccion || '',
+      rec:     (m.recinto  || p.recinto_nombre || '').replace(/^\d{5}\s+/, '').substring(0, 38),
+      col:     m.colegio   || p.colegio_num    || '',
+      fid:     m.fidelidad || '',
+      gen:     m.genero    || '',
+      mesa:    m.mesa      || ''
+    };
+  });
+
+  const cF = mbs.filter(m => m.foto).length;
+  const cC = mbs.filter(m => m.tel).length;
+  const cR = mbs.filter(m => m.rec).length;
+
+  let h = '';
+
+  // Buscador
+  h += '<div class="pc-search"><input type="text" placeholder="Buscar por nombre o cédula..." oninput="_filtroPC(this.value)"></div>';
+
+  // Stats
+  h += '<div class="pc-stats">';
+  h += '<div class="pc-stat"><div class="psn">' + total + '</div><div class="psl">Total</div></div>';
+  h += '<div class="pc-stat" style="border-color:#16a34a"><div class="psn" style="color:#16a34a">' + cF + '</div><div class="psl">Fotos</div></div>';
+  h += '<div class="pc-stat" style="border-color:#0ea5e9"><div class="psn" style="color:#0ea5e9">' + cC + '</div><div class="psl">Celular</div></div>';
+  h += '<div class="pc-stat" style="border-color:#8b5cf6"><div class="psn" style="color:#8b5cf6">' + cR + '</div><div class="psl">Recinto</div></div>';
+  h += '</div>';
+
+  // Grid de tarjetas
+  h += '<div class="pc-grid" id="_pcg">';
+  mbs.forEach(function(m) {
+    var foto = m.foto
+      ? '<img src="data:image/jpeg;base64,' + m.foto + '" alt="foto" loading="lazy">'
+      : '<span class="pc-noimg">&#128100;</span>';
+
+    var fidC = m.fid === 'DURO' ? '#166534' : m.fid === 'BLANDO' ? '#92400e' : '#991b1b';
+    var fidB = m.fid === 'DURO' ? '#dcfce7' : m.fid === 'BLANDO' ? '#fef9c3' : '#fee2e2';
+    var fidTag = m.fid ? '<span class="pc-fid" style="background:' + fidB + ';color:' + fidC + '">' + m.fid + '</span>' : '';
+    var genTag = m.gen ? ' <span style="font-size:11px">' + (m.gen === 'F' ? '&#9792;' : '&#9794;') + '</span>' : '';
+    var mesaTag = m.mesa ? ' &middot; Mesa ' + m.mesa : '';
+
+    h += '<div class="pc-card" onclick="editarMiembro('' + m.cedula + '')" data-n="' + (m.nombre || '').toLowerCase() + '" data-c="' + m.cedula + '">';
+    h += '<div class="pc-head"><span class="pc-ced">' + m.cedula + '</span><span class="pc-num">#' + m.num + '</span></div>';
+    h += '<div class="pc-body">';
+    h += '<div class="pc-foto">' + foto + '</div>';
+    h += '<div class="pc-info">';
+    h += '<div class="pc-nombre">' + m.nombre + '</div>';
+    if (m.tel)  h += '<div class="pc-dato">&#128241; ' + m.tel + '</div>';
+    if (m.tel2) h += '<div class="pc-dato">&#128222; ' + m.tel2 + '</div>';
+    if (m.dir)  h += '<div class="pc-dato" style="font-size:10px">&#128205; ' + m.dir.substring(0, 36) + (m.dir.length > 36 ? '...' : '') + '</div>';
+    if (!m.tel && !m.dir) h += '<div class="pc-dato" style="color:#cbd5e1;font-style:italic">Sin datos de contacto</div>';
+    if (fidTag || m.mesa || m.gen) h += '<div style="margin-top:4px">' + fidTag + genTag + mesaTag + '</div>';
+    h += '</div>';
+    h += '</div>';
+    h += '<div class="pc-strip">';
+    h += '<span>&#127979; ' + (m.rec || '&mdash;') + '</span>';
+    h += '<span style="flex-shrink:0">Col. ' + (m.col || '&mdash;') + '</span>';
+    h += '</div>';
+    h += '</div>';
+  });
+  h += '</div>';
+
+  // Mensaje de progreso
+  if (total >= MIN) {
+    h += '<div style="margin-top:14px;padding:12px;background:#f0fdf4;border-radius:10px;text-align:center;font-weight:800;color:#166534">&#127775; Comité completo &mdash; Art. 89 Estatutos PRM</div>';
+  } else {
+    h += '<div style="margin-top:10px;text-align:center;color:#94a3b8;font-size:12px">Faltan ' + (MIN - total) + ' miembro' + (MIN - total !== 1 ? 's' : '') + ' para el mínimo</div>';
+  }
+
+  lista.innerHTML = h;
+}
+
+function _filtroPC(q) {
+  var g = document.getElementById('_pcg');
+  if (!g) return;
+  var t = (q || '').toLowerCase().trim();
+  g.querySelectorAll('.pc-card').forEach(function(c) {
+    c.style.display = (!t || (c.dataset.n || '').includes(t) || (c.dataset.c || '').includes(t)) ? '' : 'none';
+  });
+}
+
 </script>
 </body>
 </html>
